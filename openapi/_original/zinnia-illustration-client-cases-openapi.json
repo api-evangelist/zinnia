@@ -1,0 +1,1349 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Zinnia Illustration Client Cases Api",
+    "description": "Zinnia Illustration Client Cases Api - OpenAPI 3.0 spec",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://uat.api.zinnia.io",
+      "description": "Main server address for this environment"
+    }
+  ],
+  "paths": {
+    "/client-case-manager/v1/client-case/{caseId}": {
+      "get": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Get a single client case with the specified id",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Client case found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client case does not exist"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Update an existing client case",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientCaseUpdateInputDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientCaseUpdateInputDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientCaseUpdateInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Client case updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client case has already been submitted and can't be modified or invalid client case data in request body"
+          },
+          "404": {
+            "description": "Client case does not exist"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/v1/client-case": {
+      "post": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Create a new client case",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientCaseCreationInputDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientCaseCreationInputDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientCaseCreationInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Client case created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid client case data in request body"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/v1/client-case/search": {
+      "get": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Search for client cases",
+        "description": "Search for client cases using query parameters as filters. Returns all client cases accessible by the logged user that match all filters specified. If no filters are specified returns all client cases accessible by the logged user",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "agentFirstName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "agentLastName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "insuredFirstName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "insuredLastName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eAppId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "caseManagementCaseId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "creatorName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ClientCaseSortField"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirection"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search executed successfully. List of client case summaries is returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseSummaryDtoResultsPage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/v1/client-case/{caseId}/illustrations": {
+      "post": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Add an illustration to an existing client case",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IllustrationCreationInputDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IllustrationCreationInputDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IllustrationCreationInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Illustration added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Illustration already exists in the client case or the client case already has the maximum number of illustrations"
+          },
+          "404": {
+            "description": "Client case does not exist"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/v1/client-case/{caseId}/illustrations/{illustrationId}": {
+      "delete": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Remove an illustration from an existing client case",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "illustrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Illustration removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client case has already been submitted and can't be modified."
+          },
+          "404": {
+            "description": "Client case does not exist or illustration doesn't exist in the client case"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Update an existing illustration from an existing client case",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "illustrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IllustrationCreationInputDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IllustrationCreationInputDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IllustrationCreationInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Illustration removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client case has already been submitted and can't be modified or illustration already exists in the client case."
+          },
+          "404": {
+            "description": "Client case does not exist or illustration doesn't exist in the client case"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/v1/client-case/{caseId}/illustrations/{illustrationId}/archive": {
+      "patch": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Archive an existing illustration",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "illustrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Illustration archived successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client case has already been submitted and can't be modified or illustration isn't active."
+          },
+          "404": {
+            "description": "Client case does not exist or illustration doesn't exist in the client case"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/v1/client-case/{caseId}/illustrations/{illustrationId}/reactivate": {
+      "patch": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Reactivates a previously archived illustration.",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "illustrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Illustration reactivated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client case has already been submitted and can't be modified or illustration isn't archived."
+          },
+          "404": {
+            "description": "Client case does not exist or illustration doesn't exist in the client case"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/v1/client-case/{caseId}/illustrations/{illustrationId}/submit": {
+      "patch": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Selects an illustration from an existing client case.",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "illustrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Illustration selected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client case has already been submitted and can't be modified or illustration isn't active."
+          },
+          "404": {
+            "description": "Client case does not exist or illustration doesn't exist in the client case"
+          }
+        },
+        "deprecated": true,
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/v1/client-case/{caseId}/illustrations/{illustrationId}/select": {
+      "patch": {
+        "tags": [
+          "ClientCase"
+        ],
+        "summary": "Selects an illustration from an existing client case.",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "illustrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Illustration selected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCaseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client case has already been submitted and can't be modified or illustration isn't active."
+          },
+          "404": {
+            "description": "Client case does not exist or illustration doesn't exist in the client case"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/client-case-manager/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentDetails": {
+        "type": "object",
+        "properties": {
+          "sellingCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "npn": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgentDetailsCreationInputDto": {
+        "required": [
+          "sellingCode"
+        ],
+        "type": "object",
+        "properties": {
+          "sellingCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "npn": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgentDetailsUpdateInputDto": {
+        "type": "object",
+        "properties": {
+          "sellingCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "npn": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClientCaseCreationInputDto": {
+        "required": [
+          "agencyId",
+          "agentDetails",
+          "insuredDetails",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "agencyId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "agencyCarrierCode": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "caseManagementCaseId": {
+            "type": "string",
+            "nullable": true
+          },
+          "eAppId": {
+            "type": "string",
+            "nullable": true
+          },
+          "planCode": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "allowAgentEdit": {
+            "type": "boolean"
+          },
+          "agentDetails": {
+            "$ref": "#/components/schemas/AgentDetailsCreationInputDto"
+          },
+          "insuredDetails": {
+            "$ref": "#/components/schemas/InsuredDetailsCreationInputDto"
+          },
+          "transactionType": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
+          "isMec": {
+            "type": "boolean"
+          },
+          "originalFaceAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "creatorName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClientCaseDto": {
+        "type": "object",
+        "properties": {
+          "agencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "agencyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "carrierCode": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "submitted": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "caseManagementCaseId": {
+            "type": "string",
+            "nullable": true
+          },
+          "eAppId": {
+            "type": "string",
+            "nullable": true
+          },
+          "planCode": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "allowAgentEdit": {
+            "type": "boolean"
+          },
+          "agentDetails": {
+            "$ref": "#/components/schemas/AgentDetails"
+          },
+          "insuredDetails": {
+            "$ref": "#/components/schemas/InsuredDetailsDto"
+          },
+          "transactionType": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
+          "isMec": {
+            "type": "boolean"
+          },
+          "originalFaceAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "illustrations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Illustration"
+            },
+            "nullable": true
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "creatorName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClientCaseSortField": {
+        "enum": [
+          "Title",
+          "AgentFirstName",
+          "AgentLastName",
+          "InsuredFirstName",
+          "InsuredLastName",
+          "LastModified"
+        ],
+        "type": "string"
+      },
+      "ClientCaseSummaryDto": {
+        "type": "object",
+        "properties": {
+          "agencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "agencyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "carrierCode": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "agentDetails": {
+            "$ref": "#/components/schemas/AgentDetails"
+          },
+          "insuredDetails": {
+            "$ref": "#/components/schemas/InsuredDetailsDto"
+          },
+          "transactionType": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
+          "isMec": {
+            "type": "boolean"
+          },
+          "productTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductType"
+            },
+            "nullable": true
+          },
+          "illustrationsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "creatorName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClientCaseSummaryDtoResultsPage": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "next": {
+            "type": "string",
+            "nullable": true
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientCaseSummaryDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClientCaseUpdateInputDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "agencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "agencyCarrierCode": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "caseManagementCaseId": {
+            "type": "string",
+            "nullable": true
+          },
+          "eAppId": {
+            "type": "string",
+            "nullable": true
+          },
+          "agentDetails": {
+            "$ref": "#/components/schemas/AgentDetailsUpdateInputDto"
+          },
+          "insuredDetails": {
+            "$ref": "#/components/schemas/InsuredDetailsUpdateInputDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Illustration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productType": {
+            "$ref": "#/components/schemas/ProductType"
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "carrierCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/IllustrationStatus"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputs": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateAdded": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "IllustrationCreationInputDto": {
+        "required": [
+          "id",
+          "productId",
+          "productType"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productType": {
+            "$ref": "#/components/schemas/ProductType"
+          },
+          "productId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "carrierCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputs": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IllustrationStatus": {
+        "enum": [
+          "SUBMITTED",
+          "ARCHIVED",
+          "EXPIRED",
+          "ACTIVE",
+          "SELECTED"
+        ],
+        "type": "string"
+      },
+      "InsuredDetailsCreationInputDto": {
+        "required": [
+          "dateOfBirth",
+          "nicotineUser",
+          "sexAtBirth",
+          "state"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sexAtBirth": {
+            "$ref": "#/components/schemas/SexAtBirth"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nicotineUser": {
+            "type": "boolean"
+          },
+          "state": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "illustrateAtOlderAge": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "issueAge": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "riskClass": {
+            "$ref": "#/components/schemas/UnderwritingClass"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InsuredDetailsDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sexAtBirth": {
+            "$ref": "#/components/schemas/SexAtBirth"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nicotineUser": {
+            "type": "boolean"
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "illustrateAtOlderAge": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "issueAge": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "underwritingClass": {
+            "$ref": "#/components/schemas/UnderwritingClass"
+          },
+          "underwritingClassCode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InsuredDetailsUpdateInputDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sexAtBirth": {
+            "$ref": "#/components/schemas/SexAtBirth"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "nicotineUser": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "illustrateAtOlderAge": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "issueAge": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "riskClass": {
+            "$ref": "#/components/schemas/UnderwritingClass"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductType": {
+        "enum": [
+          "TERM",
+          "UNIVERSAL_LIFE",
+          "INDEX_UNIVERSAL_LIFE"
+        ],
+        "type": "string"
+      },
+      "SexAtBirth": {
+        "enum": [
+          "MALE",
+          "FEMALE"
+        ],
+        "type": "string"
+      },
+      "SortDirection": {
+        "enum": [
+          "Ascending",
+          "Descending"
+        ],
+        "type": "string"
+      },
+      "TransactionType": {
+        "enum": [
+          "REPLACEMENT",
+          "NONREPLACEMENT",
+          "CONVERSION"
+        ],
+        "type": "string"
+      },
+      "UnderwritingClass": {
+        "enum": [
+          "ULTRANONTOBACCO",
+          "ELITENONTOBACCO",
+          "PREFERREDNONTOBACCO",
+          "STANDARDNONTOBACCO",
+          "STANDARDTOBACCO",
+          "STANDARDAGGREGATE",
+          "SUBSTANDARDNONTOBACCO",
+          "SUBSTANDARDTOBACCO",
+          "STANDARDPLUSNONTOBACCO",
+          "PREFERREDTOBACCO",
+          "STANDARDCONVERSIONNONTOBACCO",
+          "STANDARDCONVERSIONTOBACCO",
+          "STANDARDPLUSBLEND",
+          "STANDARDPLUSTOBACCO",
+          "STANDARDBLEND",
+          "SUBSTANDARDBLEND",
+          "PREFERREDSELECTNONTOBACCO",
+          "PREFERREDSELECTBLEND",
+          "PREFERREDSELECTTOBACCO",
+          "PREFERREDBLEND"
+        ],
+        "type": "string"
+      }
+    },
+    "securitySchemes": {
+      "Auth0": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://login.uat.zinnia.com/",
+        "x-kong-security-openid-connect": {
+          "config": {
+            "run_on_preflight": true,
+            "audience_claim": [
+              "aud"
+            ],
+            "audience_required": [
+              "https://uat.api.zinnia.io"
+            ],
+            "auth_methods": [
+              "bearer"
+            ],
+            "scopes": []
+          },
+          "enabled": true,
+          "protocols": [
+            "http",
+            "https"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+generated: '2026-09-13'
+method: searched
+source: npm registry search, pypi.org/pypi/<name>/json, NuGet azuresearch query, search.maven.org solrsearch, rubygems.org search, plus the Zinnia developer portal at https://developers.zinnia.com/
+package_count: 0
+packages: []
+note: No first-party Zinnia client library was found in any public registry. npm search for "zinnia" returns only unrelated projects (Rose Rocket design system, ExtendReality Unity packages, a Django blog
+  engine); pypi.org/pypi/zinnia/json, /zinnia-api/json and /zinnia-sdk/json all return 404; NuGet, Maven Central and RubyGems return no Zinnia insurance packages. The developer portal publishes OpenAPI
+  contracts only - there is no SDK or download section. Consumers generate their own clients from the ten published specs.

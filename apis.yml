@@ -1,20 +1,340 @@
 aid: zinnia
 name: Zinnia
-description: 'Zinnia is a company surfaced via the API Evangelist harvest backlog (source: absent-parent)
-  and added to the network as a stub for full-pipeline profiling.'
+description: Zinnia is an Eldridge-backed insurance technology and third-party administration company that provides the policy
+  administration, new business, order entry, illustration, document and in-force servicing infrastructure behind a large share
+  of the US life insurance and annuity market. Formerly SE2, and now the parent of Policygenius, Ebix's life and annuity software
+  assets, AnnuityNet, VitalQuote, WinFlex, SmartOffice and Zahara, Zinnia runs an enterprise API gateway at api.zinnia.io
+  and publishes ten OpenAPI contracts on a Kong developer portal at developers.zinnia.com covering case management, enterprise
+  documents, illustration generation, product configuration, new business for life and annuity, Market Connect headless order
+  entry, policy detail, and 102 policy transaction operations. Zinnia contributed its Enterprise API framework to the Insured
+  Retirement Institute, whose first four standardized in-force annuity transaction APIs are built on it.
+image: https://zinnia.com/assets/brand/zinnia-logo-horizontal-full-color.svg
 url: https://raw.githubusercontent.com/api-evangelist/zinnia/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:absent-parent
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-09-13'
 modified: '2026-09-13'
 tags:
-- Company
-apis: []
+- Insurance
+- Life Insurance
+- Annuities
+- Policy Administration
+- Insurtech
+- Financial Services
+- Third Party Administration
+- New Business
+- Order Entry
+- Document Management
+- Underwriting
+- Enterprise
+tags_raw:
+- insurance
+- life-insurance
+- annuities
+- policy-administration
+- insurtech
+- financial-services
+- third-party-administration
+- new-business
+- order-entry
+- document-management
+- underwriting
+- enterprise
+apis:
+- name: Zinnia Policy Transactions API
+  description: Enterprise API for enforcing policy transactions and validations across the in-force annuity and life book
+    - financial and non-financial transaction management, policy party management, systematic program management and eligibility/validation
+    pre-checks. 102 operations across eligibility check, validation and submit triples for withdrawals, surrenders, loans,
+    fund transfers, premiums, RMDs, reinstatement, free-look cancellation, party and address/bank/phone/email changes.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Insurance
+  - Annuities
+  - Policy Administration
+  - Financial Services
+  tags_raw:
+  - insurance
+  - annuities
+  - policy-administration
+  - financial-services
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-policy-transactions-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Overlay
+    url: overlays/zinnia-policy-transactions-overlay.yaml
+- name: Zinnia Policy Service API
+  description: Central policy record service for the life and annuity policy lifecycle - policy detail retrieval by plan code
+    and policy number, policy version history with filtering and pagination, one-time premium quoting, fund and party data,
+    and DTCC/ACORD-aligned reference identifiers.
+  humanURL: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  baseURL: https://api.zinnia.io
+  tags:
+  - Insurance
+  - Policy Administration
+  - Annuities
+  tags_raw:
+  - insurance
+  - policy-administration
+  - annuities
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-policy-service-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Overlay
+    url: overlays/zinnia-policy-service-overlay.yaml
+- name: Zinnia Market Connect Order Entry API
+  description: Headless order entry API that lets external distribution platforms, banks, broker-dealers and IMOs electronically
+    initiate, save-and-resume, validate and submit life insurance and annuity applications, with ACORD-aligned prefill from
+    existing quotes and suitability assessments, dataset-driven form rendering and real-time application status tracking.
+  humanURL: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  baseURL: https://uat.api.zinnia.io
+  tags:
+  - Insurance
+  - Order Entry
+  - New Business
+  - Annuities
+  tags_raw:
+  - insurance
+  - order-entry
+  - new-business
+  - annuities
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-market-connect-order-entry-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Overlay
+    url: overlays/zinnia-market-connect-order-entry-overlay.yaml
+- name: Zinnia Illustration Generation API
+  description: Illustration generation service for life and annuity products - synchronous and asynchronous illustration requests,
+    in-force, new-business and administration calculation modes, raw numeric projections and formatted PDF output, with request
+    tracking and calculation metrics.
+  humanURL: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  baseURL: https://dev.api.zinnia.io
+  tags:
+  - Insurance
+  - Life Insurance
+  - Annuities
+  - Quoting
+  tags_raw:
+  - insurance
+  - life-insurance
+  - annuities
+  - quoting
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-illustration-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Overlay
+    url: overlays/zinnia-illustration-overlay.yaml
+- name: Zinnia Enterprise Documents API
+  description: The Enterprise Document Service (EDS) is the system of record for documents across Zinnia's life insurance
+    and annuity platforms. Documents are stored once and can be retrieved, updated or searched throughout their retention
+    period, alongside a tax-forms surface for 1099 and related output.
+  humanURL: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  baseURL: https://api.zinnia.io
+  tags:
+  - Insurance
+  - Document Management
+  - Policy Administration
+  tags_raw:
+  - insurance
+  - document-management
+  - policy-administration
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-documents-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Overlay
+    url: overlays/zinnia-documents-overlay.yaml
+- name: Zinnia New Business API
+  description: Life new business API covering application intake, requirement and case orchestration, party and agent validation,
+    and DTCC-referenced downstream handoff for the Zinnia life new business platform.
+  humanURL: https://developers.zinnia.com/apis/new-business/docs
+  baseURL: https://api.zinnia.io
+  tags:
+  - Insurance
+  - Life Insurance
+  - New Business
+  - Underwriting
+  tags_raw:
+  - insurance
+  - life-insurance
+  - new-business
+  - underwriting
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-new-business-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Overlay
+    url: overlays/zinnia-new-business-overlay.yaml
+- name: Zinnia New Business Annuity API
+  description: Annuity new business API for application submission, case status, requirements and DTCC participant resolution
+    on the Zinnia annuity origination platform.
+  humanURL: https://developers.zinnia.com/apis/new-business-annuity/docs
+  baseURL: https://api.zinnia.io
+  tags:
+  - Insurance
+  - Annuities
+  - New Business
+  tags_raw:
+  - insurance
+  - annuities
+  - new-business
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-new-business-annuity-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Overlay
+    url: overlays/zinnia-new-business-annuity-overlay.yaml
+- name: Zinnia Product Service API
+  description: Product configuration and reference data service - product definitions, features, eligibility rules and related
+    metadata for insurance and financial offerings, so partners can configure, present and integrate products across new business
+    and servicing workflows.
+  humanURL: https://developers.zinnia.com/apis/product-service/docs
+  baseURL: https://uat.api.zinnia.io
+  tags:
+  - Insurance
+  - Product Configuration
+  - Annuities
+  tags_raw:
+  - insurance
+  - product-configuration
+  - annuities
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-product-service-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Overlay
+    url: overlays/zinnia-product-service-overlay.yaml
+- name: Zinnia Case Management API
+  description: Case orchestration API for creating and retrieving case instances that group the documents, requirements and
+    transactions belonging to a single piece of work across the Zinnia platform.
+  humanURL: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  baseURL: https://api.zinnia.io
+  tags:
+  - Insurance
+  - Policy Administration
+  - Workflow
+  tags_raw:
+  - insurance
+  - policy-administration
+  - workflow
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-case-management-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Overlay
+    url: overlays/zinnia-case-management-overlay.yaml
+- name: Zinnia Illustration Client Cases API
+  description: Client case manager for the illustration workflow - create, search, retrieve and update the client-level cases
+    that illustration requests are generated against.
+  humanURL: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  baseURL: https://uat.api.zinnia.io
+  tags:
+  - Insurance
+  - Quoting
+  - Life Insurance
+  tags_raw:
+  - insurance
+  - quoting
+  - life-insurance
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-illustration-client-cases-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: Overlay
+    url: overlays/zinnia-illustration-client-cases-overlay.yaml
+common:
+- type: DomainSecurity
+  url: security/zinnia-domain-security.yml
+- type: Authentication
+  url: authentication/zinnia-authentication.yml
+- type: Website
+  url: https://zinnia.com/
+- type: DeveloperPortal
+  url: https://developers.zinnia.com/
+- type: Documentation
+  url: https://developers.zinnia.com/
+- type: APIReference
+  url: https://developers.zinnia.com/
+- type: Blog
+  url: https://zinnia.com/insights
+- type: Support
+  url: https://zinnia.com/contact
+- type: TermsOfService
+  url: https://zinnia.com/terms-of-use
+- type: PrivacyPolicy
+  url: https://zinnia.com/privacy-policy
+- type: OpenIDConnect
+  url: https://login.zinnia.com/.well-known/openid-configuration
+- type: OAuthScopes
+  url: scopes/zinnia-scopes.yml
+- type: Conventions
+  url: conventions/zinnia-conventions.yml
+- type: ErrorCatalog
+  url: errors/zinnia-problem-types.yml
+- type: DataModel
+  url: data-model/zinnia-data-model.yml
+- type: Lifecycle
+  url: lifecycle/zinnia-lifecycle.yml
+- type: ChangeLog
+  url: changelog/zinnia-changelog.yml
+- type: Conformance
+  url: conformance/zinnia-conformance.yml
+- type: WellKnown
+  url: well-known/zinnia-well-known.yml
+- type: LLMsTxt
+  url: llms/zinnia-llms.txt
+- type: LLMsTxt
+  url: https://developers.zinnia.com/llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Plans
+  url: plans/zinnia-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/zinnia-rate-limits.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+x-enrichment:
+  date: '2026-09-13'
+  status: enriched
+  artifacts_added: 55
+  pass: local-v3

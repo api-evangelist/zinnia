@@ -1,0 +1,336 @@
+generated: '2026-09-13'
+method: probed
+source: live GET of the named /.well-known path list on every host in apis.yml, every OpenAPI servers[] host, the docs host, and the Auth0 authorization server named in the specs securitySchemes
+hit_count: 3
+notes:
+- developers.zinnia.com is a Kong Konnect developer portal that answers HTTP 200 with the same 2,226-byte HTML shell for every unknown path, including the negative control /.well-known/zinnia-negative-control-7f3ab91c.json.
+  Only the application/json body at /.well-known/oauth-authorization-server is a real document on that host; every HTML 200 is recorded as a miss.
+- login.zinnia.com is the Auth0 tenant named by openIdConnectUrl in nine of the ten published OpenAPI securitySchemes, so it is in the host set even though it is not an apis.yml baseURL.
+- No security.txt is served on any Zinnia host. No agent card, api-catalog, ai-plugin, ucp, acp, aauth-resource or apis.json document was found on any host.
+hosts:
+- host: https://zinnia.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  soft_404_control:
+    path: /.well-known/zinnia-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 5878
+    result: passed
+    note: Host correctly 404s an impossible path.
+  path_echo_control: passed
+- host: https://www.zinnia.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 301
+  - path: /.well-known/openid-configuration
+    status: 301
+  - path: /.well-known/oauth-authorization-server
+    status: 301
+  - path: /.well-known/oauth-protected-resource
+    status: 301
+  - path: /.well-known/api-catalog
+    status: 301
+  - path: /.well-known/api-catalog.json
+    status: 301
+  - path: /.well-known/ai-plugin.json
+    status: 301
+  - path: /.well-known/ucp.json
+    status: 301
+  - path: /.well-known/acp.json
+    status: 301
+  - path: /.well-known/aauth-resource.json
+    status: 301
+  - path: /.well-known/apis.json
+    status: 301
+  - path: /apis.json
+    status: 301
+  - path: /apis.yml
+    status: 301
+  - path: /.well-known/agent-card.json
+    status: 301
+  - path: /.well-known/agent.json
+    status: 301
+  soft_404_control:
+    path: /.well-known/zinnia-negative-control-7f3ab91c.json
+    status: 301
+    bytes: 0
+    result: passed
+    note: Host correctly 404s an impossible path.
+  path_echo_control: passed
+- host: https://developers.zinnia.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/openid-configuration
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: zinnia-portal-oauth-authorization-server.json
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/api-catalog.json
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/ucp.json
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/acp.json
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/aauth-resource.json
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/apis.json
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  - path: /.well-known/agent.json
+    status: 200
+    note: HTTP 200 returned the portal SPA shell (HTML), not a document - counted as a miss
+  soft_404_control:
+    path: /.well-known/zinnia-negative-control-7f3ab91c.json
+    status: 200
+    bytes: 2226
+    result: failed
+    note: Host answers HTTP 200 with an identical HTML shell for a path that cannot exist; every HTML 200 on this host is therefore a catch-all, not a document.
+  path_echo_control: failed
+- host: https://api.zinnia.io
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  soft_404_control:
+    path: /.well-known/zinnia-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 103
+    result: passed
+    note: Host correctly 404s an impossible path.
+  path_echo_control: passed
+- host: https://dev.api.zinnia.io
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  soft_404_control:
+    path: /.well-known/zinnia-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 103
+    result: passed
+    note: Host correctly 404s an impossible path.
+  path_echo_control: passed
+- host: https://qa.api.zinnia.io
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  soft_404_control:
+    path: /.well-known/zinnia-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 103
+    result: passed
+    note: Host correctly 404s an impossible path.
+  path_echo_control: passed
+- host: https://uat.api.zinnia.io
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  soft_404_control:
+    path: /.well-known/zinnia-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 103
+    result: passed
+    note: Host correctly 404s an impossible path.
+  path_echo_control: passed
+- host: https://login.zinnia.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: zinnia-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: zinnia-oauth-authorization-server.json
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  soft_404_control:
+    path: /.well-known/zinnia-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 10
+    result: passed
+    note: Host correctly 404s an impossible path.
+  path_echo_control: passed

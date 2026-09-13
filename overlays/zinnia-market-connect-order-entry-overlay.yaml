@@ -1,0 +1,33 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Market Connect Order Entry API
+  version: 1.0.0
+extends: openapi/zinnia-market-connect-order-entry-openapi.yml
+x-generated: '2026-09-13'
+x-method: generated
+x-source: Derived from the verbatim contract published at https://developers.zinnia.com/apis/market-connect-order-entry/docs; this overlay adds only API Evangelist metadata and never mutates the original.
+actions:
+- target: $.info
+  description: Record the API Evangelist provenance of this profile and link the operating documentation page the contract was published on.
+  update:
+    x-apievangelist-profile: https://apis.io/provider/zinnia
+    x-source-document: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+    x-harvested: '2026-09-13'
+    externalDocs:
+      description: Zinnia Developer Portal
+      url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+- target: $.servers
+  description: The published contract names only non-production hosts. Note the production gateway without asserting that this contract is deployed there - api.zinnia.io is the production host named by
+    the other Zinnia contracts and required as the Auth0 audience, but Zinnia has not published this service against it.
+  update:
+    x-production-host-note: https://api.zinnia.io is the Zinnia production API gateway (declared by the Policy Service, Enterprise Documents, Case Management, New Business and New Business Annuity contracts
+      and required as the Auth0 audience claim). This contract publishes non-production servers only; confirm the production path with Zinnia before use.
+- target: $.info
+  description: Record the cross-cutting semantics derived for this provider so a consumer of the enhanced contract can find them.
+  update:
+    x-conventions: conventions/zinnia-conventions.yml
+    x-errors: errors/zinnia-problem-types.yml
+    x-authentication: authentication/zinnia-authentication.yml
+    x-rate-limits: rate-limits/zinnia-rate-limits.yml
+    x-idempotency-coverage: none
+    x-reversibility-grade: documented

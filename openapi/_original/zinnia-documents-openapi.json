@@ -1,0 +1,4003 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Enterprise Documents API",
+    "description": "The Enterprise Document Service (EDS) API is the system of record for documents\nacross the Zinnia life insurance and annuity platform. Store a document once, then\nretrieve, update, and search it for the full duration of its retention period. The API\ncovers carrier-issued correspondence and annual tax forms.\n\n## Overview\n\nA document in EDS has two parts:\n\n- **Content** \u2014 the file itself.\n- **Metadata** \u2014 structured business information describing what the file is and what it relates to.\n\nEach document is identified by a `documentId`, assigned at upload. Treat it as an\nopaque handle: store it and pass it back on every subsequent call for that document.\n\nTax forms are managed separately from the general document collection. They are never\nreturned by Search Documents and are accessible only through the two Tax Form operations.\n\n## Operations\n\n<table border=\"1\" style=\"border-collapse: collapse; width: 100%;\">\n  <thead>\n    <tr>\n      <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left;\">Operation</th>\n      <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left;\">Method and path</th>\n      <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left;\">Purpose</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Upload Document</td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\"><code>POST /document/v3/documents</code></td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Store a new file with its business metadata and receive a <code>documentId</code>.</td>\n    </tr>\n    <tr>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Get Document Metadata</td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\"><code>GET /document/v3/documents/{documentId}</code></td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Retrieve full metadata for a document, optionally including version history.</td>\n    </tr>\n    <tr>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Update Document</td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\"><code>PUT /document/v3/documents/{documentId}</code></td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Update metadata, optionally replace the file content, and create a new version.</td>\n    </tr>\n    <tr>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Download Document</td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\"><code>GET /document/v3/documents/{documentId}/download</code></td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Retrieve document content, returned Base64-encoded in a JSON envelope.</td>\n    </tr>\n    <tr>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Search Documents</td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\"><code>POST /document/v3/documents/search</code></td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Find documents by carrier, policy, case, agent, type, status, date range, and identifier tags.</td>\n    </tr>\n    <tr>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Get Tax Forms</td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\"><code>GET /document/v3/tax-forms</code></td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">List tax forms available for a contract.</td>\n    </tr>\n    <tr>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Download Tax Form</td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\"><code>GET /document/v3/tax-forms/{formId}/download</code></td>\n      <td style=\"border: 1px solid #ddd; padding: 8px;\">Retrieve a tax form as a Base64-encoded PDF.</td>\n    </tr>\n  </tbody>\n</table>\n\n<h2>Authentication and authorization</h2>\n\nEvery endpoint requires a JWT bearer token in the `Authorization` header:\n`Authorization: Bearer {token}`.\n\nThe `Bearer` prefix is case-sensitive and must include the trailing space exactly as shown.\n\nTokens are machine-to-machine (M2M) access tokens issued by the Zinnia identity provider.\nContact your Zinnia representative to obtain credentials.\n\n**Note:** M2M access tokens are valid for 24 hours from issuance and may be reused for\nany number of requests within that window.\n\n## Version history\n\n- **`3.0.0` (Latest)**\n  - Initial published v3 release. All paths use the `/document/v3/...` prefix. Includes the seven Document and Tax Form operations, complete request/response schemas, parameter definitions, error responses, and worked examples.",
+    "version": "3.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://dev.api.zinnia.io",
+      "description": "Dev Environment"
+    },
+    {
+      "url": "https://qa.api.zinnia.io",
+      "description": "QA Environment"
+    },
+    {
+      "url": "https://uat.api.zinnia.io",
+      "description": "UAT Environment"
+    },
+    {
+      "url": "https://api.zinnia.io",
+      "description": "PROD Environment"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Documents V3",
+      "description": ""
+    },
+    {
+      "name": "TaxForms V3",
+      "description": ""
+    },
+    {
+      "name": "Documents V2",
+      "description": ""
+    },
+    {
+      "name": "TaxForms V2",
+      "description": ""
+    }
+  ],
+  "paths": {
+    "/document/v2/documents": {
+      "get": {
+        "operationId": "getDocuments",
+        "summary": "",
+        "description": "this is an endpoint to get a list of document metadata",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "This will be passed as Bearer plus \"token\" as generated by above token API.",
+            "example": "Bearer eykjsfjfjasdasdad"
+          },
+          {
+            "name": "source",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Source of the document",
+            "example": "correspondence"
+          },
+          {
+            "name": "clientCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Carrier code of the document",
+            "example": "EVGL"
+          },
+          {
+            "name": "contractNumber",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "This will be conditional mandatory. Either of contract number or date range is required in order to retrieve the documents.",
+            "example": "A000000071"
+          },
+          {
+            "name": "documentDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "description": "Date on which document has been added in Zinnia system",
+            "example": "2025-01-01T10:20:00"
+          },
+          {
+            "name": "documentStartDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "description": "This will be conditional mandatory. Either of contract number or date range is required in order to retrieve the documents. Date to define the document list based on document date range. Document Start Date",
+            "example": "2025-01-01T10:20:00"
+          },
+          {
+            "name": "documentEndDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "description": "This will be conditional mandatory. Either of contract number or date range is required in order to retrieve the documents. Date to define the document list based on document date range. Document End Date",
+            "example": "2025-03-01T10:20:20"
+          },
+          {
+            "name": "documentType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Type of the document",
+            "example": "NB Application"
+          },
+          {
+            "name": "importStartDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "description": "This will be conditional mandatory. Either of contract number or date range is required in order to retrieve the documents. Date to define the document list based on import date range",
+            "example": "2023-01-01T15:41:16"
+          },
+          {
+            "name": "importEndDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "description": "This will be conditional mandatory. If document start date is provided, then it should be madatorily provided. Date to define the document list based on import date range",
+            "example": "2023-03-01T15:41:16"
+          },
+          {
+            "name": "masterNumber",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique number assigned to the agent",
+            "example": "MA00186973"
+          },
+          {
+            "name": "docStatus",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Status of the document. Can be provided in comma separated value. Default will be 'active'",
+            "example": "Active,Removed,Archived"
+          },
+          {
+            "name": "caseId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique number assigned to case",
+            "example": "0987654321"
+          },
+          {
+            "name": "documentNumber",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Document number",
+            "example": "1234567890"
+          },
+          {
+            "name": "recipient",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Recipient"
+            },
+            "description": "Recipient of the document",
+            "example": "Agent"
+          },
+          {
+            "name": "zinniaLiveCaseId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique case ID in the Zinnia system associated with the document",
+            "example": "ZLC09876"
+          },
+          {
+            "name": "periods",
+            "required": false,
+            "in": "query",
+            "description": "Periods of the document",
+            "example": [
+              {
+                "PeriodYear": "2020",
+                "PeriodQuarters": [
+                  "Q1",
+                  "Q2",
+                  "Q3",
+                  "Q4"
+                ]
+              }
+            ],
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "PeriodYear": {
+                    "type": "string"
+                  },
+                  "PeriodQuarters": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse200"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse400"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse401"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse404"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Documents V2"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/document/v2/documents/{documentId}": {
+      "get": {
+        "operationId": "getDocument",
+        "summary": "",
+        "description": "this is an endpoint to get a specific documents metadata",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "This will be passed as Bearer plus \"token\" as generated by above token API.",
+            "example": "Bearer eykjsfjfjasdasdad"
+          },
+          {
+            "name": "documentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique number assigned to the document",
+            "example": "1234567890"
+          },
+          {
+            "name": "docType",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Type of the document",
+            "example": "NB Application"
+          },
+          {
+            "name": "source",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Source of the document",
+            "example": "correspondence"
+          },
+          {
+            "name": "clientCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Carrier code of the document",
+            "example": "EVGL"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse400"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse401"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse404"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Documents V2"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/document/v2/documents/{documentId}/download": {
+      "get": {
+        "operationId": "downloadDocument-v2",
+        "summary": "",
+        "description": "this is an endpoint to download a document",
+        "parameters": [
+          {
+            "name": "documentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique number assigned to the document",
+            "example": "1234567890"
+          },
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "This will be passed as Bearer plus \"token\" as generated by above token API.",
+            "example": "Bearer eykjsfjfjasdasdad"
+          },
+          {
+            "name": "source",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Source of the document",
+            "example": "correspondence"
+          },
+          {
+            "name": "clientCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Carrier code of the document",
+            "example": "EVGL"
+          },
+          {
+            "name": "policyNumber",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Policy number associated with the document, used for identification",
+            "example": "1234567890"
+          },
+          {
+            "name": "planCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Plan code associated with the document, used for identification",
+            "example": "1234567890"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadDocumentResponse"
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadDocumentResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse4001"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse401"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse404"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Documents V2"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/document/v2/taxForms": {
+      "get": {
+        "operationId": "getTaxForms-v2",
+        "summary": "",
+        "description": "This is an endpoint to get a list of tax-forms from SOVOS",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "example": "Bearer <token>",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "clientCode",
+            "in": "query",
+            "example": "EVGL",
+            "description": "Client code for the carrier/client",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contractNumber",
+            "required": true,
+            "in": "query",
+            "description": "Contract number for the document/tax-form",
+            "example": "1234567898",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taxYear",
+            "required": false,
+            "in": "query",
+            "description": "Tax-year for the form (defaults to current year-1)",
+            "example": "2023",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "numYears",
+            "required": false,
+            "in": "query",
+            "example": 1,
+            "description": "Number of years of forms to query in reverse chronological order from taxyear (incl). Min=1 and Max=5",
+            "schema": {
+              "minimum": 1,
+              "maximum": 5,
+              "default": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxFormsResponse200"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse400"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse401"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse404"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TaxForms V2"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/document/v2/taxForms/{formId}": {
+      "get": {
+        "operationId": "downloadTaxForm-v2",
+        "summary": "",
+        "description": "This is an endpoint to download a tax-form from SOVOS",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "example": "Bearer <token>",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "formId",
+            "required": true,
+            "in": "path",
+            "example": "123456",
+            "description": "Form id for the tax-form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "clientCode",
+            "in": "query",
+            "example": "EVGL",
+            "description": "Client code for the carrier/client",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contractNumber",
+            "required": true,
+            "in": "query",
+            "example": "1234567898",
+            "description": "Contract number for the document/tax-form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fChar",
+            "required": true,
+            "in": "query",
+            "example": "R",
+            "description": "Unique string character associated with the tax-form name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taxYear",
+            "required": false,
+            "in": "query",
+            "example": "2023",
+            "description": "Tax-year for the form (defaults to current year-1)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadDocumentResponse"
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadDocumentResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse400"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse401"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse404"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TaxForms V2"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/document/v3/documents": {
+      "post": {
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Documents V3"
+        ],
+        "summary": "Uploads a document and saves its metadata",
+        "description": "Accepts a file with metadata and returns a document Id",
+        "operationId": "UploadDocuments",
+        "parameters": [
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "metadata",
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "metadata": {
+                    "$ref": "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "document stored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentUploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "document storage failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentUploadBadRequest"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentUploadForbidden"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/document/v3/documents/{documentId}": {
+      "get": {
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Documents V3"
+        ],
+        "summary": "Gets metadata for a document",
+        "description": "Fetches metadata details, including version history if requested",
+        "operationId": "getMetadataByDocumentId",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "example": "Bearer <token>",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique ID in EDS db",
+            "example": "670e23dfab593b4387210b81"
+          },
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique ID for correlating requests",
+            "example": "1760f822-dcbf-49fc-a623-a1998383f4b9"
+          },
+          {
+            "name": "isAllVersionsNeeded",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Indicates if all versions are required in the response",
+            "example": true
+          },
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": false,
+            "description": "Type of document indicating its purpose",
+            "example": "NB Application",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentClassification",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Classification of the document, e.g., OUTBOUND OR INBOUND",
+              "example": "OUTBOUND",
+              "enum": [
+                "OUTBOUND",
+                "INBOUND"
+              ]
+            }
+          },
+          {
+            "name": "parentCarrierCode",
+            "in": "query",
+            "required": false,
+            "description": "Client code associated with the document",
+            "example": "EVGL",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "document metadata retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetadataByIdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "docType should not be empty"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied for document metadata fetch"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 403
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Document not found"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Error occurred while fetching metadata"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Documents V3"
+        ],
+        "summary": "updates document content or metadata",
+        "description": "modifies metadata and optionally replaces the file",
+        "operationId": "updateDocuments",
+        "parameters": [
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "metadata"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "metadata": {
+                    "$ref": "#/components/schemas/MetadataUpdate"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Document updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "correlationId": {
+                      "type": "string",
+                      "description": "Unique ID for correlating requests",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Document updated successfully"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "format": "int32",
+                      "example": 204
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Document update failed due to bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid metadata provided"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "format": "int32",
+                      "example": 400
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied to update document"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "format": "int32",
+                      "example": 403
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/document/v3/documents/{documentId}/download": {
+      "get": {
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Documents V3"
+        ],
+        "summary": "Retrieves a document by ID",
+        "description": "Downloads a document based on its unique identifier",
+        "operationId": "downloadDocument-v3",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "example": "Bearer <token>",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "description": "Unique ID in EDS DB",
+            "example": "670e23dfab593b4387210b81",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "description": "Unique ID for correlating requests",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentClassification",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OUTBOUND",
+                "INBOUND"
+              ]
+            },
+            "description": "Classification of the document, e.g., OUTBOUND or INBOUND",
+            "example": "OUTBOUND"
+          },
+          {
+            "name": "parentCarrierCode",
+            "in": "query",
+            "required": false,
+            "description": "Client code associated with the document",
+            "example": "EVGL",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "policyNumber",
+            "in": "query",
+            "required": false,
+            "description": "Policy number associated with the document",
+            "example": "23109168",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "planCode",
+            "in": "query",
+            "required": false,
+            "description": "Plan code",
+            "example": "565",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "document downloaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentDownloadResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied for document download"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 403
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Document not found"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "An unexpected error occurred while downloading document"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/document/v3/documents/search": {
+      "post": {
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Documents V3"
+        ],
+        "summary": "Searches for documents",
+        "description": "finds documents based on filters like document classification, document type, policy number etc",
+        "operationId": "searchDocuments",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "example": "Bearer <token>",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "example": 25,
+            "description": "Number of documents to be fetched. Max=1000",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10,
+              "maximum": 1000
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "description": "Offset value for pagination",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "description": "Unique ID for correlating requests",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "documents retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchDocumentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Limit must be greater than 0.\\nOffset cannot be negative."
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Document access denied"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 403
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "documents search failed"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/document/v3/tax-forms": {
+      "get": {
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "TaxForms V3"
+        ],
+        "summary": "Retrieves tax forms",
+        "description": "Fetches tax forms based on client and year filters",
+        "operationId": "getTaxForms-v3",
+        "x-parameter-dependencies": {
+          "anyOf": [
+            {
+              "description": "Filter by policy",
+              "allOf": [
+                "policyNumber",
+                "planCode"
+              ]
+            },
+            {
+              "description": "Filter by date range",
+              "allOf": [
+                "fromDate",
+                "toDate"
+              ]
+            }
+          ],
+          "yearFilter": {
+            "anyOf": [
+              "taxYear",
+              "numYears"
+            ]
+          }
+        },
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "example": "Bearer <token>",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "description": "UUID for the request",
+            "example": "1760f822-dcbf-49fc-a623-a1998383f4b9",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "policyNumber",
+            "in": "query",
+            "required": false,
+            "description": "Policy/Contract number related to the tax form. **Dependency**: Must be used together with 'planCode'. Either (policyNumber + planCode) OR (fromDate + toDate) must be provided.",
+            "example": "7720001823",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "planCode",
+            "in": "query",
+            "required": false,
+            "example": "132007A04",
+            "description": "Plan Code. **Dependency**: Must be used together with 'policyNumber'. Either (policyNumber + planCode) OR (fromDate + toDate) must be provided.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taxYear",
+            "in": "query",
+            "required": false,
+            "description": "Tax year for the form. **Dependency**: Use either 'taxYear' OR 'numYears', not both.",
+            "example": 2022,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "numYears",
+            "in": "query",
+            "required": false,
+            "example": 1,
+            "description": "Number of years of forms to query in reverse chronological order from taxyear (incl). Min=1 and Max=5. **Dependency**: Use either 'numYears' OR 'taxYear', not both.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 5,
+              "default": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "description": "Start date for filtering tax forms. Format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z', Timezone: UTC. **Dependency**: Must be used together with 'toDate'. Either (fromDate + toDate) OR (policyNumber + planCode) must be provided.",
+            "example": "2025-08-13T15:01:17.542Z",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "description": "End date for filtering tax forms. Format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z', Timezone: UTC. **Dependency**: Must be used together with 'fromDate'. Either (fromDate + toDate) OR (policyNumber + planCode) must be provided.",
+            "example": "2025-08-13T15:01:17.542Z",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of records to return",
+            "example": 10,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Number of records to skip for pagination",
+            "example": 0,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxformResponseList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request. Please provide either SSN or Contract Number"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied to get tax form"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 403
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Error occurred while fetching taxforms"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/document/v3/tax-forms/{id}/download": {
+      "get": {
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "TaxForms V3"
+        ],
+        "summary": "Downloads a tax form",
+        "description": "Retrieves a tax form by its unique ID",
+        "operationId": "downloadTaxForm-v3",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "example": "Bearer <token>",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "description": "UUID for the request",
+            "example": "1760f822-dcbf-49fc-a623-a1998383f4b9",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Form identifier for the taxform, either formId or documentId is mandatory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxformDownloadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request. Please provide either alias or tax year"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied to download tax form"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 403
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Document not found"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Error occurred while downloading metadata"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "correlationId": {
+                      "type": "string",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "success": {
+                      "type": "string",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MetadataByIdResponse": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/MetadataResponse"
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Unique ID for correlating requests",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        }
+      },
+      "MetadataResponse": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Source system or origin of the document",
+            "example": "Email"
+          },
+          "documentId": {
+            "type": "string",
+            "description": "Unique ID in EDS db",
+            "example": "670e23dfab593b4387210b81"
+          },
+          "formNumber": {
+            "type": "string",
+            "description": "Form number associated with the document",
+            "example": "FORM123"
+          },
+          "fileType": {
+            "type": "string",
+            "description": "Type of file, e.g., pdf, doc, etc.",
+            "example": "pdf"
+          },
+          "documentClassification": {
+            "type": "string",
+            "description": "Classification of the document, e.g., OUTBOUND or INBOUND",
+            "example": "OUTBOUND",
+            "enum": [
+              "OUTBOUND",
+              "INBOUND"
+            ]
+          },
+          "documentType": {
+            "type": "string",
+            "description": "Type of document indicating its purpose",
+            "example": "NB Application"
+          },
+          "documentCategory": {
+            "type": "string",
+            "description": "Category of the document, such as New Business or Claim",
+            "example": "New Business"
+          },
+          "documentTypeDescription": {
+            "type": "string",
+            "description": "Description of the document type",
+            "example": "Deferred Annuity Application"
+          },
+          "documentStatus": {
+            "type": "integer",
+            "description": "Indicates the current status of the document. '1' for ACTIVE, '0' for INACTIVE.",
+            "format": "int32",
+            "example": 1
+          },
+          "version": {
+            "type": "string",
+            "description": "Version of the document",
+            "example": "1"
+          },
+          "documentDate": {
+            "type": "string",
+            "description": "Date of the document",
+            "format": "date-time",
+            "example": "2024-03-18T14:30:00.000Z"
+          },
+          "zinniaLiveCaseId": {
+            "type": "string",
+            "description": "Zinnia Live Case ID",
+            "example": "ZLC09876"
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code",
+            "example": "565"
+          },
+          "policyNumber": {
+            "type": "string",
+            "description": "Policy number associated with the document",
+            "example": "23109168"
+          },
+          "brokerMasterNumber": {
+            "type": "string",
+            "description": "Broker master number associated with the document",
+            "example": "BKR123456"
+          },
+          "repMasterNumber": {
+            "type": "string",
+            "description": "Representative master number associated with the document",
+            "example": "REP987654"
+          },
+          "agentExternalID": {
+            "type": "string",
+            "description": "External ID of the agent associated with the document",
+            "example": "AGT12345"
+          },
+          "brokerExternalID": {
+            "type": "string",
+            "description": "External ID of the broker associated with the document",
+            "example": "BRK12345"
+          },
+          "mailTrackingNumber": {
+            "type": "string",
+            "description": "Mail tracking number",
+            "example": "TRK123456"
+          },
+          "deliveryMethod": {
+            "type": "string",
+            "description": "Delivery method",
+            "example": "Email"
+          },
+          "emailFrom": {
+            "type": "string",
+            "description": "Email address",
+            "example": "XHbN8@example.com"
+          },
+          "emailTo": {
+            "type": "string",
+            "description": "Email address",
+            "example": "XHbN8@example.com"
+          },
+          "emailSubject": {
+            "type": "string",
+            "description": "Email subject",
+            "example": "Deferred Annuity Application"
+          },
+          "appId": {
+            "type": "string",
+            "description": "Application ID",
+            "example": "APP123456"
+          },
+          "mailShipDate": {
+            "type": "string",
+            "description": "Mail ship date",
+            "format": "date-time",
+            "example": "2024-03-18T14:30:00.000Z"
+          },
+          "participantAccountNumber": {
+            "type": "string",
+            "description": "Account number of the participant",
+            "example": "123456789"
+          },
+          "sourceFileName": {
+            "type": "string",
+            "description": "Name of the file in source system",
+            "example": "files/123456.pdf"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Display name of the document",
+            "example": "Deferred Annuity Application"
+          },
+          "distributionChannel": {
+            "type": "string",
+            "description": "Distribution channel through which the document was delivered",
+            "example": "Online Portal"
+          },
+          "periodYear": {
+            "type": "integer",
+            "description": "Year of the document period",
+            "format": "int32",
+            "example": 2024
+          },
+          "periodQuarter": {
+            "type": "string",
+            "description": "Quarter of the document period in Q1-Q4 format",
+            "example": "Q2"
+          },
+          "documentNumber": {
+            "type": "string",
+            "description": "Document number associated with the document (if present) else document Id",
+            "example": "670e23dfab593b4387210b81 or 20241230-M-463066"
+          },
+          "documentVersions": {
+            "type": "array",
+            "description": "Previous versions of the document",
+            "items": {
+              "$ref": "#/components/schemas/MetadataResponse"
+            }
+          },
+          "scenario": {
+            "type": "string",
+            "description": "Scenario",
+            "example": "duplicate",
+            "enum": [
+              "duplicate",
+              "replace"
+            ]
+          },
+          "linkedDocumentId": {
+            "type": "string",
+            "description": "Linked document ID",
+            "example": "693e23dfab593b4387210k92"
+          },
+          "importDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Document creation timestamp(in UTC timezone)",
+            "example": "2024-09-23T10:30:00.000Z"
+          }
+        }
+      },
+      "DocumentDownloadResponse": {
+        "type": "object",
+        "properties": {
+          "fileExtension": {
+            "type": "string",
+            "description": "File extension of the document",
+            "example": "pdf"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Name of the document",
+            "example": "NB Application"
+          },
+          "binaryData": {
+            "type": "string",
+            "description": "Binary data of the document",
+            "example": "wdvb2ekllkk189w0enjansle.."
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Unique ID for correlating requests",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        }
+      },
+      "TaxformResponse": {
+        "type": "object",
+        "properties": {
+          "policyNumber": {
+            "type": "string",
+            "description": "policy number of document/tax-form",
+            "example": "633033992"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the form",
+            "example": "1099-R"
+          },
+          "formId": {
+            "type": "string",
+            "description": "Unique id of Form",
+            "example": "105"
+          },
+          "taxYear": {
+            "type": "string",
+            "description": "Tax year of the form",
+            "example": "2022"
+          },
+          "fchar": {
+            "description": "Unique string character associated with the tax-form name",
+            "type": "string",
+            "example": "R"
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code associated with the document",
+            "example": "633033992"
+          },
+          "documentId": {
+            "type": "string",
+            "description": "Unique Document Id (ObjectId)",
+            "example": "68a6adf406e31b19bfcea183"
+          },
+          "createdDate": {
+            "type": "string",
+            "description": "Created Date in UTC time zone",
+            "format": "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "example": "2025-08-13T15:01:17.542Z"
+          },
+          "updatedDate": {
+            "type": "string",
+            "description": "Updated Date in UTC time zone",
+            "format": "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "example": "2025-08-13T15:01:17.542Z"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status intigating whether tax form is active or inactive",
+            "example": "active"
+          }
+        }
+      },
+      "TaxformResponseList": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Number of tax forms found",
+            "format": "int32",
+            "example": 10
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaxformResponse"
+            }
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Unique ID for correlating requests",
+            "example": "1760f822-dcbf-49fc-a623-a1998383f4b9"
+          }
+        }
+      },
+      "TaxformDownloadResponse": {
+        "type": "object",
+        "properties": {
+          "fileExtension": {
+            "type": "string",
+            "description": "File extension of the document",
+            "example": "pdf"
+          },
+          "binaryData": {
+            "type": "string",
+            "description": "Binary data of the document",
+            "example": "wdvb2ekllkk189w0enjansle.."
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Unique ID for correlating requests",
+            "example": "1760f822-dcbf-49fc-a623-a1998383f4b9"
+          }
+        }
+      },
+      "Recipient": {
+        "type": "string",
+        "enum": [
+          "Agent",
+          "Client"
+        ]
+      },
+      "DocumentMetadata": {
+        "type": "object",
+        "properties": {
+          "documentID": {
+            "type": "string"
+          },
+          "pageCount": {
+            "type": "string"
+          },
+          "documentDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "importDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileType": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "sourceFileName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "documentType": {
+            "type": "string"
+          },
+          "contractNumber": {
+            "type": "string"
+          },
+          "masterNumber": {
+            "type": "string"
+          },
+          "repMan": {
+            "type": "string"
+          },
+          "clientID": {
+            "type": "string"
+          },
+          "history": {
+            "type": "boolean"
+          },
+          "docStatus": {
+            "type": "string"
+          },
+          "documentNumber": {
+            "type": "string"
+          },
+          "caseId": {
+            "type": "number"
+          },
+          "zinniaLiveCaseId": {
+            "type": "string"
+          },
+          "docPopUrl": {
+            "type": "string"
+          },
+          "attachmentType": {
+            "type": "string"
+          },
+          "periodYear": {
+            "type": "string"
+          },
+          "periodQuarter": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "documentID",
+          "pageCount",
+          "documentDate",
+          "importDate",
+          "fileName",
+          "fileType",
+          "displayName",
+          "sourceFileName",
+          "status",
+          "documentType",
+          "contractNumber",
+          "masterNumber",
+          "repMan",
+          "clientID",
+          "history",
+          "docStatus",
+          "documentNumber",
+          "caseId",
+          "zinniaLiveCaseId",
+          "docPopUrl",
+          "attachmentType",
+          "periodYear",
+          "periodQuarter"
+        ]
+      },
+      "InlineResponse200": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentMetadata"
+            }
+          }
+        },
+        "required": [
+          "count",
+          "items"
+        ]
+      },
+      "InlineResponse400": {
+        "type": "object",
+        "properties": {
+          "xCorrelationId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "number"
+          },
+          "errorDesc": {
+            "type": "string"
+          },
+          "errorDetailedDesc": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "xCorrelationId",
+          "status",
+          "errorDesc",
+          "errorDetailedDesc"
+        ]
+      },
+      "InlineResponse401": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "InlineResponse404": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "clientInstitution": {
+            "type": "string"
+          },
+          "lob": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "string"
+          },
+          "agentNumber": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "documentNumber": {
+            "type": "string"
+          },
+          "processCompanyCode": {
+            "type": "string"
+          },
+          "contractStatusCode": {
+            "type": "string"
+          },
+          "system": {
+            "type": "string"
+          },
+          "productLine": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "productCompanyCode": {
+            "type": "string"
+          },
+          "ssNTaxId": {
+            "type": "string"
+          },
+          "caseId": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "sysMailToAddress": {
+            "type": "string"
+          },
+          "sysMailFromAddress": {
+            "type": "string"
+          },
+          "dateReceived": {
+            "type": "string"
+          },
+          "onBaseDt": {
+            "type": "string"
+          },
+          "queueName": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string"
+          },
+          "sysDocumentHandle": {
+            "type": "string"
+          },
+          "agentTaxId": {
+            "type": "string"
+          },
+          "documentTypeGroup": {
+            "type": "string"
+          },
+          "distributionChannel": {
+            "type": "string"
+          },
+          "businessUnit": {
+            "type": "string"
+          },
+          "productCategory": {
+            "type": "string"
+          },
+          "deliveryMethod": {
+            "type": "string",
+            "enum": [
+              "Email",
+              "Fax",
+              "Mail"
+            ]
+          }
+        },
+        "required": [
+          "clientInstitution",
+          "lob",
+          "contract",
+          "agentNumber",
+          "externalId",
+          "documentNumber",
+          "processCompanyCode",
+          "contractStatusCode",
+          "system",
+          "productLine",
+          "productName",
+          "productCompanyCode",
+          "ssNTaxId",
+          "caseId",
+          "batchId",
+          "route",
+          "source",
+          "sysMailToAddress",
+          "sysMailFromAddress",
+          "dateReceived",
+          "onBaseDt",
+          "queueName",
+          "transactionType",
+          "sysDocumentHandle",
+          "agentTaxId",
+          "documentTypeGroup",
+          "distributionChannel",
+          "businessUnit",
+          "productCategory",
+          "deliveryMethod"
+        ]
+      },
+      "MetadataSearchResponse": {
+        "type": "object",
+        "properties": {
+          "documentClassification": {
+            "type": "string",
+            "description": "Document classification to identify document type",
+            "example": "OUTBOUND",
+            "enum": [
+              "OUTBOUND",
+              "INBOUND"
+            ]
+          },
+          "sourceFileName": {
+            "type": "string",
+            "description": "Actual name of the document",
+            "example": "123456.pdf"
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code associated with the document",
+            "example": "235"
+          },
+          "documentStatus": {
+            "type": "integer",
+            "description": "Indicates the current status of the document. '1' for ACTIVE, '0' for INACTIVE.",
+            "format": "int32",
+            "example": 1
+          },
+          "documentId": {
+            "type": "string",
+            "description": "Unique ID of the document",
+            "example": "67124697f3bef2497b6accfb"
+          },
+          "documentDate": {
+            "type": "string",
+            "description": "Date associated with the document",
+            "format": "date-time"
+          },
+          "documentType": {
+            "type": "string",
+            "description": "Type of the document",
+            "example": "NB Application"
+          },
+          "documentCategory": {
+            "type": "string",
+            "description": "Category of the document",
+            "example": "New Business"
+          },
+          "documentTypeDescription": {
+            "type": "string",
+            "description": "Detailed description of the document type",
+            "example": "Deferred Annuity Application"
+          },
+          "zinniaLiveCaseId": {
+            "type": "string",
+            "description": "Zinnia live case ID associated with the document",
+            "example": "ZLC09876"
+          },
+          "appId": {
+            "type": "string",
+            "description": "Application ID related to the document",
+            "example": "XXXXEDJ041120240000000001"
+          },
+          "mailTrackingNumber": {
+            "type": "string",
+            "description": "Tracking ID for the document",
+            "example": "4453166346"
+          },
+          "policyNumber": {
+            "type": "string",
+            "description": "Policy number linked to the document",
+            "example": "23576001"
+          },
+          "createDate": {
+            "type": "string",
+            "description": "Creation date of the document (in UTC timezone)",
+            "format": "date-time",
+            "example": "2024-03-18T14:30:00.000Z"
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Correlation ID for the document",
+            "example": "12345-corr-67890"
+          },
+          "periodYear": {
+            "type": "integer",
+            "description": "Year related to the document period",
+            "format": "int32",
+            "example": 2024
+          },
+          "periodQuarter": {
+            "type": "string",
+            "description": "Quarter related to the document period",
+            "example": "Q2"
+          },
+          "fileType": {
+            "type": "string",
+            "description": "File type of the document",
+            "example": "pdf"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Display name for the document",
+            "example": "New Business Policy Document"
+          },
+          "brokerMasterNumber": {
+            "type": "string",
+            "description": "Master number of the broker associated with the document",
+            "example": "BKR123456"
+          },
+          "repMasterNumber": {
+            "type": "string",
+            "description": "Master number of the representative associated with the document",
+            "example": "REP987654"
+          },
+          "documentNumber": {
+            "type": "string",
+            "description": "Document number associated with the document (if present) else document Id",
+            "example": "670e23dfab593b4387210b81 or 20241230-M-463066"
+          },
+          "formNumber": {
+            "type": "string",
+            "description": "formNumber",
+            "example": "1234"
+          },
+          "importDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Document creation timestamp(in UTC timezone)",
+            "example": "2024-09-23T10:30:00.000Z"
+          }
+        }
+      },
+      "SearchRequest": {
+        "anyOf": [
+          {
+            "type": "object",
+            "description": "Date Range scenario - Document date range search",
+            "properties": {
+              "documentStartDate": {
+                "type": "string",
+                "description": "Start date of the document period for filtering results",
+                "format": "date",
+                "example": "2024-10-01"
+              },
+              "documentEndDate": {
+                "type": "string",
+                "description": "End date of the document period for filtering results",
+                "format": "date",
+                "example": "2024-10-31"
+              },
+              "parentCarrierCode": {
+                "type": "string",
+                "description": "Client code associated with the document search",
+                "example": "EVGL"
+              },
+              "documentClassification": {
+                "type": "string",
+                "description": "Classification of the document indicating type, e.g., outbound or inbound",
+                "example": "OUTBOUND",
+                "enum": [
+                  "OUTBOUND",
+                  "INBOUND"
+                ]
+              },
+              "documentType": {
+                "type": "string",
+                "description": "Type of document, defining its primary purpose",
+                "example": "NB Application"
+              },
+              "documentCategory": {
+                "type": "string",
+                "description": "Category of the document, such as New Business or Claim",
+                "example": "NEW_BUSINESS",
+                "enum": [
+                  "NEW_BUSINESS",
+                  "POST_ISSUE",
+                  "DEATH",
+                  "CORRESPONDENCE",
+                  "AGENT",
+                  "SUITABILITY"
+                ]
+              },
+              "policyNumber": {
+                "type": "string",
+                "description": "Policy number associated with the document, used for identification",
+                "example": "23109168"
+              },
+              "planCode": {
+                "type": "string",
+                "description": "Plan code associated with the document, used for identification",
+                "example": "plan67890f"
+              },
+              "documentStatus": {
+                "type": "array",
+                "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                "example": [
+                  "ACTIVE",
+                  "INACTIVE"
+                ],
+                "items": {
+                  "type": "string",
+                  "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                  "enum": [
+                    "ACTIVE",
+                    "INACTIVE"
+                  ]
+                }
+              },
+              "appId": {
+                "type": "string",
+                "description": "Application ID tied to the document for tracking and retrieval",
+                "example": "EDJ041120240000000001"
+              },
+              "zinniaLiveCaseId": {
+                "type": "string",
+                "description": "Unique case ID in the Zinnia system associated with the document",
+                "example": "ZLC09876"
+              },
+              "orderBy": {
+                "type": "string",
+                "description": "The field used to order search results; default is document Date",
+                "example": "documentDate"
+              },
+              "orderByDirection": {
+                "type": "string",
+                "description": "Direction of the sort order for search results, either ascending or descending",
+                "example": "DESC",
+                "enum": [
+                  "ASC",
+                  "DESC"
+                ]
+              },
+              "recipient": {
+                "type": "string",
+                "description": "Recipient of the document",
+                "example": "AGENT",
+                "enum": [
+                  "AGENT",
+                  "CLIENT"
+                ]
+              },
+              "appVersion": {
+                "type": "integer",
+                "description": "App Version",
+                "format": "int32",
+                "example": 1
+              },
+              "masterAgentNumber": {
+                "type": "string",
+                "description": "Master Agent Number",
+                "example": "MA98416687"
+              }
+            },
+            "required": [
+              "documentStartDate",
+              "documentEndDate"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Date Range scenario - Import date range search",
+            "properties": {
+              "parentCarrierCode": {
+                "type": "string",
+                "description": "Client code associated with the document search",
+                "example": "EVGL"
+              },
+              "documentClassification": {
+                "type": "string",
+                "description": "Classification of the document indicating type, e.g., outbound or inbound",
+                "example": "OUTBOUND",
+                "enum": [
+                  "OUTBOUND",
+                  "INBOUND"
+                ]
+              },
+              "documentType": {
+                "type": "string",
+                "description": "Type of document, defining its primary purpose",
+                "example": "NB Application"
+              },
+              "documentCategory": {
+                "type": "string",
+                "description": "Category of the document, such as New Business or Claim",
+                "example": "NEW_BUSINESS",
+                "enum": [
+                  "NEW_BUSINESS",
+                  "POST_ISSUE",
+                  "DEATH",
+                  "CORRESPONDENCE",
+                  "AGENT",
+                  "SUITABILITY"
+                ]
+              },
+              "policyNumber": {
+                "type": "string",
+                "description": "Policy number associated with the document, used for identification",
+                "example": "23109168"
+              },
+              "planCode": {
+                "type": "string",
+                "description": "Plan code associated with the document, used for identification",
+                "example": "plan67890f"
+              },
+              "importStartDate": {
+                "type": "string",
+                "description": "Import Start date of the document period for filtering results (in UTC timezone)",
+                "format": "date-time",
+                "example": "2024-10-01T10:20:00.000Z"
+              },
+              "importEndDate": {
+                "type": "string",
+                "description": "Import End date of the document period for filtering results (in UTC timezone)",
+                "format": "date-time",
+                "example": "2025-10-01T10:20:00.000Z"
+              },
+              "documentStatus": {
+                "type": "array",
+                "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                "example": [
+                  "ACTIVE",
+                  "INACTIVE"
+                ],
+                "items": {
+                  "type": "string",
+                  "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                  "enum": [
+                    "ACTIVE",
+                    "INACTIVE"
+                  ]
+                }
+              },
+              "appId": {
+                "type": "string",
+                "description": "Application ID tied to the document for tracking and retrieval",
+                "example": "EDJ041120240000000001"
+              },
+              "zinniaLiveCaseId": {
+                "type": "string",
+                "description": "Unique case ID in the Zinnia system associated with the document",
+                "example": "ZLC09876"
+              },
+              "orderBy": {
+                "type": "string",
+                "description": "The field used to order search results; default is document Date",
+                "example": "documentDate"
+              },
+              "orderByDirection": {
+                "type": "string",
+                "description": "Direction of the sort order for search results, either ascending or descending",
+                "example": "DESC",
+                "enum": [
+                  "ASC",
+                  "DESC"
+                ]
+              },
+              "recipient": {
+                "type": "string",
+                "description": "Recipient of the document",
+                "example": "AGENT",
+                "enum": [
+                  "AGENT",
+                  "CLIENT"
+                ]
+              },
+              "appVersion": {
+                "type": "integer",
+                "description": "App Version",
+                "format": "int32",
+                "example": 1
+              },
+              "masterAgentNumber": {
+                "type": "string",
+                "description": "Master Agent Number",
+                "example": "MA98416687"
+              }
+            },
+            "required": [
+              "importStartDate",
+              "importEndDate"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Policy Number scenario - Search based on policy number and plan code",
+            "properties": {
+              "parentCarrierCode": {
+                "type": "string",
+                "description": "Client code associated with the document search",
+                "example": "EVGL"
+              },
+              "documentClassification": {
+                "type": "string",
+                "description": "Classification of the document indicating type, e.g., outbound or inbound",
+                "example": "OUTBOUND",
+                "enum": [
+                  "OUTBOUND",
+                  "INBOUND"
+                ]
+              },
+              "documentType": {
+                "type": "string",
+                "description": "Type of document, defining its primary purpose",
+                "example": "NB Application"
+              },
+              "documentCategory": {
+                "type": "string",
+                "description": "Category of the document, such as New Business or Claim",
+                "example": "NEW_BUSINESS",
+                "enum": [
+                  "NEW_BUSINESS",
+                  "POST_ISSUE",
+                  "DEATH",
+                  "CORRESPONDENCE",
+                  "AGENT",
+                  "SUITABILITY"
+                ]
+              },
+              "policyNumber": {
+                "type": "string",
+                "description": "Policy number associated with the document, used for identification",
+                "example": "23109168"
+              },
+              "planCode": {
+                "type": "string",
+                "description": "Plan code associated with the document, used for identification",
+                "example": "plan67890f"
+              },
+              "documentStatus": {
+                "type": "array",
+                "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                "example": [
+                  "ACTIVE",
+                  "INACTIVE"
+                ],
+                "items": {
+                  "type": "string",
+                  "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                  "enum": [
+                    "ACTIVE",
+                    "INACTIVE"
+                  ]
+                }
+              },
+              "appId": {
+                "type": "string",
+                "description": "Application ID tied to the document for tracking and retrieval",
+                "example": "EDJ041120240000000001"
+              },
+              "zinniaLiveCaseId": {
+                "type": "string",
+                "description": "Unique case ID in the Zinnia system associated with the document",
+                "example": "ZLC09876"
+              },
+              "orderBy": {
+                "type": "string",
+                "description": "The field used to order search results; default is document Date",
+                "example": "documentDate"
+              },
+              "orderByDirection": {
+                "type": "string",
+                "description": "Direction of the sort order for search results, either ascending or descending",
+                "example": "DESC",
+                "enum": [
+                  "ASC",
+                  "DESC"
+                ]
+              },
+              "recipient": {
+                "type": "string",
+                "description": "Recipient of the document",
+                "example": "AGENT",
+                "enum": [
+                  "AGENT",
+                  "CLIENT"
+                ]
+              },
+              "appVersion": {
+                "type": "integer",
+                "description": "App Version",
+                "format": "int32",
+                "example": 1
+              },
+              "masterAgentNumber": {
+                "type": "string",
+                "description": "Master Agent Number",
+                "example": "MA98416687"
+              }
+            },
+            "required": [
+              "policyNumber"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Agent Documents scenario - Search based on master agent number",
+            "properties": {
+              "parentCarrierCode": {
+                "type": "string",
+                "description": "Client code associated with the document search",
+                "example": "EVGL"
+              },
+              "documentClassification": {
+                "type": "string",
+                "description": "Classification of the document indicating type, e.g., outbound or inbound",
+                "example": "OUTBOUND",
+                "enum": [
+                  "OUTBOUND",
+                  "INBOUND"
+                ]
+              },
+              "documentType": {
+                "type": "string",
+                "description": "Type of document, defining its primary purpose",
+                "example": "NB Application"
+              },
+              "documentCategory": {
+                "type": "string",
+                "description": "Category of the document, such as New Business or Claim",
+                "example": "NEW_BUSINESS",
+                "enum": [
+                  "NEW_BUSINESS",
+                  "POST_ISSUE",
+                  "DEATH",
+                  "CORRESPONDENCE",
+                  "AGENT",
+                  "SUITABILITY"
+                ]
+              },
+              "policyNumber": {
+                "type": "string",
+                "description": "Policy number associated with the document, used for identification",
+                "example": "23109168"
+              },
+              "planCode": {
+                "type": "string",
+                "description": "Plan code associated with the document, used for identification",
+                "example": "plan67890f"
+              },
+              "documentStatus": {
+                "type": "array",
+                "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                "example": [
+                  "ACTIVE",
+                  "INACTIVE"
+                ],
+                "items": {
+                  "type": "string",
+                  "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                  "enum": [
+                    "ACTIVE",
+                    "INACTIVE"
+                  ]
+                }
+              },
+              "appId": {
+                "type": "string",
+                "description": "Application ID tied to the document for tracking and retrieval",
+                "example": "EDJ041120240000000001"
+              },
+              "zinniaLiveCaseId": {
+                "type": "string",
+                "description": "Unique case ID in the Zinnia system associated with the document",
+                "example": "ZLC09876"
+              },
+              "orderBy": {
+                "type": "string",
+                "description": "The field used to order search results; default is document Date",
+                "example": "documentDate"
+              },
+              "orderByDirection": {
+                "type": "string",
+                "description": "Direction of the sort order for search results, either ascending or descending",
+                "example": "DESC",
+                "enum": [
+                  "ASC",
+                  "DESC"
+                ]
+              },
+              "recipient": {
+                "type": "string",
+                "description": "Recipient of the document",
+                "example": "AGENT",
+                "enum": [
+                  "AGENT",
+                  "CLIENT"
+                ]
+              },
+              "appVersion": {
+                "type": "integer",
+                "description": "App Version",
+                "format": "int32",
+                "example": 1
+              },
+              "masterAgentNumber": {
+                "type": "string",
+                "description": "Master Agent Number",
+                "example": "MA98416687"
+              }
+            },
+            "required": [
+              "masterAgentNumber"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Application ID scenario - Search based on application ID",
+            "properties": {
+              "parentCarrierCode": {
+                "type": "string",
+                "description": "Client code associated with the document search",
+                "example": "EVGL"
+              },
+              "documentClassification": {
+                "type": "string",
+                "description": "Classification of the document indicating type, e.g., outbound or inbound",
+                "example": "OUTBOUND",
+                "enum": [
+                  "OUTBOUND",
+                  "INBOUND"
+                ]
+              },
+              "documentType": {
+                "type": "string",
+                "description": "Type of document, defining its primary purpose",
+                "example": "NB Application"
+              },
+              "documentCategory": {
+                "type": "string",
+                "description": "Category of the document, such as New Business or Claim",
+                "example": "NEW_BUSINESS",
+                "enum": [
+                  "NEW_BUSINESS",
+                  "POST_ISSUE",
+                  "DEATH",
+                  "CORRESPONDENCE",
+                  "AGENT",
+                  "SUITABILITY"
+                ]
+              },
+              "policyNumber": {
+                "type": "string",
+                "description": "Policy number associated with the document, used for identification",
+                "example": "23109168"
+              },
+              "planCode": {
+                "type": "string",
+                "description": "Plan code associated with the document, used for identification",
+                "example": "plan67890f"
+              },
+              "documentStatus": {
+                "type": "array",
+                "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                "example": [
+                  "ACTIVE",
+                  "INACTIVE"
+                ],
+                "items": {
+                  "type": "string",
+                  "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                  "enum": [
+                    "ACTIVE",
+                    "INACTIVE"
+                  ]
+                }
+              },
+              "appId": {
+                "type": "string",
+                "description": "Application ID tied to the document for tracking and retrieval",
+                "example": "EDJ041120240000000001"
+              },
+              "zinniaLiveCaseId": {
+                "type": "string",
+                "description": "Unique case ID in the Zinnia system associated with the document",
+                "example": "ZLC09876"
+              },
+              "orderBy": {
+                "type": "string",
+                "description": "The field used to order search results; default is document Date",
+                "example": "documentDate"
+              },
+              "orderByDirection": {
+                "type": "string",
+                "description": "Direction of the sort order for search results, either ascending or descending",
+                "example": "DESC",
+                "enum": [
+                  "ASC",
+                  "DESC"
+                ]
+              },
+              "recipient": {
+                "type": "string",
+                "description": "Recipient of the document",
+                "example": "AGENT",
+                "enum": [
+                  "AGENT",
+                  "CLIENT"
+                ]
+              },
+              "appVersion": {
+                "type": "integer",
+                "description": "App Version",
+                "format": "int32",
+                "example": 1
+              },
+              "masterAgentNumber": {
+                "type": "string",
+                "description": "Master Agent Number",
+                "example": "MA98416687"
+              }
+            },
+            "required": [
+              "appId"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Zinnia Live Case ID scenario - Search based on Zinnia Live Case ID",
+            "properties": {
+              "parentCarrierCode": {
+                "type": "string",
+                "description": "Client code associated with the document search",
+                "example": "EVGL"
+              },
+              "documentClassification": {
+                "type": "string",
+                "description": "Classification of the document indicating type, e.g., outbound or inbound",
+                "example": "OUTBOUND",
+                "enum": [
+                  "OUTBOUND",
+                  "INBOUND"
+                ]
+              },
+              "documentType": {
+                "type": "string",
+                "description": "Type of document, defining its primary purpose",
+                "example": "NB Application"
+              },
+              "documentCategory": {
+                "type": "string",
+                "description": "Category of the document, such as New Business or Claim",
+                "example": "NEW_BUSINESS",
+                "enum": [
+                  "NEW_BUSINESS",
+                  "POST_ISSUE",
+                  "DEATH",
+                  "CORRESPONDENCE",
+                  "AGENT",
+                  "SUITABILITY"
+                ]
+              },
+              "policyNumber": {
+                "type": "string",
+                "description": "Policy number associated with the document, used for identification",
+                "example": "23109168"
+              },
+              "planCode": {
+                "type": "string",
+                "description": "Plan code associated with the document, used for identification",
+                "example": "plan67890f"
+              },
+              "documentStatus": {
+                "type": "array",
+                "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                "example": [
+                  "ACTIVE",
+                  "INACTIVE"
+                ],
+                "items": {
+                  "type": "string",
+                  "description": "List of statuses the document may have, supporting filtering by multiple statuses",
+                  "enum": [
+                    "ACTIVE",
+                    "INACTIVE"
+                  ]
+                }
+              },
+              "appId": {
+                "type": "string",
+                "description": "Application ID tied to the document for tracking and retrieval",
+                "example": "EDJ041120240000000001"
+              },
+              "zinniaLiveCaseId": {
+                "type": "string",
+                "description": "Unique case ID in the Zinnia system associated with the document",
+                "example": "ZLC09876"
+              },
+              "orderBy": {
+                "type": "string",
+                "description": "The field used to order search results; default is document Date",
+                "example": "documentDate"
+              },
+              "orderByDirection": {
+                "type": "string",
+                "description": "Direction of the sort order for search results, either ascending or descending",
+                "example": "DESC",
+                "enum": [
+                  "ASC",
+                  "DESC"
+                ]
+              },
+              "recipient": {
+                "type": "string",
+                "description": "Recipient of the document",
+                "example": "AGENT",
+                "enum": [
+                  "AGENT",
+                  "CLIENT"
+                ]
+              },
+              "appVersion": {
+                "type": "integer",
+                "description": "App Version",
+                "format": "int32",
+                "example": 1
+              },
+              "masterAgentNumber": {
+                "type": "string",
+                "description": "Master Agent Number",
+                "example": "MA98416687"
+              }
+            },
+            "required": [
+              "zinniaLiveCaseId"
+            ]
+          }
+        ]
+      },
+      "SearchDocumentResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Number of total documents found matching the search criteria",
+            "format": "int32",
+            "example": 100
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MetadataSearchResponse"
+            }
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Unique ID for correlating requests",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        }
+      },
+      "DownloadDocumentResponse": {
+        "type": "object",
+        "properties": {
+          "fileExtension": {
+            "type": "string"
+          },
+          "binaryData": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fileExtension",
+          "binaryData"
+        ]
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "lang",
+          "value"
+        ]
+      },
+      "InnerError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "stacktrace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "type",
+          "stacktrace"
+        ]
+      },
+      "OdataError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          },
+          "innererror": {
+            "$ref": "#/components/schemas/InnerError"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "innererror"
+        ]
+      },
+      "InlineResponse4001": {
+        "type": "object",
+        "properties": {
+          "odataError": {
+            "$ref": "#/components/schemas/OdataError"
+          }
+        },
+        "required": [
+          "odataError"
+        ]
+      },
+      "TaxFormsResponse": {
+        "type": "object",
+        "properties": {
+          "contractNumber": {
+            "type": "string",
+            "example": "1234567898",
+            "description": "Contract number for the document/tax-form"
+          },
+          "name": {
+            "type": "string",
+            "example": "1099-R",
+            "description": "Name of the tax-form"
+          },
+          "fChar": {
+            "type": "string",
+            "example": "R",
+            "description": "Unique string character associated with the tax-form name"
+          },
+          "formId": {
+            "type": "string",
+            "example": "123456",
+            "description": "Form id for the tax-form"
+          },
+          "taxYear": {
+            "type": "string",
+            "example": "2023",
+            "description": "Tax year for the tax-form"
+          }
+        },
+        "required": [
+          "contractNumber",
+          "name",
+          "fChar",
+          "formId",
+          "taxYear"
+        ]
+      },
+      "TaxFormsResponse200": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaxFormsResponse"
+            }
+          }
+        },
+        "required": [
+          "count",
+          "items"
+        ]
+      },
+      "MetadataUpdate": {
+        "type": "object",
+        "properties": {
+          "zinniaLiveCaseId": {
+            "type": "string",
+            "description": "Zinnia Live Case ID. Either of policy number, Application Id or ZL case Id is required.",
+            "example": "ZLC09876"
+          },
+          "appId": {
+            "type": "string",
+            "description": "Application ID. Either of policy number, Application Id or ZL case Id is required.",
+            "example": "EDJ041120240000000001"
+          },
+          "docClassification": {
+            "type": "string",
+            "description": "Document classification to identify document type",
+            "example": "OUTBOUND",
+            "enum": [
+              "OUTBOUND",
+              "INBOUND"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "Source of the document",
+            "example": "Email"
+          },
+          "docCategory": {
+            "type": "string",
+            "description": "Document category",
+            "example": "NEW_BUSINESS",
+            "enum": [
+              "NEW_BUSINESS",
+              "POST_ISSUE",
+              "DEATH",
+              "CORRESPONDENCE",
+              "AGENT",
+              "SUITABILITY"
+            ]
+          },
+          "fileType": {
+            "type": "string",
+            "description": "File type",
+            "example": "PDF"
+          },
+          "documentType": {
+            "type": "string",
+            "enum": [
+              "NB_STATE_REPLACEMENT",
+              "NB_CONVERSION",
+              "NB_APPLICATION",
+              "COST_DISCLOSURE",
+              "NON_CONTRACTUAL",
+              "AGENT_REPORT",
+              "ACCELERATED_BENEFIT_RIDER",
+              "SURRENDER_COMPARISION",
+              "CONSENT_PAPERLESS",
+              "TERMS_OF_USE",
+              "TERMS_CONDITIONS",
+              "CHARITY_ELECTION_FORMS",
+              "AUTHORIZATION_FORMS",
+              "HIPPA",
+              "HIV_CONSENT_FORM_ALL_STATE",
+              "AMENDMENT",
+              "DISCLOSURES",
+              "NB_STATE_REPLACEMENT_NOTICE",
+              "TRUSTEE_STATEMENT",
+              "TERMS_OF_USE",
+              "NOTICE_AND_CONSENT",
+              "PRIVACY_POLICY",
+              "GLBA_PRIVACY_NOTICE",
+              "FCRA",
+              "MIB_PRE_NOTICE",
+              "ID_VERIFICATION_NOTICE",
+              "HIPAA",
+              "ACCELERATED_BENEFIT_RIDER",
+              "BUYER_GUIDE",
+              "ILLUSTRATION",
+              "SUITABILITY",
+              "APPLICATION",
+              "SIGNED_APPLICATION",
+              "REPLACEMENTS_ACKNOWLEDGEMENT",
+              "1035_EXCHANGE_SURRENDER",
+              "EVIDENCE_DOCUMENT",
+              "AMENDMENT",
+              "ELECTRONIC_FUNDS_TRANSFER",
+              "SUPPLEMENTAL_APPLICATION",
+              "CONFORMING_ILLUSTRATION",
+              "SIGNED_ILLUSTRATION",
+              "OVERFLOW_ADDITIONAL_INFORMATION"
+            ]
+          },
+          "documentDate": {
+            "type": "string",
+            "description": "Date of the document",
+            "format": "date-time"
+          },
+          "documentTypeDescription": {
+            "type": "string",
+            "description": "Description of the document type. Refer the mapping sheet shared along with specification",
+            "example": "Address Change Letter"
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code",
+            "example": "235"
+          },
+          "policyNumber": {
+            "type": "string",
+            "description": "Policy number. Either of policy number, Application Id or ZL case Id is required.",
+            "example": "23576001"
+          },
+          "pageCount": {
+            "type": "integer",
+            "description": "Total page count",
+            "format": "int64",
+            "example": 5
+          },
+          "docAccessLevel": {
+            "type": "string",
+            "description": "Specifies who can access the document based on their role.",
+            "example": "CLIENT_COPY",
+            "enum": [
+              "CLIENT_COPY",
+              "AGENT_COPY"
+            ]
+          },
+          "sourceFileName": {
+            "type": "string",
+            "description": "Source file name",
+            "example": "052725FTADHOCLETTERS_R_20485_1207637_711.pdf"
+          }
+        }
+      },
+      "Metadata": {
+        "required": [
+          "docClassification",
+          "fileType",
+          "documentType",
+          "documentTypeDescription",
+          "docCategory"
+        ],
+        "type": "object",
+        "properties": {
+          "zinniaLiveCaseId": {
+            "type": "string",
+            "description": "Zinnia Live Case ID. Either of policy number, Application Id or ZL case Id is required.",
+            "example": "ZLC09876"
+          },
+          "appId": {
+            "type": "string",
+            "description": "Application ID. Either of policy number, Application Id or ZL case Id is required.",
+            "example": "EDJ041120240000000001"
+          },
+          "docClassification": {
+            "type": "string",
+            "description": "Document classification to identify document type",
+            "example": "OUTBOUND",
+            "enum": [
+              "OUTBOUND",
+              "INBOUND"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "Source of the document",
+            "example": "Email"
+          },
+          "docCategory": {
+            "type": "string",
+            "description": "Document category",
+            "example": "NEW_BUSINESS",
+            "enum": [
+              "NEW_BUSINESS",
+              "POST_ISSUE",
+              "DEATH",
+              "CORRESPONDENCE",
+              "AGENT",
+              "SUITABILITY"
+            ]
+          },
+          "fileType": {
+            "type": "string",
+            "description": "File type",
+            "example": "PDF"
+          },
+          "documentType": {
+            "type": "string",
+            "enum": [
+              "NB_STATE_REPLACEMENT",
+              "NB_CONVERSION",
+              "NB_APPLICATION",
+              "COST_DISCLOSURE",
+              "NON_CONTRACTUAL",
+              "AGENT_REPORT",
+              "ACCELERATED_BENEFIT_RIDER",
+              "SURRENDER_COMPARISION",
+              "CONSENT_PAPERLESS",
+              "TERMS_OF_USE",
+              "TERMS_CONDITIONS",
+              "CHARITY_ELECTION_FORMS",
+              "AUTHORIZATION_FORMS",
+              "HIPPA",
+              "HIV_CONSENT_FORM_ALL_STATE",
+              "AMENDMENT",
+              "DISCLOSURES",
+              "NB_STATE_REPLACEMENT_NOTICE",
+              "TRUSTEE_STATEMENT",
+              "TERMS_OF_USE",
+              "NOTICE_AND_CONSENT",
+              "PRIVACY_POLICY",
+              "GLBA_PRIVACY_NOTICE",
+              "FCRA",
+              "MIB_PRE_NOTICE",
+              "ID_VERIFICATION_NOTICE",
+              "HIPAA",
+              "ACCELERATED_BENEFIT_RIDER",
+              "BUYER_GUIDE",
+              "ILLUSTRATION",
+              "SUITABILITY",
+              "APPLICATION",
+              "SIGNED_APPLICATION",
+              "REPLACEMENTS_ACKNOWLEDGEMENT",
+              "1035_EXCHANGE_SURRENDER",
+              "EVIDENCE_DOCUMENT",
+              "AMENDMENT",
+              "ELECTRONIC_FUNDS_TRANSFER",
+              "SUPPLEMENTAL_APPLICATION",
+              "CONFORMING_ILLUSTRATION",
+              "SIGNED_ILLUSTRATION",
+              "OVERFLOW_ADDITIONAL_INFORMATION"
+            ]
+          },
+          "documentDate": {
+            "type": "string",
+            "description": "Date of the document",
+            "format": "date-time"
+          },
+          "documentTypeDescription": {
+            "type": "string",
+            "description": "Description of the document type. Refer the mapping sheet shared along with specification",
+            "example": "Address Change Letter"
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code",
+            "example": "235"
+          },
+          "policyNumber": {
+            "type": "string",
+            "description": "Policy number. Either of policy number, Application Id or ZL case Id is required.",
+            "example": "23576001"
+          },
+          "pageCount": {
+            "type": "integer",
+            "description": "Total page count",
+            "format": "int64",
+            "example": 5
+          },
+          "docAccessLevel": {
+            "type": "string",
+            "description": "Specifies who can access the document based on their role.",
+            "example": "CLIENT_COPY",
+            "enum": [
+              "CLIENT_COPY",
+              "AGENT_COPY"
+            ]
+          },
+          "sourceFileName": {
+            "type": "string",
+            "description": "Source file name",
+            "example": "052725FTADHOCLETTERS_R_20485_1207637_711.pdf"
+          }
+        }
+      },
+      "DocumentUploadResponse": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "description": "Unique ID",
+            "example": "670e23dfab593b4387210b81"
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Unique ID for correlating requests",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message",
+            "example": "Document uploaded successfully"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "Status code of the response",
+            "format": "int32",
+            "example": 200
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DocumentUploadBadRequest": {
+        "type": "object",
+        "properties": {
+          "correlationId": {
+            "type": "string",
+            "description": "Unique ID for correlating requests",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid request payload"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "Status code of the response",
+            "format": "int32",
+            "example": 400
+          },
+          "success": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "DocumentUploadForbidden": {
+        "type": "object",
+        "properties": {
+          "correlationId": {
+            "type": "string",
+            "description": "Unique ID for correlating requests",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Forbidden"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "Status code of the response",
+            "format": "int32",
+            "example": 403
+          },
+          "success": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "basic": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "Auth0": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://login.zinnia.com/.well-known/openid-configuration",
+        "x-kong-security-openid-connect": {
+          "config": {
+            "run_on_preflight": true,
+            "scopes_claim": [
+              "https://api.zinnia.io/permissions"
+            ],
+            "audience_claim": [
+              "aud"
+            ],
+            "audience_required": [
+              "https://api.zinnia.io"
+            ],
+            "client_id": [
+              "bGOIRPRq2ZnjCujDXC7ikwR5ez7VH5GZ"
+            ],
+            "auth_methods": [
+              "bearer"
+            ],
+            "scopes": []
+          },
+          "enabled": true,
+          "protocols": [
+            "grpc",
+            "grpcs",
+            "http",
+            "https"
+          ]
+        }
+      }
+    }
+  }
+}

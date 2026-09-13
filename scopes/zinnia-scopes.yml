@@ -1,0 +1,62 @@
+generated: '2026-09-13'
+method: probed
+source: https://login.zinnia.com/.well-known/openid-configuration (HTTP 200) plus the x-kong-security-openid-connect scopes_claim declared in the published OpenAPI securitySchemes
+provider: Auth0 tenant at https://login.zinnia.com/
+issuer: https://login.zinnia.com/
+scopes_claim: https://api.zinnia.io/permissions
+scope_count: 14
+scopes:
+- name: openid
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: profile
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: offline_access
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: name
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: given_name
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: family_name
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: nickname
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: email
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: email_verified
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: picture
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: created_at
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: identities
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: phone
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+- name: address
+  description: OpenID Connect standard scope advertised by the Zinnia Auth0 tenant discovery document.
+note: These are the OIDC identity scopes the Zinnia Auth0 tenant advertises, not API permissions. Zinnia carries API authorization in a custom claim - the Kong OpenID Connect plugin config in every published
+  spec sets scopes_claim to "https://api.zinnia.io/permissions" (dev/qa/uat variants use the matching environment host) and requires an "aud" of the environment API host. The permission values themselves
+  are issued per partner tenant and are not published, so the API-level scope list cannot be enumerated from public material.
+audiences:
+- https://api.zinnia.io
+- https://dev.api.zinnia.io
+- https://uat.api.zinnia.io
+authorization_servers:
+- environment: production
+  issuer: https://login.zinnia.com/
+  discovery: https://login.zinnia.com/.well-known/openid-configuration
+  status: 200
+- environment: uat
+  issuer: https://login.uat.zinnia.com/
+  discovery: https://login.uat.zinnia.com/.well-known/openid-configuration
+  status: 200
+- environment: qa
+  issuer: https://login.qa.zinnia.com/
+  discovery: https://login.qa.zinnia.com/.well-known/openid-configuration
+  status: 200
+- environment: dev
+  issuer: https://login.dev.zinnia.com/
+  discovery: https://login.dev.zinnia.com/.well-known/openid-configuration
+  status: 200
+additional_issuers_allowed:
+- https://login.mypolicyview.com/

@@ -1,0 +1,95 @@
+generated: '2026-09-13'
+method: searched
+source: the ten published OpenAPI contracts in openapi/, the live OIDC discovery document at https://login.zinnia.com/.well-known/openid-configuration, and https://zinnia.com/news/zinnia-drives-industry-wide-shift-to-open-api-standards-for-annuities
+conformance:
+- id: oauth2
+  conforms: true
+  evidence: https://login.zinnia.com/.well-known/oauth-authorization-server returns HTTP 200 with a valid RFC 8414 authorization-server metadata document (issuer https://login.zinnia.com/, token_endpoint
+    /oauth/token, revocation_endpoint, S256 PKCE). Every published Zinnia contract secures its operations with a bearer JWT from this issuer.
+- id: oidc
+  conforms: true
+  evidence: https://login.zinnia.com/.well-known/openid-configuration returns HTTP 200 with jwks_uri, userinfo_endpoint, registration_endpoint and 14 scopes_supported. Nine of ten contracts declare securitySchemes
+    of type openIdConnect pointing at this document; saved verbatim to well-known/zinnia-openid-configuration.json.
+- id: openapi
+  conforms: true
+  evidence: Ten first-party OpenAPI documents published on https://developers.zinnia.com/ - three at 3.1.0, five at 3.0.x, one at 3.0.3, one at 3.0.4, 215 operations total.
+- id: rfc8414
+  conforms: true
+  evidence: https://login.zinnia.com/.well-known/oauth-authorization-server, HTTP 200, saved to well-known/zinnia-oauth-authorization-server.json.
+- id: rfc9457
+  conforms: false
+  evidence: No contract declares application/problem+json; three separate vendor JSON error envelopes are in use. See errors/zinnia-problem-types.yml.
+- id: idempotency
+  conforms: false
+  evidence: 'No Idempotency-Key header on any of the 215 published operations. See conventions/zinnia-conventions.yml idempotency.coverage: none.'
+- id: pagination
+  conforms: false
+  evidence: Only a limit parameter on Get Policy Versions; no cursor, no Link header, no total count, and no uniform scheme across the ten contracts.
+- id: rfc9116
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on zinnia.com, api.zinnia.io and login.zinnia.com, and the developer portal answers it with an HTML SPA shell. See well-known/zinnia-well-known.yml.
+- id: fhir
+  conforms: false
+  evidence: Not applicable - life and annuity administration, not health data exchange. No FHIR resource or CapabilityStatement appears in any contract.
+- id: scim
+  conforms: false
+  evidence: No urn:ietf:params:scim:schemas:* URN appears in any published contract.
+- id: odata
+  conforms: false
+  evidence: No $metadata surface and no OData query parameters in any published contract.
+domain_standards:
+- id: acord
+  name: ACORD (Association for Cooperative Operations Research and Development) data standards
+  conforms: true
+  grade: aligned
+  evidence: Declared in the contracts themselves, not on a marketing page. Market Connect Order Entry 1.0.3 adds "an optional ACORD-aligned prefill node to the create-transaction request, enabling pre-population
+    of party and product fields" (info.description Version History) and the PrefillRequest schema is described as "Optional ACORD-aligned prefill data to pre-populate party and product fields in the new
+    transaction". Policy Service defines bankId as "In the context of ACORD standards (the global data standards body for insurance), Bank ID refers to a unique identifier used to specify a financial institution",
+    and Policy Transactions carries eight further Acord-qualified field descriptions.
+  spec_locations:
+  - openapi/zinnia-market-connect-order-entry-openapi.yml#/info/description
+  - openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/PrefillRequest
+  - openapi/zinnia-policy-service-openapi.yml#/components/schemas (bankId)
+  - openapi/zinnia-policy-transactions-openapi.yml
+  specs:
+  - market-connect-order-entry
+  - policy-service
+  - policy-transactions
+  note: The contracts declare ACORD ALIGNMENT of specific fields and a prefill payload. They do not serve ACORD AL3 or ACORD XML messages, so this is a REST/JSON surface that speaks ACORD semantics rather
+    than an ACORD message contract.
+- id: dtcc-insurance-processing
+  name: DTCC Insurance & Retirement Services (I&RS) participant and money-movement identifiers
+  conforms: true
+  grade: aligned
+  evidence: 'DTCC identifiers are first-class fields across the servicing and origination surface: Policy Service carries DtccParticipantRecord / DtccParticipantReference schemas and 19 DTCC-qualified field
+    descriptions including "DTCC Participant ID", "DTCC Number or Participant", and "DTCC money movement"; New Business Annuity resolves "DTCC part id for a given" case and carries a "DTCC defined Indicator";
+    Policy Transactions carries a dtcc block on party records.'
+  spec_locations:
+  - openapi/zinnia-policy-service-openapi.yml
+  - openapi/zinnia-policy-transactions-openapi.yml#/components/schemas/DtccParticipantRecord
+  - openapi/zinnia-new-business-annuity-openapi.yml
+  specs:
+  - illustration
+  - new-business
+  - new-business-annuity
+  - policy-service
+  - policy-transactions
+- id: iri-annuity-in-force-apis
+  name: Insured Retirement Institute (IRI) standardized in-force annuity transaction APIs
+  conforms: true
+  grade: contributor
+  evidence: 'IRI approved four in-force transaction APIs - One-Time Withdrawal Quote, One-Time Withdrawal, Systematic Withdrawal Program Setup and Systematic Withdrawal Program Update - built on the Enterprise
+    API framework Zinnia contributed, announced 2026-04-09 (https://zinnia.com/news/zinnia-drives-industry-wide-shift-to-open-api-standards-for-annuities). All four transaction shapes are present in the
+    published Policy Transactions contract: partialWithdrawalOneTime1 with its eligibility/validation pair, systematicProgramQuote, systematicProgram1 and systematicProgramUpdates.'
+  spec_locations:
+  - openapi/zinnia-policy-transactions-openapi.yml#partialWithdrawalOneTime1
+  - openapi/zinnia-policy-transactions-openapi.yml#systematicProgramQuote
+  - openapi/zinnia-policy-transactions-openapi.yml#systematicProgram1
+  - openapi/zinnia-policy-transactions-openapi.yml#systematicProgramUpdates
+  governance: Zinnia holds a seat on the IRI Messaging Standards Governance Committee. A Policy Inquiry API is named as forthcoming.
+  note: The published contract does not itself carry an IRI version marker or conformance declaration, so the mapping between these operations and the IRI-approved shapes is Zinnia's public claim plus a
+    name-level match against the contract - it is not machine-assertable from the spec.
+certifications:
+  published: false
+  note: No trust center, SOC 2 report, ISO 27001 certificate or compliance page is published on zinnia.com. trust.zinnia.com and security.zinnia.com do not resolve and https://zinnia.com/security returns
+    404. The Policy Service docs link a "Security Guidelines" page at https://docs.zinnia.com/security - that host does not resolve.

@@ -1,0 +1,135 @@
+generated: '2026-09-13'
+method: searched
+source: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details and https://developers.zinnia.com/apis/documents-0-3-0/docs, reconciled against all ten published OpenAPI contracts in
+  openapi/
+surface:
+  operations: 215
+  write_operations: 148
+  read_operations: 67
+  specs: 10
+auth:
+  style: oauth2-m2m-bearer
+  header: 'Authorization: Bearer <JWT>'
+  note: Auth0-issued machine-to-machine JWT, 24-hour lifetime, audience-bound to the environment API host, enforced by the Kong OpenID Connect plugin. See authentication/zinnia-authentication.yml.
+idempotency:
+  coverage: none
+  mechanism: null
+  header: null
+  evidence: No Idempotency-Key (or equivalent) header appears in any of the 215 operations across the ten published contracts; a header census over every operation parameters[] returns only "Authorization"
+    (20) and "x-correlation-id" (7). Neither the Policy Service error/troubleshooting guide nor the Enterprise Documents guide documents replay protection, and the published retry guidance ("you MAY retry
+    on 429, 500, 502, 503 and 504 using exponential backoff") is given with no deduplication mechanism attached.
+  note: Request bodies carry a client-supplied correlationId / x-correlation-id used for tracing, and Market Connect Order Entry accepts an optional externalTransactionId, but neither is documented as a
+    dedupe key. On a surface of 131 mutating operations that move money (premiums, withdrawals, surrenders, loans, fund transfers, death claims), absent replay protection is the single largest agent-readiness
+    gap in this profile.
+dry_run_mode:
+  supported: true
+  style: separate pre-flight operations
+  note: 'Policy Transactions implements a three-stage pattern for nearly every financial and non-financial transaction: POST .../{transaction}/eligibilitycheck decides whether the policy may do it at all,
+    POST .../{transaction}/validation validates the concrete request payload, and only then POST .../{transaction} submits it. There is also POST /policy/v2/transactions/{planCode}/{policyNumber}/eligibility/transaction
+    (evaluateTransactionEligibilityByPolicy) and GET /bpm/v1/policies/{cusip}/{policyNumber}/eligibleTransactions to enumerate what a policy is eligible for before choosing an action. This is a genuine
+    rehearsal surface, and it is unusually complete.'
+  examples:
+  - eligibilitycheckOneTimePremiumTransactions
+  - validationOneTimePremiumTransactions
+  - submitOneTimePremiumTransaction
+  - evaluateTransactionEligibilityByPolicy
+  - getEligibleTransactions
+reversibility:
+  grade: documented
+  applies: true
+  note: Zinnia publishes real reversal operations for the write surface, but does not publish the duration of any reversal window in public material. The free-look window is enforced from a per-policy freelook
+    endDate rather than a stated number of days, so the window is machine-checkable through an operation but not readable from the docs.
+  reversals:
+  - action: Cancel an in-flight transaction
+    operationId: cancelTransaction1
+    path: POST /policy/v1/transactions/{planCode}/{policyNumber}/canceltransaction
+    spec: openapi/zinnia-policy-transactions-openapi.yml
+    window: null
+    window_note: No window stated in the contract or the docs.
+  - action: Cancel a case
+    operationId: cancelCase
+    path: PUT /policy/v1/cases/{caseId}/cancel
+    spec: openapi/zinnia-policy-transactions-openapi.yml
+    window: null
+    window_note: No window stated.
+  - action: Free-look cancellation of a policy
+    operationId: freelookcancellation1
+    path: POST /policy/v1/transactions/{planCode}/{policyNumber}/freelookcancellation
+    eligibility: freelookcancellationEligibility1
+    validation: validationFreelookCancellationTransaction1
+    spec: openapi/zinnia-policy-transactions-openapi.yml
+    window: policy-specific
+    window_note: 'The eligibility operation description states the rule verbatim: "If freelook endDate is less than or equal to policy effective Date, cancel the policy based on the request." The window
+      is therefore carried on the policy record and testable through the eligibility check, but no duration is published.'
+  - action: Reverse and recreate a posted transaction
+    operationId: reverserecreate1
+    path: POST /policy/v1/transactions/{planCode}/{policyNumber}/reverserecreate
+    spec: openapi/zinnia-policy-transactions-openapi.yml
+    window: null
+    window_note: No window stated.
+  - action: Cancel an e-signature ceremony (voids the DocuSign envelope, returns the case to Pending)
+    operationId: cancelEsignatureCeremony
+    path: POST /market-connect/order-entry/v1/esignature/cancel-ceremony
+    spec: openapi/zinnia-market-connect-order-entry-openapi.yml
+    window: null
+    window_note: No window stated; bounded in practice by envelope state.
+  - action: Delete a transaction comment
+    operationId: deleteComment
+    path: DELETE /market-connect/order-entry/v1/comments
+    spec: openapi/zinnia-market-connect-order-entry-openapi.yml
+    window: null
+  no_reversal_for:
+  - Initial death claim submission (submitInitialDeathClaim) has eligibility and validation stages but no published reversal operation.
+pagination:
+  style: limit + optional filters (not cursor or page based)
+  params:
+  - limit
+  - transactionType
+  - offset
+  note: Get Policy Versions accepts limit and transactionType; Documents search accepts body-level filters. No Link header, no cursor token and no total-count field is documented, and pagination is not
+    uniform across the ten contracts.
+  source: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+request_id:
+  supported: true
+  header: x-correlation-id
+  body_field: request.correlationId
+  note: A client-supplied correlation id is accepted as a header on 7 operations and inside the request envelope on Policy Service and Policy Transactions payloads. It is a tracing id, not an idempotency
+    key.
+versioning:
+  style: path segment per service
+  examples:
+  - /policy/v1/
+  - /policy/v2/
+  - /document/v2/
+  - /document/v3/
+  - /case/v1/
+  - /case/v2/
+  - /bpm/v1/
+  - /market-connect/order-entry/v1/
+  - /product/v1/
+  - /client-case-manager/v1/
+  note: Each service versions its own path prefix independently. Major versions run side by side - Documents serves v2 and v3 concurrently, Case Management v1 and v2, Policy Transactions v1 and v2. See
+    lifecycle/zinnia-lifecycle.yml.
+error_envelope:
+  format: vendor-json
+  rfc9457: false
+  see: errors/zinnia-problem-types.yml
+  note: Three distinct envelope shapes are in use across the platform; there is no single documented error contract.
+rate_limit_signaling:
+  status: 429
+  headers:
+  - Retry-After
+  see: rate-limits/zinnia-rate-limits.yml
+  note: 429 is declared in the Market Connect Order Entry contract as RATE_LIMIT_EXCEEDED on 36 responses, and the Policy Service troubleshooting guide names Retry-After. No X-RateLimit-* or RFC 9238 RateLimit-*
+    header is documented and no numeric limit is published.
+content_type:
+  request: application/json
+  response: application/json
+  note: Enterprise Documents adds multipart/form-data for upload and binary download responses.
+cross_links:
+  errors: errors/zinnia-problem-types.yml
+  lifecycle: lifecycle/zinnia-lifecycle.yml
+  authentication: authentication/zinnia-authentication.yml
+  rate_limits: rate-limits/zinnia-rate-limits.yml
+  scopes: scopes/zinnia-scopes.yml
+  data_model: data-model/zinnia-data-model.yml

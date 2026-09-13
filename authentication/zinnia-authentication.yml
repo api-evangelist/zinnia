@@ -1,0 +1,74 @@
+generated: '2026-09-13'
+method: searched
+source: https://developers.zinnia.com/apis/documents-0-3-0/docs and https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service, reconciled against the securitySchemes in all ten published
+  OpenAPI contracts and the live OIDC discovery document at https://login.zinnia.com/.well-known/openid-configuration
+docs: https://developers.zinnia.com/apis/documents-0-3-0/docs
+summary:
+  types:
+  - openIdConnect
+  - http
+  primary: openIdConnect
+  model: OAuth 2.0 machine-to-machine (client credentials) JWT bearer tokens issued by the Zinnia Auth0 identity provider, enforced at the Kong gateway.
+how_to_authenticate:
+- Obtain M2M client credentials from your Zinnia representative - there is no self-serve signup on the developer portal (both /register and /login 302 back to the portal root).
+- Request an access token from the environment Auth0 tenant token endpoint, e.g. POST https://login.zinnia.com/oauth/token, with an "audience" of the environment API host (https://api.zinnia.io).
+- 'Send the token on every request as "Authorization: Bearer {token}". The Documents API docs state the Bearer prefix is case-sensitive and the trailing space is required.'
+- M2M access tokens are valid for 24 hours from issuance and may be reused for any number of requests in that window (Enterprise Documents API, info.description).
+schemes:
+- name: Auth0
+  type: openIdConnect
+  in: header
+  header: Authorization
+  format: Bearer <JWT>
+  openIdConnectUrl: https://login.zinnia.com/.well-known/openid-configuration
+  issuer: https://login.zinnia.com/
+  token_endpoint: https://login.zinnia.com/oauth/token
+  jwks_uri: https://login.zinnia.com/.well-known/jwks.json
+  audience_required:
+  - https://api.zinnia.io
+  scopes_claim: https://api.zinnia.io/permissions
+  token_lifetime: 24 hours
+  enforced_by: Kong OpenID Connect plugin (x-kong-security-openid-connect), run_on_preflight true, auth_methods [bearer]
+  sources:
+  - openapi/zinnia-documents-openapi.yml
+  - openapi/zinnia-illustration-openapi.yml
+  - openapi/zinnia-illustration-client-cases-openapi.yml
+  - openapi/zinnia-new-business-openapi.yml
+  - openapi/zinnia-new-business-annuity-openapi.yml
+  - openapi/zinnia-policy-service-openapi.yml
+  - openapi/zinnia-policy-transactions-openapi.yml
+  - openapi/zinnia-product-service-openapi.yml
+- name: openIdConnect
+  type: openIdConnect
+  in: header
+  header: Authorization
+  format: Bearer <JWT>
+  openIdConnectUrl: https://login.qa.zinnia.com/.well-known/openid-configuration
+  note: Market Connect Order Entry declares the same model under the scheme name "openIdConnect" and points at the QA tenant; verify_signature true, consumer_claim sub.
+  sources:
+  - openapi/zinnia-market-connect-order-entry-openapi.yml
+- name: basic
+  type: http
+  scheme: basic
+  note: Declared alongside Auth0 in the Enterprise Documents API components but not applied to any operation security[] block; the documented model for that API is the JWT bearer token.
+  sources:
+  - openapi/zinnia-documents-openapi.yml
+multi_tenant_identity:
+  note: Policy Service additionally allows tokens issued by https://login.mypolicyview.com/ (issuers_allowed plus extra_jwks_uris), the consumer-facing MyPolicyView identity tenant - so a policyholder-authenticated
+    session can reach the same policy surface.
+  source: openapi/zinnia-policy-service-openapi.yml
+environments:
+- environment: production
+  api_host: https://api.zinnia.io
+  issuer: https://login.zinnia.com/
+- environment: uat
+  api_host: https://uat.api.zinnia.io
+  issuer: https://login.uat.zinnia.com/
+- environment: qa
+  api_host: https://qa.api.zinnia.io
+  issuer: https://login.qa.zinnia.com/
+- environment: dev
+  api_host: https://dev.api.zinnia.io
+  issuer: https://login.dev.zinnia.com/
+authorization: Fine-grained authorization (FGA) is referenced in the Market Connect Order Entry version history ("Added authorization checks through FGA") and the Illustration docs ("Federated Authentication
+  and Fine Grained Authorization Control"). The permission values are tenant-issued and not published.

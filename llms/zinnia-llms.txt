@@ -1,0 +1,66 @@
+# Developer Portal
+
+> Start building and innovating with our APIs
+
+## Pages & Guides
+
+- [Kong API](https://developers.zinnia.com/index.md): Start building and innovating with our APIs
+
+## Case Management
+
+- [1.0.0](https://developers.zinnia.com/apis/case-management-1-0-0/versions/0091226b-6452-4e75-93ce-4bbfe022aad5.md): API Specification
+
+## Illustration
+
+- [Illustration Service](https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service.md)
+- [Samples](https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples.md)
+- [Samples > As Is Inforce Request](https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples/as-is-inforce-request.md)
+- [Samples > As Is Inforce Response](https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples/as-is-inforce-response.md)
+- [Samples > New Business Request](https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples/new-business-request.md)
+- [Samples > New Business Response](https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples/new-business-response.md)
+- [3.5.3](https://developers.zinnia.com/apis/illustration-3-0-8/versions/b96a49c1-73c5-46d3-8968-fe603081d524.md): API Specification
+
+## Policy
+
+- [Policy](https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details.md)
+- [0.0.21](https://developers.zinnia.com/apis/policy-service-0-1-0/versions/8306e031-b41c-452a-a7ed-d73d65602086.md): API Specification
+
+## Documents
+
+> The Enterprise Document Service (EDS) API is the system of record for documents across Zinnia’s life insurance and annuity platforms. Documents are stored once and can be retrieved, updated, or searched throughout their retention period.
+
+- [3.0.0](https://developers.zinnia.com/apis/documents-0-3-0/versions/43d1ee7b-44e7-4303-b0cd-ca813c63b625.md): API Specification
+
+## Policy Transactions
+
+> Enterprise API for enforcing policy transactions and validations. This API provides a comprehensive interface for - Policy transaction validation and processing<br> - Financial and non-financial transaction management<br> - Policy party management and updates<br> - Systematic program management<br>…
+
+- [1.0.8](https://developers.zinnia.com/apis/policy-transactions-1-0-2/versions/d0006570-ab9d-464e-814f-d120ba425e84.md): API Specification
+
+## New Business - Annuity
+
+- [0.7.0](https://developers.zinnia.com/apis/new-business-annuity/versions/45a989ab-c3aa-4f85-8f67-f05c41747ed7.md): API Specification
+
+## Illustration-Client-Cases
+
+> Illustration Client Cases
+
+- [v1](https://developers.zinnia.com/apis/illustration-client-cases/versions/a31534b3-f446-4f8d-8b26-1106d7bdfb11.md): API Specification
+
+## Product
+
+> The Product Service API provides access to product configuration and reference data required for insurance and financial offerings. It enables external systems to retrieve product definitions, features, eligibility rules, and related metadata through a scalable interface. The API ensures alignment w…
+
+- [0.1.0](https://developers.zinnia.com/apis/product-service/versions/22f4da0f-1e2d-480a-b682-ea9a0819b47f.md): API Specification
+
+## MarketConnect-OrderEntry
+
+> The Market Connect – Order Entry API enables external distribution platforms and partner systems to electronically initiate, manage, and submit life insurance and annuity applications through a unified digital workflow. Leveraging pre-populated data from existing quotes and suitability assessments,…
+
+- [1.0.3](https://developers.zinnia.com/apis/market-connect-order-entry/versions/50f981c3-db50-4358-884f-31eb427255ec.md): API Specification
+
+## New-Business
+
+> New Business
+
+- [0.9.8](https://developers.zinnia.com/apis/new-business/versions/b8532e16-b28e-4393-9305-def50b91e40e.md): API Specification

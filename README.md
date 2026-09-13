@@ -64,4 +64,41 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Zinnia is a company surfaced via the API Evangelist harvest backlog (source: absent-parent) and added to the network as a stub for full-pipeline profiling.
+Zinnia is an Eldridge-backed insurance technology and third-party administration company that provides the
+policy administration, new business, order entry, illustration, document and in-force servicing infrastructure
+behind a large share of the US life insurance and annuity market. Formerly SE2, and now the parent of
+Policygenius, Ebix's life and annuity software assets, AnnuityNet, VitalQuote, WinFlex, SmartOffice and Zahara.
+
+## What this profile found
+
+Zinnia runs a public Kong developer portal at [developers.zinnia.com](https://developers.zinnia.com/) that
+publishes **ten first-party OpenAPI contracts totalling 215 operations** against the enterprise API gateway at
+`api.zinnia.io`:
+
+| API | Version | Operations |
+|---|---|---|
+| Policy Transactions | 1.0.8 | 102 |
+| Illustration Generation | 3.5.3 | 21 |
+| Market Connect Order Entry | 1.0.3 | 19 |
+| Policy Service | 0.0.21 | 16 |
+| New Business | 0.9.8 | 14 |
+| Enterprise Documents (EDS) | 3.0.0 | 12 |
+| Illustration Client Cases | v1 | 12 |
+| New Business Annuity | 0.7.0 | 12 |
+| Product Service | 0.1.0 | 4 |
+| Case Management | 1.0.0 | 3 |
+
+Authentication is Auth0 machine-to-machine OAuth 2.0 with 24-hour JWT bearer tokens, enforced by the Kong
+OpenID Connect plugin; the tenant's OIDC discovery document is live and anonymously readable at
+`login.zinnia.com`. The contracts declare **ACORD-aligned** prefill and field semantics and carry **DTCC**
+Insurance & Retirement Services participant and money-movement identifiers as first-class fields. The four
+in-force annuity transaction APIs the **Insured Retirement Institute** approved in April 2026 were built on
+the Enterprise API framework Zinnia contributed, and all four shapes are present in the published Policy
+Transactions contract.
+
+Gaps this profile recorded, with evidence: no idempotency key on any of the 215 operations (on a surface of
+131 mutating operations that move money); no published rate-limit numbers, though `429` and `Retry-After` are
+documented; no deprecation policy while superseded `/document/v2/` and `/case/v1/` operations stay published
+unmarked; no public status page (the Statuspage tenant that exists is team-only); no pricing; no SDKs in any
+registry; no MCP server or agent card; and four documentation links published in the Policy Service support
+section point at `docs.zinnia.com`, a host that does not resolve.

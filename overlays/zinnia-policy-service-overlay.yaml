@@ -1,0 +1,31 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Policy Service
+  version: 1.0.0
+extends: openapi/zinnia-policy-service-openapi.yml
+x-generated: '2026-09-13'
+x-method: generated
+x-source: Derived from the verbatim contract published at https://developers.zinnia.com/apis/policy-service-0-1-0/docs; this overlay adds only API Evangelist metadata and never mutates the original.
+actions:
+- target: $.info
+  description: Record the API Evangelist provenance of this profile and link the operating documentation page the contract was published on.
+  update:
+    x-apievangelist-profile: https://apis.io/provider/zinnia
+    x-source-document: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+    x-harvested: '2026-09-13'
+    externalDocs:
+      description: Zinnia Developer Portal
+      url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+- target: $.info
+  description: No contact is published in this contract. Record the one support address Zinnia does publish in a sibling contract rather than inventing one.
+  update:
+    x-support-note: 'Zinnia publishes orderentrysupport@zinnia.com as info.contact on the Market Connect Order Entry contract only. General contact: https://zinnia.com/contact'
+- target: $.info
+  description: Record the cross-cutting semantics derived for this provider so a consumer of the enhanced contract can find them.
+  update:
+    x-conventions: conventions/zinnia-conventions.yml
+    x-errors: errors/zinnia-problem-types.yml
+    x-authentication: authentication/zinnia-authentication.yml
+    x-rate-limits: rate-limits/zinnia-rate-limits.yml
+    x-idempotency-coverage: none
+    x-reversibility-grade: documented

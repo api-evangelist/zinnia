@@ -1,0 +1,69 @@
+generated: '2026-09-13'
+method: searched
+source: servers[] blocks of the ten published OpenAPI contracts plus live probes of the four Auth0 tenant discovery documents
+self_serve: false
+public_test_credentials: false
+note: 'Zinnia publishes a full non-production environment ladder in its contracts - dev, qa and uat hosts under api.zinnia.io, each with its own Auth0 identity tenant whose OIDC discovery document is live
+  and anonymously readable. This is a real, documented test surface, but it is NOT a self-serve sandbox: there is no signup, no test key, no published test policy numbers, plan codes or fixtures, and the
+  Enterprise Documents API states "Contact your Zinnia representative to obtain credentials". No Sandbox pointer is wired in apis.yml for that reason. Six of the ten published contracts name ONLY non-production
+  servers, which means the specification a reader downloads from the portal frequently points at a test environment rather than production.'
+environments:
+- name: production
+  api_host: https://api.zinnia.io
+  issuer: https://login.zinnia.com/
+  discovery_status: 200
+  declared_by:
+  - case-management
+  - documents
+  - new-business
+  - new-business-annuity
+  - policy-service
+- name: uat
+  api_host: https://uat.api.zinnia.io
+  issuer: https://login.uat.zinnia.com/
+  discovery_status: 200
+  declared_by:
+  - case-management
+  - documents
+  - illustration-client-cases
+  - market-connect-order-entry
+  - new-business
+  - new-business-annuity
+  - product-service
+- name: qa
+  api_host: https://qa.api.zinnia.io
+  issuer: https://login.qa.zinnia.com/
+  discovery_status: 200
+  declared_by:
+  - case-management
+  - documents
+  - market-connect-order-entry
+  - new-business
+  - new-business-annuity
+  - policy-transactions
+- name: dev
+  api_host: https://dev.api.zinnia.io
+  issuer: https://login.dev.zinnia.com/
+  discovery_status: 200
+  declared_by:
+  - case-management
+  - documents
+  - illustration
+  - market-connect-order-entry
+  - new-business
+  - new-business-annuity
+  - policy-transactions
+specs_without_production_server:
+- illustration
+- illustration-client-cases
+- market-connect-order-entry
+- policy-transactions
+- product-service
+worked_examples:
+  published: true
+  urls:
+  - https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples/as-is-inforce-request
+  - https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples/as-is-inforce-response
+  - https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples/new-business-request
+  - https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples/new-business-response
+  note: Four full request/response sample documents for the Illustration service, plus in-spec examples on Market Connect Order Entry and Enterprise Documents.

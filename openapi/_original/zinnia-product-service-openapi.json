@@ -1,0 +1,909 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/product/v1/products": {
+      "post": {
+        "operationId": "CreateProduct",
+        "summary": "",
+        "description": "Create Product",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductDataModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request \u2013 validation error or duplicate key"
+          },
+          "401": {
+            "description": "Unauthorized \u2013 missing or invalid token"
+          },
+          "403": {
+            "description": "Forbidden \u2013 insufficient permissions"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductModelDB"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Product"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "QueryProduct",
+        "summary": "",
+        "description": "Query and retrieve products with optional filtering. Always returns an array of products, even when no products match the criteria (returns empty array) or when only a single product is found.",
+        "parameters": [
+          {
+            "name": "carrier",
+            "required": true,
+            "in": "query",
+            "description": "carrier name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "carrierProductId",
+            "required": false,
+            "in": "query",
+            "description": "carrier product id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "productId",
+            "required": false,
+            "in": "query",
+            "description": "product id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "productType",
+            "required": false,
+            "in": "query",
+            "description": "product type",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "offset",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "limit",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of products matching the search criteria. Returns empty array if no products found, single-item array if one product found, or multiple products if many match.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductModelDB"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request \u2013 validation error or missing required parameter"
+          },
+          "401": {
+            "description": "Unauthorized \u2013 missing or invalid token"
+          },
+          "403": {
+            "description": "Forbidden \u2013 insufficient permissions or carrier missing"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Product"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/product/v2/products/{productId}": {
+      "get": {
+        "operationId": "getProductById",
+        "summary": "Get product by ID",
+        "description": "Retrieves a single product by its UUID",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "description": "Unique product identifier (UUID)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductV2Model"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid ProductId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Product V2"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    },
+    "/product/v2/products/search": {
+      "post": {
+        "operationId": "searchProducts",
+        "summary": "Search for products by criteria",
+        "description": "When searching for products, each separate field combines in a logical AND grouping",
+        "parameters": [
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to order by",
+            "schema": {
+              "example": "productName",
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderByDirection",
+            "required": false,
+            "in": "query",
+            "description": "Order direction",
+            "schema": {
+              "example": "DESC",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of results to return (max 1000)",
+            "schema": {
+              "minimum": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Index to start page search at",
+            "schema": {
+              "minimum": 0,
+              "example": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductSearchRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Paginated search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProductsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Product V2"
+        ],
+        "security": [
+          {
+            "Auth0": []
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Zinnia Product Service",
+    "description": "Product API",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Product",
+      "description": ""
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://uat.api.zinnia.io"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "Auth0": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://login.uat.zinnia.com/.well-known/openid-configuration",
+        "x-kong-security-openid-connect": {
+          "config": {
+            "run_on_preflight": true,
+            "scopes_claim": [
+              "https://uat.api.zinnia.io/permissions"
+            ],
+            "audience_claim": [
+              "aud"
+            ],
+            "audience_required": [
+              "https://uat.api.zinnia.io"
+            ],
+            "auth_methods": [
+              "bearer"
+            ],
+            "scopes": []
+          },
+          "enabled": true,
+          "protocols": [
+            "grpc",
+            "grpcs",
+            "http",
+            "https"
+          ]
+        }
+      }
+    },
+    "schemas": {
+      "ProductDataModel": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "Zinnia generated unique ID generated to uniquely identify the product in our product master database",
+            "example": "UUID"
+          },
+          "carrierProductId": {
+            "type": "string",
+            "description": "Carrier generated unique ID, which may be used to communicate across integrations.",
+            "example": "EVGL-PROD-001"
+          },
+          "productMarketingName": {
+            "type": "string",
+            "description": "Carrier generated marketing name for the product",
+            "example": "Everglades Term Life",
+            "enum": [
+              "Everglades Term Life",
+              "Everglades Return of Premium Term",
+              "Everglades Index Universal Life"
+            ]
+          },
+          "carrier": {
+            "type": "string",
+            "description": "Unique carrier key used in enterprise APIs",
+            "example": "EVGL"
+          },
+          "productLine": {
+            "type": "string",
+            "description": "Product line category",
+            "example": "LIFE",
+            "enum": [
+              "LIFE",
+              "ANNUITY"
+            ]
+          },
+          "productType": {
+            "type": "string",
+            "description": "Product type category",
+            "example": "TERM",
+            "enum": [
+              "INDEX_UNIVERSAL_LIFE",
+              "UNIVERSAL_LIFE",
+              "TERM"
+            ]
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code for the product (multiple can exist for a single product)",
+            "example": "EVGUL001"
+          },
+          "termLength": {
+            "type": "array",
+            "description": "Term length in years",
+            "example": [
+              10,
+              20,
+              30
+            ],
+            "items": {
+              "type": "number",
+              "enum": [
+                1,
+                5,
+                10,
+                15,
+                20,
+                25,
+                30,
+                35,
+                40
+              ]
+            }
+          },
+          "availableToSell": {
+            "type": "boolean",
+            "description": "Indicates if the product is available to sell",
+            "example": true
+          }
+        }
+      },
+      "ProductModelDB": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "Zinnia generated unique ID generated to uniquely identify the product in our product master database",
+            "example": "UUID"
+          },
+          "carrierProductId": {
+            "type": "string",
+            "description": "Carrier generated unique ID, which may be used to communicate across integrations.",
+            "example": "EVGL-PROD-001"
+          },
+          "productMarketingName": {
+            "type": "string",
+            "description": "Carrier generated marketing name for the product",
+            "example": "Everglades Term Life",
+            "enum": [
+              "Everglades Term Life",
+              "Everglades Return of Premium Term",
+              "Everglades Index Universal Life"
+            ]
+          },
+          "carrier": {
+            "type": "string",
+            "description": "Unique carrier key used in enterprise APIs",
+            "example": "EVGL"
+          },
+          "productLine": {
+            "type": "string",
+            "description": "Product line category",
+            "example": "LIFE",
+            "enum": [
+              "LIFE",
+              "ANNUITY"
+            ]
+          },
+          "productType": {
+            "type": "string",
+            "description": "Product type category",
+            "example": "TERM",
+            "enum": [
+              "INDEX_UNIVERSAL_LIFE",
+              "UNIVERSAL_LIFE",
+              "TERM"
+            ]
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code for the product (multiple can exist for a single product)",
+            "example": "EVGUL001"
+          },
+          "termLength": {
+            "type": "array",
+            "description": "Term length in years",
+            "example": [
+              10,
+              20,
+              30
+            ],
+            "items": {
+              "type": "number",
+              "enum": [
+                1,
+                5,
+                10,
+                15,
+                20,
+                25,
+                30,
+                35,
+                40
+              ]
+            }
+          },
+          "availableToSell": {
+            "type": "boolean",
+            "description": "Indicates if the product is available to sell",
+            "example": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Database generated unique ID"
+          }
+        }
+      },
+      "Distributor": {
+        "type": "object",
+        "properties": {
+          "distributorCode": {
+            "type": "string",
+            "description": "Unique distributor code",
+            "example": "EVGL"
+          },
+          "distributorName": {
+            "type": "string",
+            "description": "Distributor name",
+            "example": "Everglades Distribution"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date of distributor authorization",
+            "example": "2025-01-01"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date of distributor authorization",
+            "example": "2099-01-01"
+          }
+        },
+        "required": [
+          "distributorCode",
+          "distributorName",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "StateAvailability": {
+        "type": "object",
+        "properties": {
+          "availableToSell": {
+            "type": "boolean",
+            "description": "Indicates whether the product is available to sell in this state",
+            "example": true
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date of state availability (inclusive)",
+            "example": "2025-01-01"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date of state availability",
+            "example": "2099-01-01"
+          },
+          "abbreviation": {
+            "type": "string",
+            "description": "Two-letter state abbreviation",
+            "example": "NY",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "name": {
+            "type": "string",
+            "description": "Full state name",
+            "example": "New York"
+          }
+        }
+      },
+      "ProductV2Model": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "System-generated unique identifier (UUID)",
+            "example": "7b9f2b65-1b4a-4f4c-9d9d-6a7f5b6d9b1a"
+          },
+          "carrierCode": {
+            "type": "string",
+            "description": "Unique carrier code",
+            "example": "EVGL"
+          },
+          "carrierName": {
+            "type": "string",
+            "description": "Carrier name",
+            "example": "Everglades"
+          },
+          "cusip": {
+            "type": "string",
+            "description": "CUSIP identifier (9 characters)",
+            "example": "1234567AB",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string",
+            "description": "Primary product name",
+            "example": "Term Life 20"
+          },
+          "marketingName": {
+            "type": "string",
+            "description": "Marketing name for the product",
+            "example": "Everglades Term 20"
+          },
+          "legalName": {
+            "type": "string",
+            "description": "Full legal name of the product",
+            "example": "Everglades Term Life Insurance \u2013 20 Year Level Premium"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version identifier",
+            "example": "1.0"
+          },
+          "versionStartDate": {
+            "type": "string",
+            "description": "Version start date",
+            "example": "2025-01-01"
+          },
+          "versionEndDate": {
+            "type": "string",
+            "description": "Version end date",
+            "example": "2099-01-01"
+          },
+          "line": {
+            "type": "string",
+            "description": "Product line classification",
+            "enum": [
+              "LIFE",
+              "ANNUITY"
+            ],
+            "example": "LIFE"
+          },
+          "type": {
+            "type": "string",
+            "description": "Product type",
+            "enum": [
+              "TERM",
+              "UNIVERSAL_LIFE"
+            ],
+            "example": "TERM"
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code",
+            "example": "EVGUL001"
+          },
+          "availableToSell": {
+            "type": "boolean",
+            "description": "Whether the product is available to sell at product level",
+            "example": true
+          },
+          "distributors": {
+            "description": "List of distributors authorized to sell this product",
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Distributor"
+            }
+          },
+          "stateAvailability": {
+            "description": "State-level availability records",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StateAvailability"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "carrierCode",
+          "carrierName",
+          "productName",
+          "marketingName",
+          "legalName",
+          "version",
+          "versionStartDate",
+          "versionEndDate",
+          "line",
+          "type",
+          "planCode",
+          "availableToSell",
+          "stateAvailability"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Human-readable error description",
+            "example": "Invalid orderByDirection. Must be \"ASC\" or \"DESC\"."
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 formatted timestamp of the error occurrence",
+            "example": "2025-12-09T16:03:00Z"
+          }
+        },
+        "required": [
+          "message",
+          "timestamp"
+        ]
+      },
+      "ProductSearchRequestDto": {
+        "type": "object",
+        "properties": {
+          "distributorCodes": {
+            "description": "Distributor codes to include (logical OR)",
+            "example": [
+              "EVGL"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "distributorNames": {
+            "description": "Distributor names to match (logical OR, case-insensitive)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "distributorEffectiveOn": {
+            "type": "string",
+            "description": "Date on which distributor must be effective",
+            "example": "2025-01-15"
+          },
+          "carrierCodes": {
+            "description": "Carrier codes to include (logical OR)",
+            "example": [
+              "EVGL"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "carrierNames": {
+            "description": "Carrier names to match (logical OR, case-insensitive)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cusips": {
+            "description": "CUSIPs to match exactly (logical OR)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "planCodes": {
+            "description": "Plan codes to include (logical OR)",
+            "example": [
+              "EVGUL001"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "productNames": {
+            "description": "Product names to match (logical OR)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "marketingNames": {
+            "description": "Marketing names to match (logical OR)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "legalNames": {
+            "description": "Legal names to match (logical OR)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "types": {
+            "type": "array",
+            "description": "Product types to include (logical OR)",
+            "example": [
+              "TERM"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "TERM",
+                "UNIVERSAL_LIFE"
+              ]
+            }
+          },
+          "line": {
+            "type": "string",
+            "description": "Product line to filter by",
+            "enum": [
+              "LIFE",
+              "ANNUITY"
+            ]
+          },
+          "versionEffectiveOn": {
+            "type": "string",
+            "description": "Returns products whose version is effective on this date",
+            "example": "2025-01-15"
+          },
+          "states": {
+            "description": "Two-letter state abbreviations to filter by (logical OR)",
+            "example": [
+              "NY",
+              "FL"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stateEffectiveOn": {
+            "type": "string",
+            "description": "Date on which state availability must be effective",
+            "example": "2025-01-15"
+          },
+          "stateAvailableToSell": {
+            "type": "boolean",
+            "description": "State-level availability filter"
+          },
+          "availableToSell": {
+            "type": "boolean",
+            "description": "Product-level availability filter"
+          }
+        }
+      },
+      "PaginatedProductsResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number",
+            "description": "Total number of records matching the search",
+            "example": 121
+          },
+          "next": {
+            "type": "string",
+            "description": "URL to the next page, if any",
+            "example": "/product/v2/products/search?offset=10&limit=10",
+            "nullable": true
+          },
+          "previous": {
+            "type": "string",
+            "description": "URL to the previous page, if any",
+            "example": "",
+            "nullable": true
+          },
+          "results": {
+            "description": "Array of products matching the search criteria",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductV2Model"
+            }
+          }
+        },
+        "required": [
+          "count",
+          "next",
+          "previous",
+          "results"
+        ]
+      }
+    }
+  }
+}

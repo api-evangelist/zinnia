@@ -1,0 +1,5047 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "3.5.3",
+    "title": "Illustration Generation",
+    "description": "Create and manage illustration requests"
+  },
+  "servers": [
+    {
+      "url": "https://dev.api.zinnia.io",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Illustration Engine",
+      "description": "API Endpoints for use by the internal illustration engines"
+    },
+    {
+      "name": "Term Life (TL) Illustrations",
+      "description": "Term Life product illustrations"
+    },
+    {
+      "name": "Indexed Universal Life (IUL) Illustrations",
+      "description": "Term Life product illustrations"
+    },
+    {
+      "name": "Whole Life (WL) Illustrations",
+      "description": "Whole Life product illustrations"
+    },
+    {
+      "name": "Hybrid-IUL-Term (HIT) Illustrations",
+      "description": "Hybrid-IUL/Term product illustrations"
+    },
+    {
+      "name": "Utility",
+      "description": "Utility operations"
+    }
+  ],
+  "paths": {
+    "/illustration/v3/illustration-request": {
+      "post": {
+        "operationId": "create-illustration",
+        "summary": "Create an illustration",
+        "description": "Start an asynchronous illustration calculation",
+        "parameters": [
+          {
+            "name": "formats",
+            "in": "query",
+            "description": "what output formats should be generated and stored for retrieval",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Output-Format"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Calculation-Illustration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The request was created, the identifier for the request is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "requestId": "abc123def"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "the request was malformed"
+          },
+          "500": {
+            "description": "a processing error occurred"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Illustration Engine"
+        ]
+      }
+    },
+    "/illustration/v3/illustration-request/{id}": {
+      "summary": "manage a specific illustration request",
+      "get": {
+        "operationId": "get-illustration",
+        "summary": "Get a specific illustration",
+        "description": "Get status of a specific asynchronous calculation request",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "the illustration request identifier for which status information is desired",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "description": "The output format for which information status information is desired. If not supplied will return status of all formats associated with the request identifier.",
+            "schema": {
+              "$ref": "#/components/schemas/Output-Format"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has been processed and results may be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Output-Status"
+                    },
+                    {
+                      "type": "string",
+                      "description": "Status of a single requested format, if only one format is requested",
+                      "example": "COMPLETE"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The request has been accepted and is queued for processing."
+          },
+          "400": {
+            "description": "The requested format is not supported."
+          },
+          "404": {
+            "description": "The specified combination of request and format is not in the processing queue."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Illustration Engine"
+        ]
+      }
+    },
+    "/illustration/v3/illustration-request/{id}/results/{format}": {
+      "summary": "Operations on the results of a specific illustration request in a specific format",
+      "description": "Allows for manipulation of the results form a specific asynchronous illustration request",
+      "get": {
+        "operationId": "get-illustration-result",
+        "summary": "Get a specific illustration result",
+        "description": "Retrieve the results for the specified illustration request in the specified format",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The unique identifier for the illustration request."
+          },
+          {
+            "in": "path",
+            "name": "format",
+            "schema": {
+              "$ref": "#/components/schemas/Output-Format"
+            },
+            "required": true,
+            "description": "The desired output format to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The content was successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Calculation-Illustration"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested format could not be found for the specified illustration."
+          },
+          "415": {
+            "description": "The requested media type is not supported for the specified format."
+          },
+          "500": {
+            "description": "Unexpected error encountered while trying to fetch response, OR response fetched successfully but contains calculation error messages"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Illustration Engine"
+        ]
+      }
+    },
+    "/illustration/v3/illustration": {
+      "post": {
+        "operationId": "illustration-for-immediate-processing",
+        "summary": "Illustration for immediate processing",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Calculation-Illustration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the request was processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Calculation-Illustration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Illustration Engine"
+        ]
+      }
+    },
+    "/illustration/v3/version": {
+      "get": {
+        "operationId": "get-version",
+        "summary": "Get API version",
+        "description": "Returns the current version of the illustration API",
+        "responses": {
+          "200": {
+            "description": "Version information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "The current API version",
+                  "example": "3.2.12"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Utility"
+        ]
+      }
+    },
+    "/illustration/v3/health": {
+      "get": {
+        "operationId": "get-health",
+        "summary": "Health Check",
+        "description": "Returns 200",
+        "responses": {
+          "200": {
+            "description": "Empty 200 to indicate API is healthy"
+          }
+        },
+        "tags": [
+          "Utility"
+        ]
+      }
+    },
+    "/illustration/v3/term-life/new-business": {
+      "post": {
+        "operationId": "illustration-for-new-term-life",
+        "summary": "Illustration for new term life",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Illustration-Inputs-TL"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the request was processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Illustration-Response-TL"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Term Life (TL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/term-life/new-business/{id}": {
+      "get": {
+        "operationId": "get-illustration-for-new-term-life",
+        "summary": "Illustration for new term life",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The unique identifier for the illustration request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the request was processed and results may be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inputs": {
+                      "$ref": "#/components/schemas/Illustration-Inputs-TL"
+                    },
+                    "response": {
+                      "$ref": "#/components/schemas/Illustration-Response-TL"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "404": {
+            "description": "Unable to find illustration by provided id"
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Term Life (TL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/term-life/in-force/what-if": {
+      "post": {
+        "operationId": "illustration-for-in-force-term-life",
+        "summary": "Illustration for in-force term life - what-if scenario",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Illustration-Inputs-TL-Inforce-What-If"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the request was processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Illustration-Response-TL"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "500": {
+            "description": "An unexpected processing error occurred."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Term Life (TL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/term-life/in-force/what-if/{id}": {
+      "get": {
+        "operationId": "get-illustration-for-in-force-term-life",
+        "summary": "Illustration for in-force term life - what-if scenario",
+        "description": "Retrieves the calculated results for the specified illustration request.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The unique identifier for the illustration request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the request was processed and results may be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inputs": {
+                      "$ref": "#/components/schemas/Illustration-Inputs-TL-Inforce-What-If"
+                    },
+                    "response": {
+                      "$ref": "#/components/schemas/Illustration-Response-TL"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "404": {
+            "description": "Unable to find illustration by provided id"
+          },
+          "500": {
+            "description": "An unexpected processing error occurred."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Term Life (TL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/indexed-universal-life/new-business": {
+      "post": {
+        "operationId": "illustration-for-new-indexed-universal-life",
+        "summary": "Illustration for new indexed universal life",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Illustration-Inputs-IUL"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the request was processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Illustration-Response-IUL"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Indexed Universal Life (IUL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/indexed-universal-life/new-business/{id}": {
+      "get": {
+        "operationId": "get-illustration-for-new-indexed-universal-life",
+        "summary": "Illustration for new Indexed Universal Life (IUL)",
+        "description": "Retrieves the calculated results for the specified illustration request.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The unique identifier for the illustration request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the request was processed and results may be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inputs": {
+                      "$ref": "#/components/schemas/Illustration-Inputs-IUL"
+                    },
+                    "response": {
+                      "$ref": "#/components/schemas/Illustration-Response-IUL"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "404": {
+            "description": "Unable to find illustration by provided id"
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Indexed Universal Life (IUL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/indexed-universal-life/in-force/what-if": {
+      "post": {
+        "operationId": "illustration-for-in-force-indexed-universal-life",
+        "summary": "Illustration for in-force indexed universal life - what-if scenario",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Illustration-Inputs-IUL-Inforce-What-If"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the request was processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Illustration-Response-IUL"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Indexed Universal Life (IUL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/indexed-universal-life/in-force/what-if/{id}": {
+      "get": {
+        "operationId": "get-illustration-for-in-force-indexed-universal-life",
+        "summary": "Illustration for in-force Indexed Universal Life (IUL) what-if scenario",
+        "description": "Retrieves the calculated results for the specified illustration request.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The unique identifier for the illustration request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the request was processed and results may be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inputs": {
+                      "$ref": "#/components/schemas/Illustration-Inputs-IUL-Inforce-What-If"
+                    },
+                    "response": {
+                      "$ref": "#/components/schemas/Illustration-Response-IUL"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "404": {
+            "description": "Unable to find illustration by provided id"
+          },
+          "500": {
+            "description": "An unexpected processing error occurred."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Indexed Universal Life (IUL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/whole-life/new-business": {
+      "post": {
+        "operationId": "illustration-for-new-whole-life",
+        "summary": "Illustration for new whole life",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Illustration-Inputs-WL"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the request was processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Illustration-Response-WL"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Whole Life (WL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/whole-life/new-business/{id}": {
+      "get": {
+        "operationId": "get-illustration-for-new-whole-life",
+        "summary": "Illustration for new whole life",
+        "description": "Retrieves the calculated results for the specified illustration request.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The unique identifier for the illustration request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the request was processed and results may be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inputs": {
+                      "$ref": "#/components/schemas/Illustration-Inputs-WL"
+                    },
+                    "response": {
+                      "$ref": "#/components/schemas/Illustration-Response-WL"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "404": {
+            "description": "Unable to find illustration by provided id"
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Whole Life (WL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/indexed-universal-life/in-force/as-is": {
+      "post": {
+        "operationId": "illustration-for-in-force-indexed-universal-life-as-is",
+        "summary": "Illustration for in-force indexed universal life - as-is scenario",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Illustration-Inputs-IUL-Inforce-As-Is"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the request was processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Illustration-Response-IUL"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Indexed Universal Life (IUL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/indexed-universal-life/in-force/as-is/{id}": {
+      "get": {
+        "operationId": "get-illustration-for-in-force-indexed-universal-life-as-is",
+        "summary": "Illustration for in-force Indexed Universal Life (IUL) as-is scenario",
+        "description": "Retrieves the calculated results for the specified illustration request.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The unique identifier for the illustration request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the request was processed and results may be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inputs": {
+                      "$ref": "#/components/schemas/Illustration-Inputs-IUL-Inforce-As-Is"
+                    },
+                    "response": {
+                      "$ref": "#/components/schemas/Illustration-Response-IUL"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "404": {
+            "description": "Unable to find illustration by provided id"
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Indexed Universal Life (IUL) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/hybrid-iul-term/new-business": {
+      "post": {
+        "operationId": "illustration-for-new-hybrid-iul-term",
+        "summary": "Illustration for new hybrid-iul-term",
+        "description": "Triggers an immediate calculation and returns the calculated results.",
+        "requestBody": {
+          "description": "contains all the input data needed for processing the request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Illustration-Inputs-HIT"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the request was processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Illustration-Response-HIT"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Hybrid-IUL-Term (HIT) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/hybrid-iul-term/new-business/{id}": {
+      "get": {
+        "operationId": "get-illustration-for-new-hybrid-iul-term",
+        "summary": "Illustration for new Hybrid-IUL/Term (HIT)",
+        "description": "Retrieves the calculated results for the specified illustration request.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The unique identifier for the illustration request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the request was processed and results may be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inputs": {
+                      "$ref": "#/components/schemas/Illustration-Inputs-HIT"
+                    },
+                    "response": {
+                      "$ref": "#/components/schemas/Illustration-Response-HIT"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted request was invalid for any reason."
+          },
+          "404": {
+            "description": "Unable to find illustration by provided id"
+          },
+          "500": {
+            "description": "An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages."
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Hybrid-IUL-Term (HIT) Illustrations"
+        ]
+      }
+    },
+    "/illustration/v3/utility/calculateAge": {
+      "post": {
+        "operationId": "calculate-age",
+        "summary": "Calculate age",
+        "description": "Calculates age based on date of birth and as-of date using specified calculation method",
+        "requestBody": {
+          "description": "Age calculation request containing date of birth, as-of date, and calculation method",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Age-Calculation-Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Age calculation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Age-Calculation-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed"
+          },
+          "500": {
+            "description": "An unexpected processing error occurred"
+          }
+        },
+        "security": [
+          {
+            "Auth0": []
+          }
+        ],
+        "tags": [
+          "Utility"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Age-Calculation-Request": {
+        "type": "object",
+        "required": [
+          "dateOfBirth",
+          "asOfDate",
+          "calculationMethod"
+        ],
+        "properties": {
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of birth in ISO-8601 format",
+            "example": "1990-08-25"
+          },
+          "asOfDate": {
+            "type": "string",
+            "format": "date",
+            "description": "As-of date in ISO-8601 format",
+            "example": "2025-08-25"
+          },
+          "calculationMethod": {
+            "$ref": "#/components/schemas/Age-Calculation-Method"
+          }
+        }
+      },
+      "Age-Calculation-Response": {
+        "type": "object",
+        "properties": {
+          "age": {
+            "type": "integer",
+            "description": "Calculated age",
+            "example": 35
+          },
+          "monthsSinceLastBirthday": {
+            "type": "integer",
+            "description": "Number of months since last birthday",
+            "example": 0
+          }
+        }
+      },
+      "Age-Calculation-Method": {
+        "type": "string",
+        "enum": [
+          "AGE_LAST",
+          "AGE_NEAREST"
+        ],
+        "description": "Age calculation method - AGE_LAST for age at last birthday, AGE_NEAREST for age at nearest birthday",
+        "example": "AGE_LAST"
+      },
+      "Date-Field": {
+        "type": "string",
+        "format": "date",
+        "pattern": "([0-9]{4})-([0-9]{2})-([0-9]{2})",
+        "description": "Date (with pattern \"yyyy-mm-dd\")",
+        "example": "2025-05-13"
+      },
+      "Illustration-Inputs-Base": {
+        "title": "Illustration Request",
+        "description": "Fundamental Illustration request schema. See the schema for a specific product",
+        "properties": {
+          "calculationType": {
+            "type": "string",
+            "description": "Type of calculation. Only SINGLE_ILLUSTRATION triggers a PDF to be generated.",
+            "example": "QUICK_QUOTE",
+            "enum": [
+              "QUICK_QUOTE",
+              "SINGLE_ILLUSTRATION",
+              "AGGREGATE_ILLUSTRATION",
+              "COMPOSITE_ILLUSTRATION",
+              "POLICY_PAGE_PROJECTION",
+              "INITIAL_QUOTE"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "Source of the request",
+            "example": "ZINNIA"
+          },
+          "illustrationRequestDate": {
+            "$ref": "#/components/schemas/Date-Field"
+          },
+          "reports": {
+            "type": "object",
+            "properties": {
+              "internalRateOfReturnOn": {
+                "type": "boolean",
+                "description": "Internal rate of return",
+                "example": true
+              },
+              "annualChargesOn": {
+                "type": "boolean",
+                "description": "Annual charges",
+                "example": true
+              },
+              "annualChargesYears": {
+                "type": "number",
+                "description": "Annual charges years",
+                "format": "integer",
+                "example": 10
+              },
+              "monthlyChargesOn": {
+                "type": "boolean",
+                "description": "Monthly charges",
+                "example": true
+              },
+              "monthlyChargesYears": {
+                "type": "number",
+                "format": "integer",
+                "description": "Monthly charges years",
+                "example": 10
+              },
+              "marketingPagesOn": {
+                "type": "boolean",
+                "description": "Whether to produce marketing pages",
+                "example": true
+              },
+              "costDetailsReportOn": {
+                "type": "boolean",
+                "description": "Whether to produce the cost details report",
+                "example": true
+              },
+              "inputSummaryOn": {
+                "type": "boolean",
+                "description": "Whether to produce the input summary",
+                "example": true
+              }
+            }
+          }
+        },
+        "required": [
+          "calculationType",
+          "illustrationRequestDate"
+        ]
+      },
+      "Illustration-Inputs-Projection-Base": {
+        "title": "Projection Base",
+        "description": "Base for projection scenarios",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "coverages": {
+                "$ref": "#/components/schemas/Coverage-Collection-V4"
+              },
+              "parties": {
+                "type": "array",
+                "description": "Must have at least one party representing the Insured participant",
+                "items": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Non-Insured-Party"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Insured"
+                    }
+                  ]
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "options": {
+                "$ref": "#/components/schemas/Options-Base"
+              }
+            },
+            "required": [
+              "coverages",
+              "parties"
+            ]
+          }
+        ]
+      },
+      "Illustration-Inputs-New-Business-Base": {
+        "title": "New Business Base",
+        "description": "Properties for new business scenarios",
+        "type": "object",
+        "properties": {
+          "jurisdiction": {
+            "type": "string",
+            "description": "US state code.https://en.wikipedia.org/wiki/ISO_3166-2:US",
+            "enum": [
+              "AK",
+              "AL",
+              "AR",
+              "AS",
+              "AZ",
+              "CA",
+              "CO",
+              "CT",
+              "DC",
+              "DE",
+              "FL",
+              "GA",
+              "GU",
+              "HI",
+              "IA",
+              "ID",
+              "IL",
+              "IN",
+              "KS",
+              "KY",
+              "LA",
+              "MA",
+              "MD",
+              "ME",
+              "MI",
+              "MN",
+              "MO",
+              "MP",
+              "MS",
+              "MT",
+              "NC",
+              "ND",
+              "NE",
+              "NH",
+              "NJ",
+              "NM",
+              "NV",
+              "NY",
+              "OH",
+              "OK",
+              "OR",
+              "PA",
+              "PR",
+              "RI",
+              "SC",
+              "SD",
+              "TN",
+              "TX",
+              "UM",
+              "UT",
+              "VA",
+              "VI",
+              "VT",
+              "WA",
+              "WI",
+              "WV",
+              "WY"
+            ]
+          },
+          "planCode": {
+            "type": "string",
+            "description": "Plan code",
+            "example": "EG123"
+          }
+        },
+        "required": [
+          "jurisdiction",
+          "planCode"
+        ]
+      },
+      "Illustration-Inputs-TL": {
+        "title": "Illustration Request for Term Life",
+        "description": "Illustration Request for Term Life product",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Projection-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-New-Business-Base"
+          }
+        ]
+      },
+      "Illustration-Inputs-TL-Inforce-What-If": {
+        "title": "Illustration Request for Term Life - Inforce What-If",
+        "description": "Illustration Request for Term Life product - Inforce What-If scenario",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-TL"
+          },
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Inforce-Base"
+          }
+        ]
+      },
+      "Illustration-Inputs-WL": {
+        "title": "Illustration Request for Whole Life",
+        "description": "Illustration Request for Whole Life product",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Projection-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-New-Business-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "conversion": {
+                "$ref": "#/components/schemas/Conversion"
+              },
+              "surplusDistribution": {
+                "type": "object",
+                "description": "Surplus distribution configuration for whole life policy",
+                "properties": {
+                  "surplusDistributionOption": {
+                    "$ref": "#/components/schemas/Schedule-SurplusDistributionOption"
+                  },
+                  "excessSurplusDistributionOption": {
+                    "type": "string",
+                    "description": "Excess surplus distribution handling option",
+                    "example": "CASH",
+                    "enum": [
+                      "CASH",
+                      "PAID_UP_ADDITION"
+                    ]
+                  }
+                },
+                "required": [
+                  "surplusDistributionOption"
+                ]
+              },
+              "distributions": {
+                "$ref": "#/components/schemas/Distributions"
+              }
+            },
+            "required": [
+              "surplusDistribution"
+            ]
+          }
+        ]
+      },
+      "IUL-Shared-Properties": {
+        "title": "IUL Shared Properties",
+        "description": "Properties shared between IUL and HIT products",
+        "type": "object",
+        "properties": {
+          "conversion": {
+            "$ref": "#/components/schemas/Conversion"
+          },
+          "lumpSumDeposits": {
+            "description": "Additional one-time payments that take place at specified points in time",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "amount"
+              ],
+              "properties": {
+                "amount": {
+                  "description": "lump sum deposit amount",
+                  "type": "number",
+                  "format": "double",
+                  "example": 100000
+                },
+                "duration": {
+                  "description": "contract year of the lump sum deposit. If not specified, '1' (first year) is assumed.",
+                  "type": "number",
+                  "format": "integer",
+                  "example": 65
+                },
+                "month": {
+                  "description": "lump sum deposit month. If not specified, '1' (January) is assumed.",
+                  "type": "number",
+                  "format": "integer",
+                  "example": 12
+                }
+              }
+            }
+          },
+          "fundAllocations": {
+            "description": "Fund allocations",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "allocationPercent": {
+                  "type": "number",
+                  "format": "integer",
+                  "description": "Allocation percent",
+                  "example": 50
+                },
+                "fundId": {
+                  "type": "string",
+                  "description": "Fund id",
+                  "example": "SPX"
+                },
+                "illustratedRate": {
+                  "description": "Assumed rate of return to use for illustrative purposes",
+                  "type": "number",
+                  "format": "double",
+                  "example": 0.3
+                }
+              },
+              "required": [
+                "allocationPercent",
+                "fundId"
+              ]
+            }
+          },
+          "distributions": {
+            "$ref": "#/components/schemas/Distributions"
+          },
+          "exchanges": {
+            "type": "object",
+            "properties": {
+              "internal": {
+                "$ref": "#/components/schemas/Exchange"
+              },
+              "external": {
+                "$ref": "#/components/schemas/Exchange"
+              }
+            }
+          }
+        },
+        "required": [
+          "fundAllocations"
+        ]
+      },
+      "Illustration-Inputs-IUL": {
+        "title": "Illustration Request for IUL",
+        "description": "Illustration Request for Indexed Universal Life product",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Projection-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-New-Business-Base"
+          },
+          {
+            "$ref": "#/components/schemas/IUL-Shared-Properties"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "options": {
+                "$ref": "#/components/schemas/Options-IUL"
+              }
+            }
+          }
+        ]
+      },
+      "Illustration-Inputs-HIT": {
+        "title": "Illustration Request for Hybrid-IUL/Term",
+        "description": "Illustration Request for Hybrid-IUL/Term product",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Projection-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-New-Business-Base"
+          },
+          {
+            "$ref": "#/components/schemas/IUL-Shared-Properties"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "options": {
+                "$ref": "#/components/schemas/Options-HIT"
+              }
+            }
+          }
+        ]
+      },
+      "Illustration-Inputs-Inforce-Base": {
+        "title": "Base Inforce Illustration Request",
+        "description": "Common properties for inforce illustration scenarios",
+        "type": "object",
+        "properties": {
+          "policyDetail": {
+            "$ref": "#/components/schemas/Policy-State"
+          },
+          "policyDetailDate": {
+            "$ref": "#/components/schemas/Date-Field"
+          }
+        },
+        "required": [
+          "policyDetail",
+          "policyDetailDate"
+        ]
+      },
+      "Illustration-Inputs-IUL-Inforce-What-If": {
+        "title": "Illustration Request for IUL - Inforce What-If",
+        "description": "Illustration Request for Indexed Universal Life product - Inforce what-if scenario",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-IUL"
+          },
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Inforce-Base"
+          }
+        ]
+      },
+      "Illustration-Inputs-IUL-Inforce-As-Is": {
+        "title": "Illustration Request for IUL - Inforce As-Is",
+        "description": "Illustration Request for Indexed Universal Life product - Inforce as-is scenario",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Illustration-Inputs-Inforce-Base"
+          }
+        ]
+      },
+      "Illustration-Response-Base": {
+        "title": "Illustration Response",
+        "description": "Fundamental Illustration response schema. See the schema for a specific product",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the illustration request.",
+            "example": "ed13083d-d6b3-463d-a569-56b532d00fcd"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      },
+      "Illustration-Response-TL": {
+        "title": "Illustration Response for Term Life",
+        "description": "Illustration Response for Term Life product",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Response-Base"
+          }
+        ],
+        "properties": {
+          "assumed": {
+            "$ref": "#/components/schemas/Scenario-Term"
+          },
+          "guaranteed": {
+            "$ref": "#/components/schemas/Scenario-Term"
+          }
+        }
+      },
+      "Illustration-Response-IUL": {
+        "title": "Illustration Response IUL",
+        "description": "Illustration Response for Indexed Universal Life product",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Response-Base"
+          }
+        ],
+        "properties": {
+          "assumed": {
+            "$ref": "#/components/schemas/Scenario-IUL"
+          },
+          "guaranteed": {
+            "$ref": "#/components/schemas/Scenario-IUL"
+          },
+          "midpoint": {
+            "$ref": "#/components/schemas/Scenario-IUL"
+          },
+          "alternate": {
+            "$ref": "#/components/schemas/Scenario-IUL"
+          }
+        }
+      },
+      "Illustration-Response-WL": {
+        "title": "Illustration Response for Whole Life",
+        "description": "Illustration Response for Whole Life product",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Response-Base"
+          }
+        ],
+        "properties": {
+          "assumed": {
+            "$ref": "#/components/schemas/Scenario-WL"
+          },
+          "guaranteed": {
+            "$ref": "#/components/schemas/Scenario-WL"
+          },
+          "midpoint": {
+            "$ref": "#/components/schemas/Scenario-WL"
+          }
+        }
+      },
+      "Illustration-Response-HIT": {
+        "title": "Illustration Response for Hybrid-IUL/Term",
+        "description": "Illustration Response for Hybrid-IUL/Term product",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Illustration-Response-Base"
+          }
+        ],
+        "properties": {
+          "assumed": {
+            "$ref": "#/components/schemas/Scenario-HIT"
+          },
+          "guaranteed": {
+            "$ref": "#/components/schemas/Scenario-HIT"
+          },
+          "midpoint": {
+            "$ref": "#/components/schemas/Scenario-HIT"
+          },
+          "assumedCap": {
+            "$ref": "#/components/schemas/Scenario-HIT"
+          },
+          "assumedFixed": {
+            "$ref": "#/components/schemas/Scenario-HIT"
+          },
+          "assumedPar": {
+            "$ref": "#/components/schemas/Scenario-HIT"
+          }
+        }
+      },
+      "Conversion": {
+        "title": "Conversion",
+        "description": "Specifies what type of conversion is occurring",
+        "type": "object",
+        "properties": {
+          "conversionType": {
+            "type": "string",
+            "description": "Type of conversion",
+            "example": "STANDARD",
+            "enum": [
+              "NONE",
+              "STANDARD",
+              "PREMIUM_CREDIT"
+            ]
+          },
+          "isSourceMEC": {
+            "type": "boolean",
+            "description": "Conversion MEC indicator - Indicates the source policy being converted was already in MEC status",
+            "example": true
+          },
+          "conversionCredit": {
+            "type": "number",
+            "format": "double",
+            "description": "Amount to be credited to new policy on conversion",
+            "example": 5000
+          }
+        },
+        "required": [
+          "conversionType",
+          "isSourceMEC"
+        ]
+      },
+      "Exchange": {
+        "title": "Exchange",
+        "description": "1035 Exchange - exchanging another policy for this one",
+        "type": "object",
+        "required": [
+          "amount",
+          "basis",
+          "isModifiedEndowmentContract"
+        ],
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "description": "The value of the exchanged policy",
+            "example": 5000
+          },
+          "basis": {
+            "type": "number",
+            "format": "double",
+            "description": "How much can be exchanged without incurring additional taxes",
+            "example": 5000
+          },
+          "isModifiedEndowmentContract": {
+            "type": "boolean",
+            "description": "Whether the policy being exchanged for this one is a MEC",
+            "example": true
+          },
+          "carryoverLoan": {
+            "type": "number",
+            "format": "double",
+            "description": "How much loan is being carried in as part of this exchange",
+            "example": 5000
+          }
+        }
+      },
+      "Options-Base": {
+        "title": "Options",
+        "description": "Fundamental Options schema. Some products may have product-specific Options.",
+        "type": "object",
+        "required": [
+          "revisedIllustration",
+          "solveFor",
+          "paymentMode"
+        ],
+        "properties": {
+          "revisedIllustration": {
+            "type": "boolean",
+            "description": "Whether the illustration is revised",
+            "example": true
+          },
+          "solveFor": {
+            "type": "string",
+            "description": "Solve for",
+            "example": "PREMIUM",
+            "enum": [
+              "PREMIUM",
+              "FACE",
+              "NO_SOLVE"
+            ]
+          },
+          "fixedCostPeriod": {
+            "type": "number",
+            "description": "Fixed cost period",
+            "example": 10,
+            "deprecated": true
+          },
+          "fixedCostPeriodOption": {
+            "type": "number",
+            "format": "integer",
+            "description": "The fixed cost period in YEARS or at AGE depending on the value of fixedCostPeriodUnit",
+            "example": 65
+          },
+          "fixedCostPeriodUnit": {
+            "type": "string",
+            "description": "The Unit that the number in fixedCostPeriodOption represents",
+            "example": "AGE",
+            "enum": [
+              "AGE",
+              "YEARS"
+            ]
+          },
+          "paymentMode": {
+            "$ref": "#/components/schemas/Frequency"
+          },
+          "discountIndicator": {
+            "type": "string",
+            "description": "Discount indicator",
+            "example": "MULTIPRODUCT",
+            "enum": [
+              "MULTIPRODUCT",
+              "NON"
+            ]
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Payment method",
+            "example": "DTCC",
+            "enum": [
+              "DTCC",
+              "CREDITCARD",
+              "ACH",
+              "CHECK",
+              "EXCHANGE",
+              "WIRE"
+            ]
+          },
+          "premiumDuration": {
+            "type": "number",
+            "format": "integer",
+            "description": "Premium duration",
+            "example": 10
+          },
+          "premiumDurationOption": {
+            "type": "string",
+            "description": "Premium duration option",
+            "example": "YEARS",
+            "enum": [
+              "AGE",
+              "YEARS",
+              "MATURITY"
+            ]
+          },
+          "faceAmount": {
+            "$ref": "#/components/schemas/Schedule-FaceAmount"
+          },
+          "premium": {
+            "$ref": "#/components/schemas/Schedule-Premium"
+          },
+          "targetCashValueOption": {
+            "type": "string",
+            "description": "Target cash value option",
+            "example": "SPECIFY_AMOUNT",
+            "enum": [
+              "SPECIFY_AMOUNT",
+              "ENDOWMENT"
+            ]
+          },
+          "targetCashValueAtOption": {
+            "type": "string",
+            "enum": [
+              "AGE",
+              "YEAR"
+            ],
+            "description": "Whether to use targetCashValueAge or targetCashValueYear",
+            "example": "AGE"
+          },
+          "targetCashValueAge": {
+            "type": "number",
+            "format": "integer",
+            "description": "If target cash value should be at an age, use this. If it should be at a year, use targetCashValueYear. targetCashValueAtOption determines which is used.",
+            "example": 10
+          },
+          "targetCashValueYear": {
+            "type": "number",
+            "format": "integer",
+            "description": "If target cash value should be at a year, use this. If it should be at an age, use targetCashValueAge. targetCashValueAtOption determines which is used.",
+            "example": 10
+          },
+          "targetCashValueAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Target cash value amount",
+            "example": 10000
+          }
+        }
+      },
+      "IUL-Shared-Options": {
+        "title": "IUL Shared Options",
+        "description": "Options shared between IUL and HIT products",
+        "type": "object",
+        "properties": {
+          "doli": {
+            "type": "string",
+            "description": "DOLI",
+            "example": "GPT",
+            "enum": [
+              "GPT",
+              "CVAT"
+            ]
+          },
+          "deathBenefitOption": {
+            "$ref": "#/components/schemas/Schedule-DBO"
+          },
+          "dumpInAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Dump in amount",
+            "example": 5432.62
+          },
+          "juvenileReclassification": {
+            "description": "Indicates that a rating class change will occur for a juvenile upon reaching adulthood",
+            "type": "boolean",
+            "example": true
+          },
+          "preventModifiedEndowmentContract": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether the selected solve should attempt to prevent this policy from being a MEC"
+          },
+          "illustrationBasis": {
+            "type": "string",
+            "enum": [
+              "CURRENT",
+              "ASSUMED",
+              "GUARANTEED"
+            ],
+            "example": "CURRENT",
+            "description": "Which scenario's premium to use as the basis for the other scenarios"
+          }
+        },
+        "required": [
+          "doli"
+        ]
+      },
+      "Options-IUL": {
+        "title": "Options for IUL",
+        "type": "object",
+        "description": "Options for the illustration request.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Options-Base"
+          },
+          {
+            "$ref": "#/components/schemas/IUL-Shared-Options"
+          }
+        ]
+      },
+      "Options-HIT": {
+        "title": "Options for Hybrid-IUL/Term",
+        "type": "object",
+        "description": "Options for the illustration request.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Options-Base"
+          },
+          {
+            "$ref": "#/components/schemas/IUL-Shared-Options"
+          }
+        ],
+        "properties": {
+          "fixedModalPayment": {
+            "type": "number",
+            "format": "double",
+            "description": "Fixed payment per pay period",
+            "example": 500
+          },
+          "savingsPaymentIncluded": {
+            "type": "boolean",
+            "description": "Whether or not savings payment is included",
+            "example": true
+          },
+          "savingsPaymentOption": {
+            "type": "string",
+            "description": "How savings payment is calculated",
+            "example": "FIXED",
+            "enum": [
+              "EXTRA_OVER_COVERAGE",
+              "MAXIMIZE_SAVINGS_INCENTIVE",
+              "FIXED",
+              "SCHEDULE_BY_MODE"
+            ]
+          },
+          "savingsFixedAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Fixed payment amout for savings payment",
+            "example": 500
+          },
+          "savingsScheduleByMode": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Schedule-Base"
+              }
+            ],
+            "description": "Schedule for savings payment"
+          },
+          "postFixedCostPeriodPaymentDurationOption": {
+            "description": "Post fixed-cost-period payment duration option",
+            "type": "string",
+            "example": "YEARS",
+            "enum": [
+              "AGE",
+              "YEARS"
+            ]
+          },
+          "postFixedCostPeriodPaymentDuration": {
+            "description": "Post fixed-cost-period payment duration",
+            "type": "number",
+            "format": "integer",
+            "minimum": 0,
+            "example": 10
+          },
+          "postFixedCostPremiumOption": {
+            "type": "string",
+            "description": "Post fixed-cost-period premium option",
+            "example": "COVER_CHARGES",
+            "enum": [
+              "COVER_CHARGES",
+              "MINIMUM_AFTER_CHARGES",
+              "SCHEDULE_BY_MODE",
+              "SOLVE_FOR_LEVEL"
+            ]
+          },
+          "postFixedCostPremiumSchedule": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Schedule-Base"
+              }
+            ],
+            "description": "Schedule for post-fixed-cost-period premium"
+          }
+        }
+      },
+      "Schedule-Base": {
+        "title": "Generic Schedule",
+        "description": "Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties",
+        "type": "object",
+        "properties": {
+          "frequency": {
+            "$ref": "#/components/schemas/Frequency"
+          },
+          "basis": {
+            "description": "Specifies how to interpret the from and through properties for each entry.",
+            "type": "string",
+            "example": "AGE",
+            "enum": [
+              "AGE",
+              "DURATION",
+              "RETIREMENT"
+            ]
+          },
+          "sequence": {
+            "description": "Collection of entries describing the changes in value over time",
+            "type": "array",
+            "items": {
+              "title": "Schedule Entry",
+              "description": "Represents a limited time period for which a value is constant.",
+              "type": "object",
+              "properties": {
+                "from": {
+                  "description": "starting point for the value, inclusive",
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                },
+                "through": {
+                  "description": "ending point for the value, inclusive",
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 10
+                }
+              },
+              "required": [
+                "from",
+                "through"
+              ]
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "sequence"
+        ]
+      },
+      "Schedule-Premium": {
+        "title": "Premium Schedule",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Schedule-Base"
+          }
+        ],
+        "properties": {
+          "sequence": {
+            "items": {
+              "title": "Premium Schedule Entry",
+              "properties": {
+                "value": {
+                  "example": 25000,
+                  "oneOf": [
+                    {
+                      "type": "number",
+                      "format": "double"
+                    },
+                    {
+                      "title": "Premium Option",
+                      "type": "string",
+                      "enum": [
+                        "SOLVE_FOR_TARGET_CASH_VALUE",
+                        "MINIMUM_PREMIUM",
+                        "TARGET_PREMIUM",
+                        "GUIDELINE_MAXIMUM_PREMIUM",
+                        "GUIDELINE_LEVEL_PREMIUM",
+                        "LEVEL_NON_MEC"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "value"
+              ]
+            }
+          }
+        }
+      },
+      "Schedule-FaceAmount": {
+        "title": "Face Amount Schedule",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Schedule-Base"
+          }
+        ],
+        "properties": {
+          "sequence": {
+            "items": {
+              "title": "Face Amount Schedule Entry",
+              "properties": {
+                "value": {
+                  "example": 250000,
+                  "oneOf": [
+                    {
+                      "type": "number",
+                      "format": "double"
+                    },
+                    {
+                      "title": "Face Amount Option",
+                      "type": "string",
+                      "enum": [
+                        "SOLVE_FOR_TARGET_CASH_VALUE",
+                        "MINIMUM_NON_MEC"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "value"
+              ]
+            }
+          }
+        }
+      },
+      "Schedule-DBO": {
+        "title": "Death Benefit Option Schedule",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Schedule-Base"
+          }
+        ],
+        "properties": {
+          "sequence": {
+            "items": {
+              "title": "Death Benefit Option Schedule Entry",
+              "properties": {
+                "value": {
+                  "example": "LEVEL",
+                  "oneOf": [
+                    {
+                      "title": "Death Benefit Option",
+                      "type": "string",
+                      "enum": [
+                        "LEVEL",
+                        "INCREASING",
+                        "RETURN_OF_PREMIUM"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          }
+        }
+      },
+      "Schedule-SurplusDistributionOption": {
+        "title": "Surplus Distribution Option Schedule",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Schedule-Base"
+          }
+        ],
+        "properties": {
+          "sequence": {
+            "items": {
+              "title": "Surplus Distribution Option Schedule Entry",
+              "properties": {
+                "value": {
+                  "example": "CASH",
+                  "oneOf": [
+                    {
+                      "title": "Surplus Distribution Option",
+                      "type": "string",
+                      "enum": [
+                        "CASH",
+                        "PAY_BACK_LOAN",
+                        "REDUCE_PREMIUM",
+                        "PAID_UP_ADDITION",
+                        "ACCUMULATE",
+                        "ONE_YEAR_TERM"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "value"
+              ]
+            }
+          }
+        }
+      },
+      "Distributions": {
+        "title": "Distributions",
+        "description": "Distributions",
+        "type": "object",
+        "required": [
+          "frequency",
+          "sequence"
+        ],
+        "properties": {
+          "frequency": {
+            "$ref": "#/components/schemas/Frequency"
+          },
+          "sequence": {
+            "description": "Sequence",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "title": "Sequence",
+              "description": "Distribution sequence",
+              "properties": {
+                "amountType": {
+                  "type": "string",
+                  "description": "Amount type",
+                  "example": "AMOUNT",
+                  "enum": [
+                    "NONE",
+                    "AMOUNT",
+                    "PERCENTANGE",
+                    "MAX",
+                    "FREE_WITHDRAWAL_AMOUNT",
+                    "WITHDRAWA_LUNTIL_BASIS",
+                    "EARNINGS_ONLY",
+                    "PRORATA",
+                    "MODIFIED_EARNINGS_ONLY"
+                  ]
+                },
+                "requestedAmount": {
+                  "type": "number",
+                  "format": "double",
+                  "description": "Requested amount",
+                  "example": 10000
+                },
+                "funding": {
+                  "type": "string",
+                  "description": "Funding",
+                  "example": "LOAN",
+                  "enum": [
+                    "LOAN",
+                    "WITHDRAWAL",
+                    "SWITCH_AT_BASIS"
+                  ]
+                },
+                "from": {
+                  "$ref": "#/components/schemas/Distribution-Sequence-FromThrough"
+                },
+                "through": {
+                  "$ref": "#/components/schemas/Distribution-Sequence-FromThrough"
+                }
+              }
+            }
+          },
+          "loanInterestOption": {
+            "description": "Specifies how loan interest is processed; BORROW indicates that the interest is added into the loan amount, CASH indicates that the loan is paid and does not accumulate.",
+            "type": "string",
+            "example": "BORROW",
+            "enum": [
+              "BORROW",
+              "CASH"
+            ]
+          }
+        }
+      },
+      "Distribution-Sequence-FromThrough": {
+        "title": "From/Through Entry in a Distribution Sequence",
+        "type": "object",
+        "description": "From/Through",
+        "properties": {
+          "offset": {
+            "type": "number",
+            "format": "integer",
+            "description": "Offset",
+            "example": 1
+          },
+          "basis": {
+            "type": "string",
+            "description": "Basis",
+            "example": "AGE",
+            "enum": [
+              "AGE",
+              "DURATION",
+              "RETIREMENT"
+            ]
+          }
+        }
+      },
+      "Frequency": {
+        "type": "string",
+        "description": "Frequency",
+        "example": "DAILY",
+        "enum": [
+          "DAILY",
+          "EVERYTWOWEEKS",
+          "MONTHLY",
+          "SEMIANNUAL",
+          "QUARTERLY",
+          "ANNUAL",
+          "SINGLEPAYMENT"
+        ]
+      },
+      "Party-Base": {
+        "title": "Party",
+        "type": "object",
+        "description": "Fundamental party object - see schema for specific role",
+        "required": [
+          "partyId",
+          "partyTypeCode"
+        ],
+        "discriminator": {
+          "propertyName": "roleCode"
+        },
+        "properties": {
+          "partyId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Party id",
+            "example": "95f5ece9-e40b-450b-ad39-daa217894e69"
+          },
+          "partyTypeCode": {
+            "example": "INDIVIDUAL",
+            "type": "string",
+            "description": "Party type",
+            "enum": [
+              "INDIVIDUAL",
+              "ORGANIZATION",
+              "TRUST"
+            ]
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender",
+            "example": "MALE",
+            "enum": [
+              "MALE",
+              "FEMALE",
+              "UNISEX",
+              "OTHER"
+            ]
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "pattern": "([0-9]{4})-([0-9]{2})-([0-9]{2})",
+            "description": "Date (with pattern \"yyyy-mm-dd\")",
+            "example": "1990-05-13"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First Name",
+            "example": "John"
+          },
+          "middleName": {
+            "type": "string",
+            "description": "Middle Name or Initial",
+            "example": "Frederick"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name",
+            "example": "Doe"
+          },
+          "suffix": {
+            "type": "string",
+            "description": "Name Suffix",
+            "example": "Jr."
+          },
+          "address": {
+            "type": "object",
+            "description": "Address",
+            "properties": {
+              "addressLine1": {
+                "type": "string",
+                "description": "Address line 1",
+                "example": "123 Charter Oak"
+              },
+              "addressLine2": {
+                "type": "string",
+                "description": "Address line 2",
+                "example": "Suite 456"
+              },
+              "city": {
+                "type": "string",
+                "description": "Address city",
+                "example": "Manchester"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "AL",
+                  "AK",
+                  "AZ",
+                  "AR",
+                  "CA",
+                  "CO",
+                  "CT",
+                  "DC",
+                  "DE",
+                  "FL",
+                  "GA",
+                  "HI",
+                  "ID",
+                  "IL",
+                  "IN",
+                  "IA",
+                  "KS",
+                  "KY",
+                  "LA",
+                  "ME",
+                  "MD",
+                  "MA",
+                  "MI",
+                  "MN",
+                  "MS",
+                  "MO",
+                  "MT",
+                  "NE",
+                  "NV",
+                  "NH",
+                  "NJ",
+                  "NM",
+                  "NY",
+                  "NC",
+                  "ND",
+                  "OH",
+                  "OK",
+                  "OR",
+                  "PA",
+                  "RI",
+                  "SC",
+                  "SD",
+                  "TN",
+                  "TX",
+                  "UT",
+                  "VT",
+                  "VA",
+                  "WA",
+                  "WV",
+                  "WI",
+                  "WY"
+                ],
+                "description": "US state code.https://en.wikipedia.org/wiki/ISO_3166-2:US",
+                "example": "CT"
+              },
+              "zipCode": {
+                "type": "string",
+                "description": "Zip Code. Max char allowed is 9.",
+                "maxLength": 9,
+                "example": "123456"
+              }
+            }
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email",
+            "example": "person@example.com"
+          },
+          "phoneType": {
+            "type": "string",
+            "description": "Phone type",
+            "example": "HOME",
+            "enum": [
+              "MOBILE",
+              "HOME",
+              "BUSINESS",
+              "CLAIMCENTER",
+              "CUSTOMERSERVICE",
+              "CORPORATEOFFICE",
+              "FAX",
+              "UNKNOWN",
+              "OTHER"
+            ]
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone",
+            "example": "1238675309"
+          },
+          "identification": {
+            "type": "object",
+            "description": "Identification",
+            "properties": {
+              "identificationType": {
+                "type": "string",
+                "description": "Identification type",
+                "example": "PASSPORT",
+                "enum": [
+                  "PASSPORT",
+                  "STATEPHOTOID",
+                  "DRIVERLICENSENUMBER",
+                  "SSN",
+                  "TIN",
+                  "OTHER",
+                  "EXTERNAL"
+                ]
+              },
+              "identificationKey": {
+                "type": "string",
+                "description": "Identification key",
+                "example": "ECN"
+              },
+              "identificationDescription": {
+                "type": "string",
+                "description": "Identification description",
+                "example": "ECN"
+              },
+              "identificationValue": {
+                "type": "string",
+                "description": "Identification value",
+                "example": "ECN"
+              }
+            }
+          }
+        }
+      },
+      "Party-Role": {
+        "title": "Party Role",
+        "example": "OWNER",
+        "type": "string",
+        "description": "The role of a given party",
+        "enum": [
+          "OWNER",
+          "PRIMARYBENEFICIARY",
+          "CONTINGENTBENEFICIARY",
+          "INSURED",
+          "PAYOR",
+          "PAYEE",
+          "AGENT",
+          "PRIMARYWRITINGAGENT",
+          "PRIMARYSERVICINGAGENT",
+          "ADDITIONALSERVICINGAGENT",
+          "ADDITIONALWRITINGAGENT",
+          "THIRDPARTYDESIGNEE",
+          "JOINTOWNER",
+          "COVERAGEINSURED",
+          "ASSIGNEE",
+          "ANNUITANT",
+          "EXCHANGECOMPANY",
+          "JOINTANNUITANT",
+          "GRANTOR",
+          "TRUSTEE",
+          "POWEROFATTORNEY",
+          "AUTHORIZEDSIGNATORY",
+          "OTHERINTERESTEDPARTY",
+          "CONTINGENTOWNER"
+        ]
+      },
+      "Insured": {
+        "title": "Insured Party",
+        "description": "Represents a party with roleCode: `Insured`\n",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Party-Base"
+          }
+        ],
+        "properties": {
+          "roleCode": {
+            "type": "string",
+            "enum": [
+              "INSURED"
+            ],
+            "example": "INSURED"
+          }
+        },
+        "required": [
+          "lastName",
+          "gender",
+          "roleCode"
+        ]
+      },
+      "Non-Insured-Party": {
+        "title": "Non-Insured Party",
+        "description": "Represents a party with a roleCode other than `INSURED`\n",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Party-Base"
+          }
+        ],
+        "properties": {
+          "roleCode": {
+            "$ref": "#/components/schemas/Party-Role"
+          }
+        },
+        "required": [
+          "roleCode"
+        ]
+      },
+      "Participant-Collection-V4": {
+        "title": "Participants",
+        "description": "A collection of unique participants",
+        "type": "array",
+        "items": {
+          "title": "Participant",
+          "description": "An entity with a stake in a policy",
+          "type": "object",
+          "properties": {
+            "issueAge": {
+              "type": "number",
+              "format": "integer",
+              "description": "Issue age",
+              "example": 30
+            },
+            "participantId": {
+              "type": "string",
+              "description": "Participant id (UUID)",
+              "example": "2ad51ecf-9923-437f-a6f0-70968e464cdb"
+            },
+            "underwritingClass": {
+              "type": "string",
+              "description": "Underwriting class",
+              "example": "ULTRANONTOBACCO",
+              "enum": [
+                "ULTRANONTOBACCO",
+                "ELITENONTOBACCO",
+                "PREFERREDNONTOBACCO",
+                "STANDARDNONTOBACCO",
+                "STANDARDTOBACCO",
+                "STANDARDAGGREGATE",
+                "SUBSTANDARDNONTOBACCO",
+                "SUBSTANDARDTOBACCO",
+                "STANDARDPLUSNONTOBACCO",
+                "PREFERREDTOBACCO",
+                "STANDARDCONVERSIONNONTOBACCO",
+                "STANDARDCONVERSIONTOBACCO",
+                "STANDARDPLUSBLEND",
+                "STANDARDPLUSTOBACCO",
+                "STANDARDBLEND",
+                "SUBSTANDARDBLEND",
+                "PREFERREDSELECTNONTOBACCO",
+                "PREFERREDSELECTBLEND",
+                "PREFERREDSELECTTOBACCO",
+                "PREFERREDBLEND"
+              ]
+            },
+            "subStandardRating": {
+              "type": "string",
+              "description": "Substandard rating",
+              "example": "TABLEA",
+              "enum": [
+                "TABLEA",
+                "TABLEB",
+                "TABLEC",
+                "TABLED",
+                "TABLEE",
+                "TABLEF",
+                "TABLEG",
+                "TABLEH",
+                "TABLEI",
+                "TABLEJ",
+                "TABLEK",
+                "TABLEL",
+                "TABLEM",
+                "TABLEN",
+                "TABLEO",
+                "TABLEP",
+                "NONETABLE"
+              ]
+            },
+            "flatExtra": {
+              "type": "array",
+              "description": "Flat extra",
+              "items": {
+                "$ref": "#/components/schemas/Flat-Extra"
+              }
+            }
+          },
+          "required": [
+            "issueAge",
+            "participantId"
+          ]
+        },
+        "uniqueItems": true
+      },
+      "Coverage-Collection-V4": {
+        "title": "Coverages",
+        "description": "A collection of benefits",
+        "type": "array",
+        "items": {
+          "title": "Coverage",
+          "description": "A benefit conferred to a group of one or more participants",
+          "type": "object",
+          "properties": {
+            "coverageId": {
+              "type": "string",
+              "description": "Coverage id",
+              "example": "BASE_COVERAGE",
+              "enum": [
+                "BASE_COVERAGE",
+                "Rider_ABRTRM",
+                "Rider_CTR",
+                "Rider_ABRCHR",
+                "Rider_ADR",
+                "Rider_WPR",
+                "Rider_CGR",
+                "Rider_GIBR",
+                "Rider_OPR",
+                "Rider_OWDR",
+                "Rider_WDR",
+                "Rider_NHR",
+                "Rider_ABRCRI",
+                "Rider_OWP"
+              ]
+            },
+            "riderYears": {
+              "type": "number",
+              "format": "integer",
+              "example": 10,
+              "description": "Rider years"
+            },
+            "currentAmount": {
+              "type": "number",
+              "format": "double",
+              "example": 1000,
+              "description": "Current amount"
+            },
+            "participants": {
+              "$ref": "#/components/schemas/Participant-Collection-V4"
+            }
+          },
+          "required": [
+            "coverageId"
+          ]
+        }
+      },
+      "Output-Coverage-Values": {
+        "title": "Output Coverage Values",
+        "description": "Result values relevant to a specific coverage",
+        "type": "object",
+        "properties": {
+          "policyFee": {
+            "type": "number",
+            "format": "double",
+            "description": "Annual policy fee",
+            "example": 150.2
+          },
+          "modalPolicyFee": {
+            "type": "number",
+            "format": "double",
+            "description": "Modal policy fee",
+            "example": 0
+          },
+          "premium": {
+            "type": "number",
+            "format": "double",
+            "description": "Annual premium",
+            "example": 0
+          },
+          "modalPremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Modal premium",
+            "example": 0
+          },
+          "tablePremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Annual table premium",
+            "example": 0
+          },
+          "modalTablePremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Modal table premium",
+            "example": 0
+          },
+          "flatExtraPremium": {
+            "description": "Flat Extra premium",
+            "type": "number",
+            "format": "double",
+            "example": 5
+          },
+          "modalFlatExtraPremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Modal flat extra premium",
+            "example": 0
+          },
+          "faceAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Coverage face amount",
+            "example": 2500
+          },
+          "isIncludedInQuote": {
+            "type": "boolean",
+            "example": true,
+            "description": "indicates that this coverage was actually used in producing the quote"
+          }
+        }
+      },
+      "Scenario-Base": {
+        "title": "Base Scenario Results",
+        "description": "Fundamental outputs that apply across all products. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)",
+        "type": "object",
+        "properties": {
+          "annualTimeSeriesData": {
+            "description": "Collection of values that vary annually - each item represents all the values for a single year",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Single-Year-Values-Base"
+            }
+          },
+          "annualPolicyManagementFee": {
+            "type": "number",
+            "format": "double",
+            "description": "Annual policy management fee",
+            "example": 60
+          },
+          "annualPremiumAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Annual premium amount",
+            "example": 397.2
+          },
+          "baseCoverageEndYear": {
+            "type": "number",
+            "format": "integer",
+            "description": "Base coverage end year",
+            "example": 86
+          },
+          "costIndex": {
+            "type": "object",
+            "properties": {
+              "netPaymentCostIndexYear10": {
+                "type": "number",
+                "format": "double",
+                "description": "Net payment cost index year 10",
+                "example": 1.59
+              },
+              "netPaymentCostIndexYear20": {
+                "type": "number",
+                "format": "double",
+                "description": "Net payment cost index year 20",
+                "example": 1.59
+              },
+              "surrenderCostIndexYear10": {
+                "type": "number",
+                "format": "double",
+                "description": "Surrender cost index year 20",
+                "example": 1.59
+              },
+              "surrenderCostIndexYear20": {
+                "type": "number",
+                "format": "double",
+                "description": "Surrender cost index year 20",
+                "example": 1.59
+              }
+            }
+          },
+          "coverages": {
+            "type": "object",
+            "description": "These values represent the initial or constant state of coverages",
+            "properties": {
+              "base": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              }
+            }
+          },
+          "initial": {
+            "type": "object",
+            "properties": {
+              "totalFaceAmount": {
+                "type": "number",
+                "format": "double",
+                "description": "Total Face Amount",
+                "example": 22500.05
+              },
+              "totalPremium": {
+                "type": "number",
+                "format": "double",
+                "description": "Premium",
+                "example": 33.1
+              },
+              "accountValue": {
+                "type": "number",
+                "format": "double",
+                "example": 0.104742
+              },
+              "totalModalPremium": {
+                "type": "number",
+                "format": "double",
+                "example": 100.2
+              },
+              "totalPolicyFee": {
+                "type": "number",
+                "format": "double",
+                "example": 600
+              },
+              "totalModalPolicyFee": {
+                "type": "number",
+                "format": "double",
+                "example": 500
+              }
+            }
+          },
+          "interestRate": {
+            "type": "number",
+            "format": "double",
+            "description": "Interest rate",
+            "example": 5.1
+          },
+          "issueAge": {
+            "type": "number",
+            "format": "integer",
+            "description": "Issue age",
+            "example": 35
+          },
+          "lapse": {
+            "type": "object",
+            "properties": {
+              "age": {
+                "type": "number",
+                "format": "integer",
+                "description": "Lapse age",
+                "example": 122
+              },
+              "year": {
+                "type": "number",
+                "format": "integer",
+                "description": "Lapse year",
+                "example": 87
+              },
+              "month": {
+                "type": "number",
+                "format": "integer",
+                "description": "Lapse month",
+                "example": 12
+              }
+            }
+          },
+          "loan": {
+            "type": "object",
+            "properties": {
+              "chargeRate": {
+                "type": "number",
+                "format": "double",
+                "description": "Charge rate",
+                "example": 4.5
+              },
+              "chargeRateArrears": {
+                "type": "number",
+                "format": "double",
+                "description": "Charge rate arrears",
+                "example": 4.5
+              },
+              "creditRate": {
+                "type": "number",
+                "format": "double",
+                "description": "Credit rate",
+                "example": 4.3
+              },
+              "takenIndicator": {
+                "type": "number",
+                "format": "integer",
+                "description": "Taken indicator",
+                "example": 0
+              }
+            }
+          },
+          "maturityYear": {
+            "type": "number",
+            "format": "integer",
+            "description": "Maturity year",
+            "example": 86
+          },
+          "payToAge": {
+            "type": "number",
+            "format": "integer",
+            "description": "Pay to age",
+            "example": 121
+          },
+          "payment": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "number",
+                "format": "integer",
+                "description": "Payment mode",
+                "example": 12
+              },
+              "term": {
+                "type": "number",
+                "format": "integer",
+                "description": "Payment term",
+                "example": 86
+              }
+            }
+          },
+          "policyStartYear": {
+            "type": "number",
+            "format": "integer",
+            "description": "Policy start year",
+            "example": 1
+          },
+          "premium": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "format": "double",
+                "description": "Premium amount",
+                "example": 33.1
+              },
+              "duration": {
+                "type": "number",
+                "format": "integer",
+                "description": "Premium duration",
+                "example": 86
+              },
+              "durationAge": {
+                "type": "number",
+                "format": "integer",
+                "description": "Premium duration age",
+                "example": 121
+              }
+            }
+          },
+          "scenarioEndAge": {
+            "type": "number",
+            "format": "integer",
+            "description": "Scenario end age",
+            "example": 122
+          },
+          "totalFirstPaymentAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Total first payment amount",
+            "example": 33.1
+          },
+          "netSurrenderValue": {
+            "type": "object",
+            "properties": {
+              "age65": {
+                "type": "number",
+                "format": "double",
+                "example": 1.385921
+              },
+              "finalAge": {
+                "type": "number",
+                "format": "double",
+                "example": 1.385921
+              }
+            }
+          },
+          "premiumFinalAge": {
+            "type": "number",
+            "format": "double",
+            "example": 110.04
+          }
+        }
+      },
+      "Scenario-Term": {
+        "title": "Scenario Results for Term Life",
+        "description": "Outputs for Term Life product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Scenario-Base"
+          }
+        ],
+        "properties": {
+          "annualTimeSeriesData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Single-Year-Values-Term"
+            }
+          },
+          "coverages": {
+            "properties": {
+              "acceleratedDeathBenefitForTerminalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForChronicIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForCriticalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "accidentalDeathBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "charitableGiving": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "childrensTerm": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "waiverOfPremium": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              }
+            }
+          }
+        }
+      },
+      "IUL-Shared-Scenario-Properties": {
+        "title": "IUL Shared Scenario Properties",
+        "description": "Scenario properties shared between IUL and HIT products",
+        "type": "object",
+        "properties": {
+          "annualTimeSeriesData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Single-Year-Values-IUL"
+            }
+          },
+          "acceleratedBenefitRider": {
+            "type": "object",
+            "properties": {
+              "band1MonthlyFee": {
+                "type": "number",
+                "format": "double",
+                "description": "Band 1 monthly fee",
+                "example": 250
+              },
+              "maximumAmount": {
+                "type": "number",
+                "format": "double",
+                "description": "Maximum amount",
+                "example": 500000
+              },
+              "maximumPercent": {
+                "type": "number",
+                "format": "double",
+                "description": "Maximum percent",
+                "example": 50
+              }
+            }
+          },
+          "annualCumulativeGuidelineLevelPremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Annual cumulative guideline level premium",
+            "example": 0
+          },
+          "annualDistributionAmount": {
+            "type": "number",
+            "format": "integer",
+            "description": "Annual distribution amount",
+            "example": 0
+          },
+          "baseCoverageEndYear": {
+            "type": "number",
+            "format": "integer",
+            "example": 21
+          },
+          "bonus": {
+            "type": "object",
+            "properties": {
+              "annualMaximum": {
+                "type": "number",
+                "format": "double",
+                "description": "Annual maximum",
+                "example": 100
+              },
+              "maximum": {
+                "type": "number",
+                "format": "double",
+                "description": "Maximum",
+                "example": 300
+              },
+              "percent": {
+                "type": "number",
+                "format": "double",
+                "description": "Percent",
+                "example": 10
+              }
+            }
+          },
+          "capAccountParameters": {
+            "type": "object",
+            "properties": {
+              "bestRate25Years": {
+                "type": "number",
+                "format": "double",
+                "description": "Best rate 25 years",
+                "example": 7.18
+              },
+              "maximumRate": {
+                "type": "number",
+                "format": "double",
+                "description": "Maximum rate",
+                "example": 5.82
+              },
+              "rate": {
+                "type": "number",
+                "format": "double",
+                "description": "Rate",
+                "example": 9
+              },
+              "rateLast10Years": {
+                "type": "number",
+                "format": "double",
+                "description": "Rate last 10 years",
+                "example": 6.22
+              },
+              "rateLast20Years": {
+                "type": "number",
+                "format": "double",
+                "description": "Rate last 20 years",
+                "example": 6.1
+              },
+              "worstRate25Years": {
+                "type": "number",
+                "format": "double",
+                "description": "Worst rate 25 years",
+                "example": 4.05
+              }
+            }
+          },
+          "coverages": {
+            "properties": {
+              "acceleratedDeathBenefitForTerminalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForChronicIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForCriticalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "accidentalDeathBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "charitableGiving": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "childrensTerm": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "guaranteedInsurabilityBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "overloanProtection": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "ownerWaiverOfDeduction": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "waiverOfDeduction": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              }
+            }
+          },
+          "current": {
+            "type": "object",
+            "properties": {
+              "interestRate": {
+                "type": "number",
+                "format": "double",
+                "example": 5,
+                "description": "Interest rate"
+              },
+              "premiumLoad": {
+                "type": "number",
+                "format": "double",
+                "example": 4,
+                "description": "Premium load"
+              }
+            }
+          },
+          "currentInterestRate": {
+            "type": "number",
+            "format": "double",
+            "example": 3
+          },
+          "deathBenefit": {
+            "type": "object",
+            "properties": {
+              "age65": {
+                "type": "number",
+                "format": "double",
+                "example": 100000
+              },
+              "finalAge": {
+                "type": "number",
+                "format": "double",
+                "example": 100000
+              }
+            }
+          },
+          "distribution": {
+            "type": "object",
+            "properties": {
+              "endAge": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "End age"
+              },
+              "startAge": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "Start age"
+              }
+            }
+          },
+          "fixed": {
+            "type": "object",
+            "properties": {
+              "accountRate": {
+                "type": "number",
+                "format": "double",
+                "example": 5,
+                "description": "Account rate"
+              },
+              "costPeriod": {
+                "type": "object",
+                "properties": {
+                  "coveragePayment": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 9.17,
+                    "description": "Coverage payment"
+                  },
+                  "savings": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 0,
+                    "description": "Savings"
+                  },
+                  "totalPayment": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 9.17,
+                    "description": "Total payment"
+                  }
+                }
+              }
+            }
+          },
+          "fixedAccountRate": {
+            "type": "number",
+            "format": "double",
+            "example": 1
+          },
+          "initial": {
+            "type": "object",
+            "properties": {
+              "guidelineLevelPremium": {
+                "type": "number",
+                "format": "double",
+                "example": 0,
+                "description": "Guideline level premium"
+              },
+              "minimumPremiumAmount": {
+                "example": 0,
+                "format": "double",
+                "type": "number",
+                "description": "Minimum premium amount"
+              },
+              "modifiedEndowmentPremium": {
+                "example": 4274.62,
+                "format": "double",
+                "type": "number",
+                "description": "Modified endowment premium"
+              },
+              "targetPremiumAmount": {
+                "example": 1234.5,
+                "format": "double",
+                "type": "number",
+                "description": "Target premium amount"
+              }
+            }
+          },
+          "insuranceAge": {
+            "type": "object",
+            "properties": {
+              "atLastDeathBenefitOptionChange": {
+                "type": "number",
+                "format": "integer",
+                "example": 56,
+                "description": "Insurance age at last death benefit option change"
+              },
+              "atLastFaceChange": {
+                "type": "number",
+                "format": "integer",
+                "example": 35,
+                "description": "Insurance age at last face change"
+              }
+            }
+          },
+          "lapseAge": {
+            "type": "number",
+            "format": "integer",
+            "example": 56
+          },
+          "lapseYear": {
+            "type": "number",
+            "format": "integer",
+            "example": 21
+          },
+          "match": {
+            "type": "object",
+            "properties": {
+              "maximumPercent": {
+                "type": "number",
+                "format": "double",
+                "example": 5,
+                "description": "Max percent"
+              },
+              "maximumPremiumAmount": {
+                "type": "number",
+                "format": "double",
+                "example": 5000,
+                "description": "Maximum premium amount"
+              },
+              "maximumYear": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "Maximum year"
+              },
+              "percent": {
+                "type": "number",
+                "format": "double",
+                "example": 2.5,
+                "description": "Percent"
+              },
+              "printColumnMessageFlag": {
+                "type": "number",
+                "format": "integer",
+                "example": 1,
+                "description": "Print column message flag"
+              },
+              "transferAmount": {
+                "type": "number",
+                "format": "double",
+                "example": 5,
+                "description": "Transfer amount"
+              },
+              "vestingPrintColumnMessageFlag": {
+                "type": "number",
+                "format": "integer",
+                "example": 1,
+                "description": "Vesting print column message flag"
+              },
+              "vestingYears": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "Vesting years"
+              },
+              "years": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "Years"
+              }
+            }
+          },
+          "minimumNoLapseGuaranteeTestYears": {
+            "type": "number",
+            "format": "integer",
+            "example": 0,
+            "description": "Minimum no lapse guarantee test years"
+          },
+          "modifiedEndowmentContract": {
+            "type": "object",
+            "properties": {
+              "adjustmentIndicator": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "Adjustment indicator"
+              },
+              "conversionYear": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "Conversion year"
+              }
+            }
+          },
+          "overloan": {
+            "type": "object",
+            "properties": {
+              "minimumAge": {
+                "type": "number",
+                "format": "integer",
+                "example": 75,
+                "description": "Minimum age"
+              },
+              "minimumLoanPercent": {
+                "type": "number",
+                "format": "double",
+                "example": 95,
+                "description": "Minimum loan percent"
+              },
+              "minimumYear": {
+                "type": "number",
+                "format": "integer",
+                "example": 15,
+                "description": "Minimum year"
+              }
+            }
+          },
+          "participantAccountParameters": {
+            "type": "object",
+            "properties": {
+              "bestRate25Years": {
+                "type": "number",
+                "format": "double",
+                "example": 8.68,
+                "description": "Best rate 25 years"
+              },
+              "maximumRate": {
+                "type": "number",
+                "format": "double",
+                "example": 6.54,
+                "description": "Maximum rate"
+              },
+              "rate": {
+                "type": "number",
+                "format": "double",
+                "example": 55.25,
+                "description": "Rate"
+              },
+              "rateLast10Years": {
+                "type": "number",
+                "format": "double",
+                "example": 8.3,
+                "description": "Rate last 10 years"
+              },
+              "rateLast20Years": {
+                "type": "number",
+                "format": "double",
+                "example": 6.98,
+                "description": "Rate last 20 years"
+              },
+              "worstRate25Years": {
+                "type": "number",
+                "format": "double",
+                "example": 4.22,
+                "description": "Worst rate 25 years"
+              }
+            }
+          },
+          "parRate": {
+            "type": "number",
+            "format": "double",
+            "example": 5
+          },
+          "policyYearOfLastDeathBenefitOptionChange": {
+            "type": "number",
+            "format": "integer",
+            "example": 21,
+            "description": "Policy year of last death benefit option change"
+          },
+          "policyYearOfLastFaceChange": {
+            "type": "number",
+            "format": "integer",
+            "example": 0,
+            "description": "Policy year of last face change"
+          },
+          "premiumAge65": {
+            "type": "number",
+            "format": "double",
+            "example": 1522.2
+          },
+          "savings": {
+            "type": "object",
+            "properties": {
+              "maximumAmount": {
+                "type": "number",
+                "format": "double",
+                "example": 100
+              },
+              "minimumPayment": {
+                "type": "number",
+                "format": "integer",
+                "example": 100
+              },
+              "percent": {
+                "type": "number",
+                "format": "double",
+                "example": 10
+              },
+              "years": {
+                "type": "number",
+                "format": "integer",
+                "example": 3
+              }
+            }
+          },
+          "secondLoan": {
+            "type": "object",
+            "properties": {
+              "chargeRateArrears": {
+                "type": "number",
+                "format": "double",
+                "example": 4.5
+              },
+              "creditRate": {
+                "type": "number",
+                "format": "double",
+                "example": 4.5
+              }
+            }
+          },
+          "terminal": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "format": "double",
+                "example": 500000
+              },
+              "percent": {
+                "type": "number",
+                "format": "double",
+                "example": 50
+              }
+            }
+          },
+          "thirdLoan": {
+            "type": "object",
+            "properties": {
+              "chargeRateArrears": {
+                "type": "number",
+                "format": "double",
+                "example": 4.5
+              },
+              "creditRate": {
+                "type": "number",
+                "format": "double",
+                "example": 4.5
+              }
+            }
+          },
+          "totalPremiumDueToFaceAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 33.1
+          },
+          "withdrawalTakenIndicator": {
+            "type": "number",
+            "format": "integer",
+            "example": 0
+          },
+          "yearAge65": {
+            "type": "number",
+            "format": "integer",
+            "example": 31
+          },
+          "zeroPremiumIndicator": {
+            "type": "number",
+            "format": "integer",
+            "example": 0
+          }
+        }
+      },
+      "Scenario-IUL": {
+        "title": "Scenario Results for IUL",
+        "description": "Outputs for Indexed Universal Life product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Scenario-Base"
+          },
+          {
+            "$ref": "#/components/schemas/IUL-Shared-Scenario-Properties"
+          }
+        ]
+      },
+      "Scenario-WL": {
+        "title": "Scenario Results for Whole Life",
+        "description": "Outputs for Whole Life product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Scenario-Base"
+          }
+        ],
+        "properties": {
+          "annualTimeSeriesData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Single-Year-Values-WL"
+            }
+          },
+          "coverages": {
+            "properties": {
+              "acceleratedDeathBenefitForTerminalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForChronicIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForCriticalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "accidentalDeathBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "charitableGiving": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "childrensTerm": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "guaranteedInsurabilityBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "ownerWaiverOfPremium": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "waiverOfPremium": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              }
+            }
+          },
+          "modifiedEndowmentContract": {
+            "type": "object",
+            "properties": {
+              "adjustmentIndicator": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "Adjustment indicator"
+              },
+              "conversionYear": {
+                "type": "number",
+                "format": "integer",
+                "example": 0,
+                "description": "Conversion year"
+              }
+            }
+          }
+        }
+      },
+      "Scenario-HIT": {
+        "title": "Scenario Results for Hybrid-IUL/Term",
+        "description": "Outputs for Hybrid-IUL/Term product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Scenario-Base"
+          },
+          {
+            "$ref": "#/components/schemas/IUL-Shared-Scenario-Properties"
+          }
+        ],
+        "properties": {
+          "fixedCostPeriod": {
+            "type": "number",
+            "format": "integer",
+            "example": 65
+          },
+          "fixedCostPeriodSavingsPremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Fixed cost period savings premium",
+            "example": 250
+          },
+          "fixedCostPeriodSavingsModalPremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Fixed cost period savings modal premium",
+            "example": 20.83
+          },
+          "fixedCostPeriodChildRiderPremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Fixed cost period child rider premium",
+            "example": 50
+          },
+          "fixedCostPeriodChildRiderModalPremium": {
+            "type": "number",
+            "format": "double",
+            "description": "Fixed cost period child rider modal premium",
+            "example": 4.17
+          }
+        }
+      },
+      "Single-Year-Values-Base": {
+        "title": "Single-Year Values",
+        "description": "A single-year slice of data that varies annually - these values apply to any scenario and any product",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PropertyCollection-Loan"
+          }
+        ],
+        "properties": {
+          "year": {
+            "type": "number",
+            "format": "integer"
+          },
+          "accountValue": {
+            "type": "number",
+            "format": "double",
+            "example": 0.104742
+          },
+          "coverages": {
+            "type": "object",
+            "description": "Coverage-specific values which are annually variable. See under \"initial\" for values that are constant year-to-year",
+            "properties": {
+              "base": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              }
+            }
+          },
+          "cumulativePremiumAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 397.2
+          },
+          "deathBenefitAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 250000.104742
+          },
+          "faceAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 250000
+          },
+          "insuranceAgeAtBeginningOfYear": {
+            "type": "number",
+            "format": "integer",
+            "example": 35
+          },
+          "insuranceAgeAtEndOfYear": {
+            "type": "number",
+            "format": "integer",
+            "example": 36
+          },
+          "perUnitCharge": {
+            "type": "number",
+            "format": "double",
+            "example": 201.21
+          },
+          "policyValue": {
+            "type": "number",
+            "format": "double",
+            "example": 0.104742
+          },
+          "premiumAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 397.2
+          },
+          "policyBasis": {
+            "type": "number",
+            "format": "double",
+            "example": 110.04
+          },
+          "policyGain": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "surrenderValue": {
+            "type": "number",
+            "format": "double",
+            "example": 0.102552
+          }
+        }
+      },
+      "Single-Year-Values-Term": {
+        "title": "Single-Year Values for Term Life",
+        "description": "A single-year slice of data that varies annually - these values are specific to IUL products",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Single-Year-Values-Base"
+          }
+        ],
+        "properties": {
+          "coverages": {
+            "type": "object",
+            "properties": {
+              "acceleratedDeathBenefitForTerminalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForChronicIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForCriticalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "accidentalDeathBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "charitableGiving": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "childrensTerm": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "waiverOfPremium": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "netSurrenderValue": {
+                "deprecated": true,
+                "type": "number",
+                "format": "double",
+                "example": 0
+              },
+              "reducedPaidUp": {
+                "deprecated": true,
+                "type": "number",
+                "format": "double",
+                "example": 100
+              }
+            }
+          },
+          "totalSurplusDistributions": {
+            "type": "number",
+            "format": "double",
+            "example": 1.23
+          },
+          "paidUpAdditionDeathBenefit": {
+            "type": "number",
+            "format": "double",
+            "example": 1.23
+          },
+          "paidUpAdditionCashValue": {
+            "type": "number",
+            "format": "double",
+            "example": 1.23
+          },
+          "reducedPaidUp": {
+            "type": "number",
+            "format": "double",
+            "example": 1.23
+          },
+          "modifiedEndowmentContractIndicator": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          }
+        }
+      },
+      "Single-Year-Values-WL": {
+        "title": "Single-Year Values for Whole Life",
+        "description": "A single-year slice of data that varies annually - these values are specific to Whole Life products",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Single-Year-Values-Base"
+          },
+          {
+            "$ref": "#/components/schemas/PropertyCollection-Withdrawal"
+          }
+        ],
+        "properties": {
+          "coverages": {
+            "properties": {
+              "acceleratedDeathBenefitForTerminalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForChronicIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForCriticalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "accidentalDeathBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "charitableGiving": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "childrensTerm": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "waiverOfPremium": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "ownerWaiverOfPremium": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "guaranteedInsurabilityBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              }
+            }
+          },
+          "totalSurplusDistributions": {
+            "type": "number",
+            "format": "double",
+            "example": 1.23
+          },
+          "paidUpAdditionDeathBenefit": {
+            "type": "number",
+            "format": "double",
+            "example": 1.23
+          },
+          "paidUpAdditionCashValue": {
+            "type": "number",
+            "format": "double",
+            "example": 1.23
+          },
+          "reducedPaidUp": {
+            "type": "number",
+            "format": "double",
+            "example": 1.23
+          },
+          "modifiedEndowmentContractIndicator": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          }
+        }
+      },
+      "Single-Year-Values-IUL": {
+        "title": "Single-Year values for IUL",
+        "description": "A single-year slice of data that varies annually - these values are specific to IUL products",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Single-Year-Values-Base"
+          },
+          {
+            "$ref": "#/components/schemas/PropertyCollection-Withdrawal"
+          }
+        ],
+        "properties": {
+          "accumulatedPremiumAmountAtInterest": {
+            "type": "number",
+            "format": "double",
+            "example": 115.542
+          },
+          "bonus": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "costOfInsurance": {
+            "type": "number",
+            "format": "double",
+            "example": 45.576
+          },
+          "coverages": {
+            "properties": {
+              "acceleratedDeathBenefitForTerminalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForChronicIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "acceleratedDeathBenefitForCriticalIllness": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "accidentalDeathBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "charitableGiving": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "childrensTerm": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "guaranteedInsurabilityBenefit": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "overloanProtection": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "ownerWaiverOfDeduction": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              },
+              "waiverOfDeduction": {
+                "$ref": "#/components/schemas/Output-Coverage-Values"
+              }
+            }
+          },
+          "coverageCredit": {
+            "type": "number",
+            "format": "double",
+            "example": 1.1
+          },
+          "deathBenefitAmountDueToCorridor": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "effectiveInterestRate": {
+            "type": "number",
+            "format": "double",
+            "example": 5
+          },
+          "expenseCharge": {
+            "type": "number",
+            "format": "double",
+            "example": 60
+          },
+          "forcedWithdrawalDueToGuidelinesAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "guidelineLevelPremiumAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "guidelineMaximumPremiumAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "guidelineSinglePremiumAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "historical": {
+            "type": "object",
+            "properties": {
+              "SP500": {
+                "type": "number",
+                "format": "double",
+                "example": 3.001023
+              },
+              "SP500CapRate": {
+                "type": "number",
+                "format": "double",
+                "example": 3.001023
+              },
+              "SP500ParticipationRate": {
+                "type": "number",
+                "format": "double",
+                "example": 1.7
+              },
+              "Year": {
+                "type": "number",
+                "format": "double",
+                "example": 2005
+              }
+            }
+          },
+          "interestRate": {
+            "type": "number",
+            "format": "double",
+            "example": 5
+          },
+          "interestCreditedAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0.001678
+          },
+          "minimumPremiumAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "modifiedEndowmentContractIndicator": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "netAmountAtRisk": {
+            "type": "number",
+            "format": "double",
+            "example": 99991.138173
+          },
+          "policyNetOutlayAmountForExpenseSummary": {
+            "type": "number",
+            "format": "double",
+            "example": 110.04
+          },
+          "premiumCharge": {
+            "type": "number",
+            "format": "double",
+            "example": 4.4016
+          },
+          "premiumOutlayKey": {
+            "type": "number",
+            "format": "double",
+            "example": 1
+          },
+          "protectionCost": {
+            "type": "number",
+            "format": "double",
+            "example": 105.576
+          },
+          "riderCharges": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "sevenPayPremiumAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 4274.62
+          },
+          "surrenderChargeAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "taxDueAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "taxableAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "totalDistributionAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "cvatFactors": {
+            "type": "number",
+            "format": "double",
+            "example": 3.526381
+          },
+          "insuranceAge": {
+            "type": "object",
+            "properties": {
+              "atBeginningOfYear": {
+                "type": "number",
+                "format": "double",
+                "example": 18
+              },
+              "atEndOfYear": {
+                "type": "number",
+                "format": "double",
+                "example": 19
+              }
+            }
+          },
+          "internalRateOfReturn": {
+            "type": "object",
+            "properties": {
+              "deathBenefit": {
+                "type": "number",
+                "format": "double",
+                "example": 0
+              },
+              "surrender": {
+                "type": "number",
+                "format": "double",
+                "example": 0
+              }
+            }
+          },
+          "match": {
+            "type": "object",
+            "properties": {
+              "cumulativeVestedPremiumAmount": {
+                "type": "number",
+                "format": "double",
+                "example": 0
+              },
+              "premiumAmount": {
+                "type": "number",
+                "format": "double",
+                "example": 0
+              },
+              "unvestedAccountValue": {
+                "type": "number",
+                "format": "double",
+                "example": 0
+              },
+              "vestedPremiumAmount": {
+                "type": "number",
+                "format": "double",
+                "example": 0
+              }
+            }
+          }
+        }
+      },
+      "PropertyCollection-Loan": {
+        "title": "Loan Property Collection",
+        "description": "Reusable collection of loan-related properties",
+        "type": "object",
+        "properties": {
+          "loan": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "format": "double",
+                "description": "Loan amount",
+                "example": 0
+              },
+              "interestCreditedAmount": {
+                "type": "number",
+                "format": "double",
+                "description": "Loan interest credited amount",
+                "example": 0
+              },
+              "interestDueAmount": {
+                "type": "number",
+                "format": "double",
+                "description": "Loan interest due amount",
+                "example": 0
+              },
+              "payoffAmount": {
+                "type": "number",
+                "format": "double",
+                "description": "Loan payoff amount",
+                "example": 0
+              },
+              "maximumLoanAmount": {
+                "type": "number",
+                "format": "double",
+                "description": "Maximum loan amount",
+                "example": 0
+              }
+            }
+          },
+          "netAccountValue": {
+            "type": "number",
+            "format": "double",
+            "example": 0.104742
+          },
+          "netDeathBenefitAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 250000.104742
+          },
+          "netSurrenderValue": {
+            "type": "number",
+            "format": "double",
+            "example": 0.104742
+          },
+          "policyNetOutlayAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 397.2
+          },
+          "premiumOutlayAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 397.2
+          }
+        }
+      },
+      "PropertyCollection-Withdrawal": {
+        "title": "Withdrawal Property Collection",
+        "description": "Reusable collection of withdrawal-related properties",
+        "type": "object",
+        "properties": {
+          "cumulativeWithdrawalAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Cumulative withdrawal amount",
+            "example": 0
+          },
+          "maximumWithdrawalAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Maximum withdrawal amount",
+            "example": 0
+          },
+          "withdrawalAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Withdrawal amount",
+            "example": 0
+          }
+        }
+      },
+      "Output-Format": {
+        "description": "identifier for an output format",
+        "type": "string",
+        "enum": [
+          "RAW_ILLUSTRATION_VALUES",
+          "FORMATTED_ILLUSTRATION_PDF"
+        ]
+      },
+      "Output-Status": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "$ref": "#/components/schemas/Output-Format"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETE",
+              "ERROR"
+            ]
+          }
+        }
+      },
+      "Attribute-Collection": {
+        "title": "Attribute Collection",
+        "description": "A collection of uniquely named variables, must be camel-cased.",
+        "type": "object",
+        "properties": {
+          "^[a-z][a-zA-Z0-9]+": {
+            "$ref": "#/components/schemas/Variable-Value"
+          }
+        }
+      },
+      "Basic-Collection": {
+        "title": "Basic Collection",
+        "description": "A simple object that only contains a collection of unique attributes and no further structure.",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          }
+        },
+        "required": [
+          "attributes"
+        ]
+      },
+      "Account-Value": {
+        "title": "Account-Value",
+        "description": "A description of the monetary value of an investment contract",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "policyMetrics": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "loan": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "withdrawal": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          }
+        },
+        "required": [
+          "attributes",
+          "policyMetrics",
+          "loan",
+          "withdrawal"
+        ]
+      },
+      "Multiple-Basic-Collections": {
+        "title": "Multiple-Basic-Collections",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Basic-Collection"
+        }
+      },
+      "Participant": {
+        "title": "Participant (v3)",
+        "description": "An entity with a stake in a policy",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "flatExtra": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          }
+        },
+        "required": [
+          "attributes",
+          "flatExtra"
+        ]
+      },
+      "Flat-Extra": {
+        "title": "Flat Extra",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of flat extra",
+            "example": "PERMANENT",
+            "enum": [
+              "PERMANENT",
+              "TEMPORARY"
+            ]
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "description": "Amount",
+            "example": 1000
+          },
+          "duration": {
+            "type": "number",
+            "format": "integer",
+            "description": "Duration",
+            "example": 12
+          },
+          "durationType": {
+            "type": "string",
+            "description": "Duration type",
+            "example": "YEARS",
+            "enum": [
+              "YEARS",
+              "MONTHS"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "pattern": "([0-9]{4})-([0-9]{2})-([0-9]{2})",
+            "description": "Date (with pattern \"yyyy-mm-dd\")",
+            "example": "2025-05-13"
+          }
+        }
+      },
+      "Participant-Collection": {
+        "title": "Participant-Collection",
+        "description": "An unkeyed collection of unique participant objects",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Participant"
+        },
+        "uniqueItems": true
+      },
+      "Coverage": {
+        "title": "Coverage (v3)",
+        "description": "A benefit conferred to a group of one or more participants",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "participants": {
+            "$ref": "#/components/schemas/Participant-Collection"
+          },
+          "fees": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          }
+        },
+        "required": [
+          "attributes",
+          "participants",
+          "fees"
+        ]
+      },
+      "Coverage-Collection": {
+        "title": "Coverage-Collection (v3)",
+        "description": "A collection of benefits",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Coverage"
+        }
+      },
+      "Party": {
+        "title": "Party",
+        "description": "A unique entity",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "person": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "trust": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          }
+        },
+        "required": [
+          "attributes",
+          "person",
+          "organization",
+          "trust"
+        ]
+      },
+      "Parties": {
+        "title": "Parties",
+        "description": "An unkeyed collection of unique Party objects",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Party"
+        },
+        "uniqueItems": true
+      },
+      "Features": {
+        "title": "Features",
+        "description": "Well-known geatures associated with a policy",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "lapseAssessment": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "lapseProtection": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "reinstatement": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          }
+        },
+        "required": [
+          "attributes",
+          "lapseAssessment",
+          "lapseProtection",
+          "reinstatement"
+        ]
+      },
+      "Fund": {
+        "title": "Fund",
+        "description": "A source of money",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "segments": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          }
+        },
+        "required": [
+          "attributes",
+          "segments"
+        ]
+      },
+      "Fund-Collection": {
+        "title": "Fund-Collection",
+        "description": "An unkeyed collection of funds",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Fund"
+        }
+      },
+      "Financial-Activity": {
+        "title": "Financial Activity",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          }
+        },
+        "required": [
+          "attributes"
+        ]
+      },
+      "Active-Segment": {
+        "title": "Active-Segment",
+        "type": "object",
+        "description": "A segment of a source of money that has some form of financial activity",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "financialActivity": {
+            "$ref": "#/components/schemas/Financial-Activity"
+          }
+        },
+        "required": [
+          "attributes"
+        ]
+      },
+      "Arrangement-Source": {
+        "title": "Arrangement-Source",
+        "type": "object",
+        "description": "A source of funding for an arrangement",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Active-Segment"
+            }
+          }
+        },
+        "required": [
+          "attributes",
+          "segments"
+        ]
+      },
+      "Arrangement-Type": {
+        "title": "Arrangement Type",
+        "description": "Enumeration of allowable arrangement types",
+        "type": "string",
+        "enum": [
+          "LOAN",
+          "WITHDRAWAL",
+          "PAYMENT",
+          "CONVERSION_ACTIVATION"
+        ]
+      },
+      "Scheduled-Entry": {
+        "title": "Scheduled Entry",
+        "description": "Represents a limited time period for which a value is constant.",
+        "type": "object",
+        "properties": {
+          "from": {
+            "description": "starting point for the value, inclusive",
+            "type": "integer",
+            "minimum": 1
+          },
+          "through": {
+            "description": "ending point for the value, inclusive",
+            "type": "integer",
+            "minimum": 1
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "through",
+          "value"
+        ]
+      },
+      "Schedule": {
+        "title": "Schedule",
+        "description": "Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties",
+        "type": "object",
+        "properties": {
+          "frequency": {
+            "description": "Indicates the interval between values for each entry. Any entry other than Annual results in multiple activities within a year.",
+            "type": "string",
+            "enum": [
+              "ANNUAL",
+              "SEMI_ANNUAL",
+              "QUARTERLY",
+              "MONTHLY",
+              "BIWEEKLY",
+              "WEEKLY",
+              "DAILY"
+            ]
+          },
+          "basis": {
+            "description": "Specifies how to interpret the from and through properties for each entry.",
+            "type": "string",
+            "enum": [
+              "AGE",
+              "DURATION"
+            ]
+          },
+          "sequence": {
+            "description": "Collection of entries describing the changes in value over time",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Scheduled-Entry"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "sequence"
+        ]
+      },
+      "Variable-Value": {
+        "title": "Variable Value",
+        "description": "the value of a variable, may be constant or time-dependent",
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "$ref": "#/components/schemas/Schedule"
+          }
+        ]
+      },
+      "Arrangement": {
+        "title": "Arrangement",
+        "description": "Describes an arbitrary agreement",
+        "type": "object",
+        "properties": {
+          "arrangementSources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Arrangement-Source"
+            }
+          },
+          "type": {
+            "$ref": "#/components/schemas/Arrangement-Type"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "requestedAmount": {
+            "$ref": "#/components/schemas/Variable-Value"
+          },
+          "deathClaim": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "fees": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          },
+          "loanSegments": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          },
+          "matchSegment": {
+            "$ref": "#/components/schemas/Active-Segment"
+          },
+          "payments": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          },
+          "taxWithholdings": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          }
+        }
+      },
+      "Arrangements": {
+        "title": "Arrangements",
+        "description": "An unkeyed collection of arrangement objects",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Arrangement"
+        }
+      },
+      "Policy-State": {
+        "title": "Policy State",
+        "description": "Represents the state of a policy at an instant in time. Describes the payload Zahara transmits when requesting calculations for a single transaction.",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/Attribute-Collection"
+          },
+          "accountValue": {
+            "$ref": "#/components/schemas/Account-Value"
+          },
+          "testValue": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "deathBenefit": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "coverageValue": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "coverages": {
+            "$ref": "#/components/schemas/Coverage-Collection"
+          },
+          "parties": {
+            "$ref": "#/components/schemas/Parties"
+          },
+          "features": {
+            "$ref": "#/components/schemas/Features"
+          },
+          "fundAllocations": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          },
+          "funds": {
+            "$ref": "#/components/schemas/Fund-Collection"
+          },
+          "matchSegment": {
+            "$ref": "#/components/schemas/Basic-Collection"
+          },
+          "loanSegments": {
+            "$ref": "#/components/schemas/Multiple-Basic-Collections"
+          },
+          "arrangements": {
+            "$ref": "#/components/schemas/Arrangements"
+          }
+        },
+        "required": [
+          "attributes",
+          "accountValue",
+          "testValue",
+          "deathBenefit",
+          "coverageValue",
+          "coverages",
+          "parties",
+          "features",
+          "fundAllocations",
+          "funds",
+          "matchSegment",
+          "loanSegments",
+          "arrangements"
+        ]
+      },
+      "Result": {
+        "title": "Result",
+        "description": "The output from a cmputation, which may vary with time",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "Scenario-Results": {
+        "title": "Scenario-Results",
+        "description": "A grouping of uniquely identifiable results, typically produced under a common set of assumptions",
+        "type": "object",
+        "properties": {
+          "^[a-z][a-zA-Z0-9]+": {
+            "$ref": "#/components/schemas/Result"
+          }
+        }
+      },
+      "Multiple-Scenario-Results": {
+        "title": "Multiple-Scenario-Results",
+        "description": "A grouping of uniquely identifiable scenarios containing their results",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Scenario-Results"
+        }
+      },
+      "Message": {
+        "title": "Message",
+        "description": "A structured signal",
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "returnTo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "text"
+        ]
+      },
+      "Calculation-Illustration": {
+        "title": "Core Calculation - Single Illustration",
+        "description": "Describes the payload required for calculation of a single transaction",
+        "properties": {
+          "$schema": {
+            "type": "string"
+          },
+          "illustrationType": {
+            "type": "string",
+            "enum": [
+              "NEW_BUSINESS",
+              "INFORCE"
+            ]
+          },
+          "calculationType": {
+            "type": "string",
+            "description": "Type of calculation",
+            "example": "QUICK_QUOTE",
+            "enum": [
+              "QUICK_QUOTE",
+              "SINGLE_ILLUSTRATION",
+              "AGGREGATE_ILLUSTRATION",
+              "COMPOSITE_ILLUSTRATION",
+              "POLICY_PAGE_PROJECTION"
+            ]
+          },
+          "policyDetail": {
+            "$ref": "#/components/schemas/Policy-State"
+          },
+          "projection": {
+            "properties": {
+              "attributes": {
+                "$ref": "#/components/schemas/Attribute-Collection"
+              },
+              "scenarios": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "coverages": {
+                "$ref": "#/components/schemas/Coverage-Collection"
+              },
+              "parties": {
+                "$ref": "#/components/schemas/Parties"
+              },
+              "arrangements": {
+                "$ref": "#/components/schemas/Arrangements"
+              },
+              "options": {
+                "$ref": "#/components/schemas/Basic-Collection"
+              },
+              "reports": {
+                "$ref": "#/components/schemas/Basic-Collection"
+              },
+              "fundAllocations": {
+                "$ref": "#/components/schemas/Multiple-Basic-Collections"
+              },
+              "results": {
+                "$ref": "#/components/schemas/Multiple-Scenario-Results"
+              },
+              "messages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "calculationType",
+          "illustrationType"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "Auth0": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://login.dev.zinnia.com/.well-known/openid-configuration",
+        "x-kong-security-openid-connect": {
+          "config": {
+            "run_on_preflight": true,
+            "scopes_claim": [
+              "https://dev.api.zinnia.io/permissions"
+            ],
+            "audience_claim": [
+              "aud"
+            ],
+            "audience_required": [
+              "https://dev.api.zinnia.io"
+            ],
+            "auth_methods": [
+              "bearer"
+            ],
+            "scopes": []
+          },
+          "enabled": true,
+          "protocols": [
+            "grpc",
+            "grpcs",
+            "http",
+            "https"
+          ]
+        }
+      }
+    }
+  },
+  "x-kong-service-defaults": {
+    "connect_timeout": 120000,
+    "read_timeout": 120000,
+    "write_timeout": 120000
+  }
+}

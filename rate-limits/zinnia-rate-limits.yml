@@ -1,0 +1,19 @@
+generated: '2026-09-13'
+method: searched
+source: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details (Troubleshooting Common Error Scenarios) and openapi/zinnia-market-connect-order-entry-openapi.yml 429 responses
+docs: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+limit_count: 0
+limits: []
+response:
+  status: 429
+  error_code: RATE_LIMIT_EXCEEDED
+  headers:
+  - name: Retry-After
+    documented: true
+    evidence: '"If rate limited, wait and retry after the period indicated in the Retry-After header." - Policy Service troubleshooting guide, Authentication & Authorization Errors section.'
+  body: Market Connect Order Entry returns the ErrorResponse envelope with code RATE_LIMIT_EXCEEDED; the documented example message is "Rate limit exceeded. Try again in 60 seconds."
+ratelimit_headers_published: false
+note: Zinnia enforces rate limits - a 429 RATE_LIMIT_EXCEEDED response is declared on 18 Market Connect Order Entry responses and named in the platform troubleshooting guide - but publishes no numeric limit
+  anywhere. There is no per-key, per-account or per-endpoint figure, no window, no burst allowance, and no X-RateLimit-* or RFC 9238 RateLimit-* header documented. An integrator can only discover the ceiling
+  by hitting it. Retry-After is the one runtime signal that is documented. Limits are presumably set per partner in the Kong gateway configuration and negotiated commercially.
+retry_guidance: 'Published guidance: do NOT retry on 400, 401 or 403 unless the request has been corrected; you MAY retry on 429, 500, 502, 503 and 504 using exponential backoff.'

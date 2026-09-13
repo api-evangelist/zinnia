@@ -1,0 +1,17 @@
+generated: '2026-09-13'
+method: searched
+source: https://zinnia.com/sitemap.xml (no pricing URL present) and probes of https://zinnia.com/pricing (404) and https://developers.zinnia.com/ (no pricing or plans section)
+plan_count: 0
+plans: []
+model: enterprise-contract
+note: Zinnia publishes no pricing at all. There is no /pricing page (HTTP 404), no pricing entry in the sitemap, and no plans, quotas or rate cards on the developer portal. Zinnia sells as an enterprise
+  insurance-technology and third-party-administration engagement - the Enterprise Documents API states plainly "Contact your Zinnia representative to obtain credentials", and the developer portal has no
+  self-serve registration (/register and /login both 302 back to the portal root). Commercial terms are negotiated per carrier or distributor.
+evidence:
+- url: https://zinnia.com/pricing
+  status: 404
+- url: https://developers.zinnia.com/register
+  status: 302
+  note: 302 to https://developers.zinnia.com/ - no signup form
+- url: https://zinnia.com/contact
+  status: 200

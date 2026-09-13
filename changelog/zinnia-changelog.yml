@@ -1,0 +1,119 @@
+generated: '2026-09-13'
+method: derived
+source: Version History blocks published by Zinnia inside info.description of openapi/_original/zinnia-market-connect-order-entry-openapi.json, zinnia-new-business-openapi.json, zinnia-policy-transactions-openapi.json
+  and zinnia-documents-openapi.json
+docs: null
+scheme: per-API semantic version, published inside each OpenAPI info.description as a Version History block
+note: Zinnia publishes no site-wide changelog or release-notes page. Four of the ten contracts carry a dated-free Version History section in their own description; the other six publish only a current info.version.
+  Entries carry no dates, so ordering is by version only, and breaking changes are not flagged as breaking.
+streams:
+- api: Market Connect Order Entry
+  current_version: 1.0.3
+  spec: openapi/zinnia-market-connect-order-entry-openapi.yml
+  entries:
+  - version: 1.0.3
+    breaking: false
+    highlights:
+    - Added optional ACORD-aligned prefill node to the create-transaction request, enabling pre-population of party and product fields.
+    - Added optional illustrationId, accountNumber and externalTransactionId fields to the create-transaction request.
+  - version: 1.0.2
+    breaking: false
+    highlights:
+    - Added signer-status, signer-update, cancel-ceremony and e-signature email-retrigger capabilities.
+    - Added reviewer approval, decline and termination actions, plus enhanced attachment metadata and upload/delete handling.
+    - Added HTTP 422 business-validation responses, stricter request/control-type validation, optional opportunity IDs and cache reliability fixes.
+  - version: 1.0.1
+    breaking: false
+    highlights:
+    - Expanded the OpenAPI specification with environment URLs, OpenID Connect security and Kong integration metadata.
+    - Added attachment, comments and product-pricing operations.
+    - Added e-signature recipient and submission workflows and full-blueprint transaction updates.
+  - version: 1.0.0
+    breaking: false
+    highlights:
+    - Added transaction submission and Life product blueprint processing.
+    - Enabled the enhanced single-blueprint workflow without requiring a client-provided step name.
+    - Expanded validation errors, conditional visibility, nested sections, custom controls and bearer-token forwarding.
+  - version: 0.9.0
+    breaking: false
+    highlights:
+    - Added authorization checks through FGA and refined the Market Connect Order Entry route structure.
+    - Introduced create, retrieve and progressive-save support for single-blueprint transactions.
+- api: Zinnia New Business API
+  current_version: 0.9.8
+  spec: openapi/zinnia-new-business-openapi.yml
+  entries:
+  - version: 0.9.7
+    breaking: false
+    highlights:
+    - Introduced new enum to support Everly T65 products.
+  - version: 0.9.6
+    breaking: false
+    highlights:
+    - Introduced new enum to support Whole Life products.
+  - version: 0.9.5
+    breaking: false
+    highlights:
+    - Added replacementLtcIndicator to all Everly workflows.
+  - version: 0.9.4
+    breaking: false
+    highlights:
+    - 'New endpoint: expose Case Export endpoint on Kong - Life.'
+  - version: 0.9.3
+    breaking: false
+    highlights:
+    - 'New endpoint: expose Interim Status Update endpoint on Kong - Life.'
+  - version: 0.9.2
+    breaking: false
+    highlights:
+    - 'New endpoint: expose health check endpoints publicly through Kong for New Business - Life.'
+  - version: 0.9.0
+    breaking: false
+    highlights:
+    - Changed formNumber datatype from number to string on the Upload Document API.
+    note: A datatype change on a published field is breaking for existing clients but is not labelled as such.
+  - version: 0.8.0
+    breaking: false
+    highlights:
+    - Grantor role enum updated; added missing birthSex key to the Beneficiary party object.
+  - version: 0.7.0
+    breaking: false
+    highlights:
+    - Typo fix in UnderwritingRiskClass and DecisionRiskClass enums.
+    note: Enum value spelling changes are breaking for existing clients.
+  - version: 0.6.0
+    breaking: true
+    highlights:
+    - Moved insuranceHistory from parties to the application block and renamed it policyHistory.
+    - Added conversion as a new type inside policyHistory.
+    - Added NB_STATE_REPLACEMENT and NB_CONVERSION to documentType.
+- api: Zinnia Policy Transactions API
+  current_version: 1.0.8
+  spec: openapi/zinnia-policy-transactions-openapi.yml
+  entries:
+  - version: 1.0.6
+    breaking: false
+    highlights:
+    - 'Added two endpoints: reinstatement eligibility check API and reinstatement transaction API.'
+    note: Published as "Draft Specifications (Subject to Change Upon Review)".
+- api: Enterprise Documents API
+  current_version: 3.0.0
+  spec: openapi/zinnia-documents-openapi.yml
+  entries:
+  - version: 3.0.0
+    breaking: true
+    highlights:
+    - Initial published v3 release. All paths use the /document/v3/... prefix. Seven Document and Tax Form operations with complete request/response schemas, parameter definitions, error responses and worked
+      examples.
+    note: v2 operations remain published in the same document and are not marked deprecated.
+portal_last_modified:
+  case-management: '2025-03-12'
+  documents: '2025-06-05'
+  illustration: '2025-03-12'
+  illustration-client-cases: '2026-04-21'
+  market-connect-order-entry: '2026-04-28'
+  new-business: '2026-07-02'
+  new-business-annuity: '2025-09-19'
+  policy-service: '2025-07-23'
+  policy-transactions: '2025-06-13'
+  product-service: '2026-04-23'

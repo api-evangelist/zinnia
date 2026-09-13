@@ -1,0 +1,155 @@
+generated: '2026-09-13'
+method: derived
+source: openapi/ 4xx and 5xx responses across all ten published Zinnia contracts, plus the published error reference at https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+docs: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+format: vendor-json
+rfc9457: false
+rfc9457_note: No Zinnia contract declares application/problem+json. Errors are vendor JSON envelopes and there are two distinct shapes in use, which is itself a finding for an integrator.
+envelopes:
+- name: transaction-scoped error array
+  used_by:
+  - Market Connect Order Entry
+  schema: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorResponse
+  shape:
+    transactionId: string
+    errors:
+    - code: enum
+      description: string
+      details: string
+      timestamp: date-time
+- name: validationResult envelope
+  used_by:
+  - Policy Service
+  - Policy Transactions
+  source: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  shape:
+    status: failure
+    validationResult:
+    - code: string
+      message: string
+      severity: ERROR
+      details:
+        field: string
+        constraint: string
+        providedValue: any
+- name: general guideline envelope
+  used_by:
+  - documented as the general form across the platform
+  source: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  shape:
+    error:
+      code: string
+      message: string
+      details:
+      - field: string
+        message: string
+status_census:
+  '400': 182
+  '401': 60
+  '403': 61
+  '404': 74
+  '409': 2
+  '415': 1
+  '422': 2
+  '429': 18
+  '500': 177
+  '502': 18
+  '503': 27
+  '504': 18
+code_count: 23
+codes:
+- code: VALIDATION_ERROR
+  http_status: 400
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: INVALID_TRANSACTION_ID
+  http_status: 400
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: INVALID_STEP_NAME
+  http_status: 400
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: TRANSACTION_CREATION_FAILED
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: TRANSACTION_ID_NOT_FOUND
+  http_status: 404
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: SAVE_TRANSACTION_ERROR
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: SAVE_TRANSACTION_FAILED
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: INVALID_RESPONSE_FORMAT
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: BUILD_BLUEPRINT_ERROR
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: JSON_PARSE_ERROR
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: TRANSFORMER_NULL_RESPONSE
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: EMPTY_BLUEPRINT
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: UNEXPECTED_ERROR
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: SERVICE_ERROR
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: UNAUTHORIZED
+  http_status: 401
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: FORBIDDEN
+  http_status: 403
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: NOT_FOUND
+  http_status: 404
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: RATE_LIMIT_EXCEEDED
+  http_status: 429
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: UPSTREAM_SERVICE_ERROR
+  http_status: 502
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: SERVICE_UNAVAILABLE
+  http_status: 503
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: UPSTREAM_TIMEOUT
+  http_status: 504
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: FIRST_STEP_SETUP_FAILED
+  http_status: 500
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+- code: METHOD_NOT_ALLOWED
+  http_status: 405
+  source: openapi/zinnia-market-connect-order-entry-openapi.yml#/components/schemas/ErrorInfo
+classes:
+- class: validation
+  statuses:
+  - 400
+  - 422
+  retry: false
+  guidance: Request well-formed but invalid or missing data. Do not retry until corrected. 422 business-validation responses were added in Market Connect Order Entry 1.0.2.
+- class: authentication-authorization
+  statuses:
+  - 401
+  - 403
+  retry: false
+  guidance: 401 = missing/expired bearer token; 403 = valid credentials without access to the resource.
+- class: rate-limit
+  statuses:
+  - 429
+  retry: true
+  guidance: 'Wait for the period named in the Retry-After header, then retry. Documented message: "Rate limit exceeded. Try again in 60 seconds."'
+- class: system
+  statuses:
+  - 500
+  - 502
+  - 503
+  - 504
+  retry: true
+  guidance: Retry with exponential backoff; the published guidance explicitly permits retry on 429, 500, 502, 503 and 504 and forbids it on 400, 401 and 403.

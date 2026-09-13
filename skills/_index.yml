@@ -1,0 +1,78 @@
+generated: '2026-09-13'
+method: generated
+source: openapi/ - every operationId referenced here was read out of a published Zinnia OpenAPI contract; none is invented
+note: Zinnia publishes no AGENTS.md and no skills of its own; these are API Evangelist packaged operating instructions grounded in the published contracts and in conventions/zinnia-conventions.yml.
+skill_count: 5
+skills:
+- name: zinnia-one-time-withdrawal
+  file: skills/zinnia-one-time-withdrawal.md
+  api: Zinnia Policy Transactions API
+  description: Take a one-time partial withdrawal from an in-force policy using the eligibility -> validation -> submit sequence. One of the four IRI-standardized in-force transactions.
+  operations:
+  - getEligibleTransactions
+  - partialWithdrawalOneTimeEligibilityCheck1
+  - partialWithdrawalOneTimeValidation1
+  - partialWithdrawalOneTime1
+  - Transaction By Id
+- name: zinnia-systematic-withdrawal-program
+  file: skills/zinnia-systematic-withdrawal-program.md
+  api: Zinnia Policy Transactions API
+  description: Quote, set up and update a systematic withdrawal program on an annuity policy. Two of the four IRI-standardized in-force transactions.
+  operations:
+  - Systematic Programs
+  - systematicProgramQuote
+  - systematicProgrameligibilitycheck1
+  - systematicProgramValidation1
+  - systematicProgram1
+  - systematicProgramUpdateeligibilitychecks
+  - systematicProgramUpdateValidations
+  - systematicProgramUpdates
+- name: zinnia-policy-inquiry
+  file: skills/zinnia-policy-inquiry.md
+  api: Zinnia Policy Service API
+  description: Read the full in-force picture of a policy - overview, coverage, riders, parties, distribution, systematic programs, transactions and version history.
+  operations:
+  - Policy Search
+  - Policy Overview
+  - Coverage
+  - Riders
+  - Parties
+  - Distribution of Investments
+  - Features
+  - Systematic Programs
+  - Transactions
+  - Transaction By Id
+  - Policy Versions
+  - Policy By Version
+  - Metrics
+- name: zinnia-document-lifecycle
+  file: skills/zinnia-document-lifecycle.md
+  api: Zinnia Enterprise Documents API
+  description: Upload, retrieve, search, update and download documents and tax forms in the Enterprise Document Service.
+  operations:
+  - UploadDocuments
+  - getMetadataByDocumentId
+  - updateDocuments
+  - searchDocuments
+  - downloadDocument-v3
+  - getTaxForms-v3
+  - downloadTaxForm-v3
+- name: zinnia-order-entry-submission
+  file: skills/zinnia-order-entry-submission.md
+  api: Zinnia Market Connect Order Entry API
+  description: Drive a life or annuity application end to end through headless order entry - ACORD-aligned prefill, blueprint rendering, progressive save, attachments, e-signature and submit.
+  operations:
+  - createTransaction
+  - getTransaction
+  - updateTransactionEnhancedBlueprint
+  - getDataset
+  - getProductPricing
+  - ingestAttachmentDocument
+  - getAttachment
+  - submitEsignature
+  - getEsignatureSignerStatus
+  - updateEsignSignerDetails
+  - cancelEsignatureCeremony
+  - retriggerEsignatureEmailNotification
+  - reviewerAction
+  - submitTransaction

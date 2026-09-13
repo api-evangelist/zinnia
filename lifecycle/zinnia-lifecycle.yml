@@ -1,0 +1,169 @@
+generated: '2026-09-13'
+method: searched
+source: https://developers.zinnia.com/ (Kong developer portal API listing), https://developers.zinnia.com/__sitemap__/apis.xml (lastmod dates) and the info.version / Version History blocks inside the ten
+  published OpenAPI contracts
+versioning:
+  scheme: per-service path segment plus semantic info.version
+  documented: true
+  note: Every service versions its own path prefix independently (/policy/v1, /policy/v2, /document/v2, /document/v3, /case/v1, /case/v2). Major versions run concurrently - the Documents contract publishes
+    v2 and v3 operations side by side in one document.
+deprecation_policy:
+  published: false
+  note: 'No deprecation policy, sunset policy or RFC 8594 Sunset/Deprecation header is documented anywhere on the Zinnia developer portal or in any contract. Superseded operations are simply left in the
+    same document alongside their successors - the Documents contract still serves five /document/v2/... operations next to the seven /document/v3/... operations that replace them, and none of them is marked
+    deprecated: true.'
+  deprecated_operations:
+  - spec: openapi/zinnia-illustration-client-cases-openapi.yml
+    operationId: null
+    path: PATCH /client-case-manager/v1/client-case/{caseId}/illustrations/{illustrationId}/submit
+  deprecated_operation_count: 1
+  shadow_deprecations:
+  - superseded: /document/v2/documents, /document/v2/documents/{documentId}, /document/v2/documents/{documentId}/download, /document/v2/taxForms, /document/v2/taxForms/{formId}
+    by: /document/v3/... equivalents
+    marked_deprecated: false
+    spec: openapi/zinnia-documents-openapi.yml
+  - superseded: POST /case/v1 surface (getCaseInstanceById)
+    by: /case/v2/cases (CreateCaseV2, getCaseInstanceByIdV2)
+    marked_deprecated: false
+    spec: openapi/zinnia-case-management-openapi.yml
+  - superseded: Roughly 40 /bpm/v1/policies/... operations
+    by: the /policy/v1/transactions/... routes that a Kong pre-function rewrites onto them
+    marked_deprecated: false
+    spec: openapi/zinnia-policy-transactions-openapi.yml
+    note: x-kong-plugin-pre-function rewrites ^/policy/v1/transactions to /bpm/v1/policies, so both prefixes are live and the older one is still published.
+status_page:
+  published: false
+  evidence:
+  - url: https://status.zinnia.com
+    status: 0
+    note: DNS does not resolve
+  - url: https://zinnia.statuspage.io
+    status: 302
+    note: 302 to https://zinnia.statuspage.io/team-only - a private Statuspage, not a public one
+  - url: https://status.zinnia.io
+    status: 0
+    note: DNS does not resolve
+  note: The Policy Service troubleshooting guide tells integrators to "check our status page", but no public status page exists. The Statuspage tenant that does exist is team-only.
+sla:
+  published: false
+  note: No SLA, uptime target or support-response commitment is published on zinnia.com or the developer portal.
+support:
+  channel: https://zinnia.com/contact
+  named_contacts:
+  - orderentrysupport@zinnia.com (info.contact of the Market Connect Order Entry contract)
+  note: The Policy Service docs link an API Reference, Integration Guide, Best Practices page and Security Guidelines page at docs.zinnia.com - that host does not resolve (NXDOMAIN), so all four documentation
+    links in the published support section are dead.
+maturity:
+  note: Three of the ten contracts describe themselves as drafts. Policy Transactions says "Draft Specifications (Subject to Change Upon Review)" in its own description, New Business labels every entry
+    in its version history "Draft version", and six of ten contracts publish no production server at all.
+environments:
+- https://api.zinnia.io (production)
+- https://uat.api.zinnia.io
+- https://qa.api.zinnia.io
+- https://dev.api.zinnia.io
+apis:
+- api: Case Management API
+  spec: openapi/zinnia-case-management-openapi.yml
+  version: 1.0.0
+  openapi: 3.0.3
+  portal: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  portal_last_modified: '2025-03-12'
+  servers:
+  - https://dev.api.zinnia.io/
+  - https://qa.api.zinnia.io/
+  - https://uat.api.zinnia.io/
+  - https://api.zinnia.io/
+  production_server_declared: true
+- api: Enterprise Documents API
+  spec: openapi/zinnia-documents-openapi.yml
+  version: 3.0.0
+  openapi: 3.0.1
+  portal: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  portal_last_modified: '2025-06-05'
+  servers:
+  - https://dev.api.zinnia.io
+  - https://qa.api.zinnia.io
+  - https://uat.api.zinnia.io
+  - https://api.zinnia.io
+  production_server_declared: true
+- api: Illustration Generation
+  spec: openapi/zinnia-illustration-openapi.yml
+  version: 3.5.3
+  openapi: 3.0.1
+  portal: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  portal_last_modified: '2025-03-12'
+  servers:
+  - https://dev.api.zinnia.io
+  production_server_declared: false
+- api: Zinnia Illustration Client Cases Api
+  spec: openapi/zinnia-illustration-client-cases-openapi.yml
+  version: v1
+  openapi: 3.0.4
+  portal: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  portal_last_modified: '2026-04-21'
+  servers:
+  - https://uat.api.zinnia.io
+  production_server_declared: false
+- api: Market Connect Order Entry API
+  spec: openapi/zinnia-market-connect-order-entry-openapi.yml
+  version: 1.0.3
+  openapi: 3.0.1
+  portal: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  portal_last_modified: '2026-04-28'
+  servers:
+  - https://dev.api.zinnia.io
+  - https://qa.api.zinnia.io
+  - https://uat.api.zinnia.io
+  production_server_declared: false
+- api: Zinnia New Business API.
+  spec: openapi/zinnia-new-business-openapi.yml
+  version: 0.9.8
+  openapi: 3.1.0
+  portal: https://developers.zinnia.com/apis/new-business/docs
+  portal_last_modified: '2026-07-02'
+  servers:
+  - https://qa.api.zinnia.io
+  - https://dev.api.zinnia.io
+  - https://uat.api.zinnia.io
+  - https://api.zinnia.io
+  production_server_declared: true
+- api: Zinnia New Business Annuity API
+  spec: openapi/zinnia-new-business-annuity-openapi.yml
+  version: 0.7.0
+  openapi: 3.1.0
+  portal: https://developers.zinnia.com/apis/new-business-annuity/docs
+  portal_last_modified: '2025-09-19'
+  servers:
+  - https://qa.api.zinnia.io
+  - https://dev.api.zinnia.io
+  - https://uat.api.zinnia.io
+  - https://api.zinnia.io
+  production_server_declared: true
+- api: Policy Service
+  spec: openapi/zinnia-policy-service-openapi.yml
+  version: 0.0.21
+  openapi: 3.0.0
+  portal: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  portal_last_modified: '2025-07-23'
+  servers:
+  - https://api.zinnia.io
+  production_server_declared: true
+- api: Zinnia Policy Transactions API.
+  spec: openapi/zinnia-policy-transactions-openapi.yml
+  version: 1.0.8
+  openapi: 3.1.0
+  portal: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  portal_last_modified: '2025-06-13'
+  servers:
+  - https://dev.api.zinnia.io
+  - https://qa.api.zinnia.io
+  production_server_declared: false
+- api: Zinnia Product Service
+  spec: openapi/zinnia-product-service-openapi.yml
+  version: 0.1.0
+  openapi: 3.0.0
+  portal: https://developers.zinnia.com/apis/product-service/docs
+  portal_last_modified: '2026-04-23'
+  servers:
+  - https://uat.api.zinnia.io
+  production_server_declared: false

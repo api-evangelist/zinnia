@@ -1,0 +1,616 @@
+generated: '2026-09-13'
+method: derived
+status: candidate
+source: openapi/ (10 published Zinnia OpenAPI contracts); searched for a hosted server on the developer portal, in web search, and by POSTing tools/list to mcp.zinnia.com, mcp.zinnia.io and api.zinnia.io/mcp
+deployment:
+  mode: none
+  auth: unknown
+  verified: searched
+  note: Zinnia publishes no MCP server. mcp.zinnia.com and mcp.zinnia.io do not resolve; https://api.zinnia.io/mcp returns 404. The developer portal has no MCP section and no MCP registry lists a Zinnia
+    server. The tools below are a CANDIDATE mapping derived from the published OpenAPI operations - nothing here is served by Zinnia.
+server:
+  name: zinnia
+  transport: null
+  url: null
+tool_count: 200
+tools:
+- name: getCaseInstanceById
+  description: Get Case Detail
+  source_operation: openapi/zinnia-case-management-openapi.yml#getCaseInstanceById
+- name: CreateCaseV2
+  description: Create Case
+  source_operation: openapi/zinnia-case-management-openapi.yml#CreateCaseV2
+- name: getCaseInstanceByIdV2
+  description: Get Case Detail
+  source_operation: openapi/zinnia-case-management-openapi.yml#getCaseInstanceByIdV2
+- name: getDocuments
+  description: this is an endpoint to get a list of document metadata
+  source_operation: openapi/zinnia-documents-openapi.yml#getDocuments
+- name: getDocument
+  description: this is an endpoint to get a specific documents metadata
+  source_operation: openapi/zinnia-documents-openapi.yml#getDocument
+- name: downloadDocument-v2
+  description: this is an endpoint to download a document
+  source_operation: openapi/zinnia-documents-openapi.yml#downloadDocument-v2
+- name: getTaxForms-v2
+  description: This is an endpoint to get a list of tax-forms from SOVOS
+  source_operation: openapi/zinnia-documents-openapi.yml#getTaxForms-v2
+- name: downloadTaxForm-v2
+  description: This is an endpoint to download a tax-form from SOVOS
+  source_operation: openapi/zinnia-documents-openapi.yml#downloadTaxForm-v2
+- name: UploadDocuments
+  description: Uploads a document and saves its metadata
+  source_operation: openapi/zinnia-documents-openapi.yml#UploadDocuments
+- name: searchDocuments
+  description: Searches for documents
+  source_operation: openapi/zinnia-documents-openapi.yml#searchDocuments
+- name: getMetadataByDocumentId
+  description: Gets metadata for a document
+  source_operation: openapi/zinnia-documents-openapi.yml#getMetadataByDocumentId
+- name: updateDocuments
+  description: updates document content or metadata
+  source_operation: openapi/zinnia-documents-openapi.yml#updateDocuments
+- name: downloadDocument-v3
+  description: Retrieves a document by ID
+  source_operation: openapi/zinnia-documents-openapi.yml#downloadDocument-v3
+- name: getTaxForms-v3
+  description: Retrieves tax forms
+  source_operation: openapi/zinnia-documents-openapi.yml#getTaxForms-v3
+- name: downloadTaxForm-v3
+  description: Downloads a tax form
+  source_operation: openapi/zinnia-documents-openapi.yml#downloadTaxForm-v3
+- name: get-health
+  description: Health Check
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-health
+- name: illustration-for-new-hybrid-iul-term
+  description: Illustration for new hybrid-iul-term
+  source_operation: openapi/zinnia-illustration-openapi.yml#illustration-for-new-hybrid-iul-term
+- name: get-illustration-for-new-hybrid-iul-term
+  description: Illustration for new Hybrid-IUL/Term (HIT)
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration-for-new-hybrid-iul-term
+- name: illustration-for-immediate-processing
+  description: Illustration for immediate processing
+  source_operation: openapi/zinnia-illustration-openapi.yml#illustration-for-immediate-processing
+- name: create-illustration
+  description: Create an illustration
+  source_operation: openapi/zinnia-illustration-openapi.yml#create-illustration
+- name: get-illustration
+  description: Get a specific illustration
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration
+- name: get-illustration-result
+  description: Get a specific illustration result
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration-result
+- name: illustration-for-in-force-indexed-universal-life-as-is
+  description: Illustration for in-force indexed universal life - as-is scenario
+  source_operation: openapi/zinnia-illustration-openapi.yml#illustration-for-in-force-indexed-universal-life-as-is
+- name: get-illustration-for-in-force-indexed-universal-life-as-is
+  description: Illustration for in-force Indexed Universal Life (IUL) as-is scenario
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration-for-in-force-indexed-universal-life-as-is
+- name: illustration-for-in-force-indexed-universal-life
+  description: Illustration for in-force indexed universal life - what-if scenario
+  source_operation: openapi/zinnia-illustration-openapi.yml#illustration-for-in-force-indexed-universal-life
+- name: get-illustration-for-in-force-indexed-universal-life
+  description: Illustration for in-force Indexed Universal Life (IUL) what-if scenario
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration-for-in-force-indexed-universal-life
+- name: illustration-for-new-indexed-universal-life
+  description: Illustration for new indexed universal life
+  source_operation: openapi/zinnia-illustration-openapi.yml#illustration-for-new-indexed-universal-life
+- name: get-illustration-for-new-indexed-universal-life
+  description: Illustration for new Indexed Universal Life (IUL)
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration-for-new-indexed-universal-life
+- name: illustration-for-in-force-term-life
+  description: Illustration for in-force term life - what-if scenario
+  source_operation: openapi/zinnia-illustration-openapi.yml#illustration-for-in-force-term-life
+- name: get-illustration-for-in-force-term-life
+  description: Illustration for in-force term life - what-if scenario
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration-for-in-force-term-life
+- name: illustration-for-new-term-life
+  description: Illustration for new term life
+  source_operation: openapi/zinnia-illustration-openapi.yml#illustration-for-new-term-life
+- name: get-illustration-for-new-term-life
+  description: Illustration for new term life
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration-for-new-term-life
+- name: calculate-age
+  description: Calculate age
+  source_operation: openapi/zinnia-illustration-openapi.yml#calculate-age
+- name: get-version
+  description: Get API version
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-version
+- name: illustration-for-new-whole-life
+  description: Illustration for new whole life
+  source_operation: openapi/zinnia-illustration-openapi.yml#illustration-for-new-whole-life
+- name: get-illustration-for-new-whole-life
+  description: Illustration for new whole life
+  source_operation: openapi/zinnia-illustration-openapi.yml#get-illustration-for-new-whole-life
+- name: ingestAttachmentDocument
+  description: Ingests an EDS document attachment notification for a transaction.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#ingestAttachmentDocument
+- name: getAttachment
+  description: Retrieves the attachment payload (documents, required documents and rules) for a transaction.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#getAttachment
+- name: saveComment
+  description: Saves a comment against the specified transaction.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#saveComment
+- name: deleteComment
+  description: Deletes a comment from a transaction.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#deleteComment
+- name: getComments
+  description: Retrieves the comments for a transaction.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#getComments
+- name: getDataset
+  description: Gets dataset values for a dependent control based on the provided payload.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#getDataset
+- name: submitEsignature
+  description: Submits the Order Entry case for e-signature with the configured signer roster.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#submitEsignature
+- name: cancelEsignatureCeremony
+  description: Cancels the e-signature ceremony for a case (voids the DocuSign envelope and returns the case to Pending upstream).
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#cancelEsignatureCeremony
+- name: retriggerEsignatureEmailNotification
+  description: Retriggers the DocuSign e-signature email notification for a case (only when e-signature is in progress upstream).
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#retriggerEsignatureEmailNotification
+- name: updateEsignSignerDetails
+  description: Updates signer email or phone for a case while e-signature is pending upstream.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#updateEsignSignerDetails
+- name: getEsignature
+  description: Retrieves the e-signature signer list for a transaction.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#getEsignature
+- name: getEsignatureSignerStatus
+  description: Retrieves DocuSign signer status for each recipient on a transaction.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#getEsignatureSignerStatus
+- name: getHealth
+  description: Returns a simple health status indicating the API process is running.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#getHealth
+- name: getProductPricing
+  description: Retrieves the product pricing payload for a transaction.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#getProductPricing
+- name: reviewerAction
+  description: Executes a reviewer action for the given transaction (forwards to the product order-entry service).
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#reviewerAction
+- name: createTransaction
+  description: Create the Order Entry transaction. Routes to appropriate service based on CUSIP.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#createTransaction
+- name: getTransaction
+  description: Retrieves the order entry blueprint and its associated responses for a created life or annuity transaction
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#getTransaction
+- name: updateTransactionEnhancedBlueprint
+  description: Update the Order Entry transaction data for enhanced blueprint (single-blueprint) transactions.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#updateTransactionEnhancedBlueprint
+- name: submitTransaction
+  description: Submit an order entry transaction for processing.
+  source_operation: openapi/zinnia-market-connect-order-entry-openapi.yml#submitTransaction
+- name: getNewBusinessAnnuityAppProcessingHealth
+  description: Application Processing Health Check
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#getNewBusinessAnnuityAppProcessingHealth
+- name: getNewBusinessAnnuityAppValidationHealth
+  description: Application Validation Health Check
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#getNewBusinessAnnuityAppValidationHealth
+- name: createAnnuityApplication
+  description: Submit Annuity Application to Zinnia
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#createAnnuityApplication
+- name: createAnnuityDocument
+  description: Submit Annuity Documents to Zinnia
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#createAnnuityDocument
+- name: createAnnuityApplication_v2
+  description: Submit Annuity Application to Zinnia
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#createAnnuityApplication_v2
+- name: createAnnuityDocument_V2
+  description: Submit Annuity Documents to Zinnia
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#createAnnuityDocument_V2
+- name: getNewBusinessAnnuityEappHealth
+  description: EApp Health Check
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#getNewBusinessAnnuityEappHealth
+- name: getHealth
+  description: Annuity Health Check
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#getHealth
+- name: createAnnuityApplication_v3
+  description: Submit Annuity Application to Zinnia
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#createAnnuityApplication_v3
+- name: getNewBusinessAnnuityPaymentProcessingHealth
+  description: Payment Processing Health Check
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#getNewBusinessAnnuityPaymentProcessingHealth
+- name: getNewBusinessAnnuitySuitabilityHealth
+  description: Suitability Health Check
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#getNewBusinessAnnuitySuitabilityHealth
+- name: getNewBusinessAnnuityToaHealth
+  description: TOA Health Check
+  source_operation: openapi/zinnia-new-business-annuity-openapi.yml#getNewBusinessAnnuityToaHealth
+- name: validateAgentDetails
+  description: Validate agent details
+  source_operation: openapi/zinnia-new-business-openapi.yml#validateAgentDetails
+- name: submitApplicationDetails
+  description: Submit application details
+  source_operation: openapi/zinnia-new-business-openapi.yml#submitApplicationDetails
+- name: createUnderwritingCase
+  description: Create Underwriting Case
+  source_operation: openapi/zinnia-new-business-openapi.yml#createUnderwritingCase
+- name: evidenceRequest
+  description: Evidence Request
+  source_operation: openapi/zinnia-new-business-openapi.yml#evidenceRequest
+- name: submitInterimStatusUpdate
+  description: Submit interim status update
+  source_operation: openapi/zinnia-new-business-openapi.yml#submitInterimStatusUpdate
+- name: submitPolicyDecisionPayload
+  description: Policy Decision Processing
+  source_operation: openapi/zinnia-new-business-openapi.yml#submitPolicyDecisionPayload
+- name: submitUnderwritingPayload
+  description: Underwriting Processing
+  source_operation: openapi/zinnia-new-business-openapi.yml#submitUnderwritingPayload
+- name: getHealth
+  description: New Business Life Health Check
+  source_operation: openapi/zinnia-new-business-openapi.yml#getHealth
+- name: submitPolicyDetails
+  description: Submit application for New Business
+  source_operation: openapi/zinnia-new-business-openapi.yml#submitPolicyDetails
+- name: updateEApp
+  description: Update application for New Business
+  source_operation: openapi/zinnia-new-business-openapi.yml#updateEApp
+- name: GetEApp
+  description: Get New Business application
+  source_operation: openapi/zinnia-new-business-openapi.yml#GetEApp
+- name: Policy Search
+  description: Search Policies
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Policy Search
+- name: Policy Overview
+  description: Get Policy Details
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Policy Overview
+- name: Coverage
+  description: Get Policy Coverage
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Coverage
+- name: Distribution of Investments
+  description: Get Policy Distribution
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Distribution of Investments
+- name: Features
+  description: Get Policy Features
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Features
+- name: Policy Illustration Information
+  description: Get Policy LPS Payload
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Policy Illustration Information
+- name: Metrics
+  description: Policy Metrics
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Metrics
+- name: Parties
+  description: Get Policy Parties
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Parties
+- name: Riders
+  description: Get Policy Riders
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Riders
+- name: Systematic Programs
+  description: Get Policy Systematic Programs
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Systematic Programs
+- name: Systematic Programs for External Transaction Id
+  description: Get Systematic Programs by External Transaction Id
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Systematic Programs for External Transaction Id
+- name: Transactions
+  description: Get Policy Transactions
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Transactions
+- name: Transaction by External Transaction Id
+  description: Get Transaction by External Transaction Id
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Transaction by External Transaction Id
+- name: Transaction By Id
+  description: Get Policy Transaction by ID
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Transaction By Id
+- name: Policy Versions
+  description: Get policy versions
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Policy Versions
+- name: Policy By Version
+  description: Get Policy By Version
+  source_operation: openapi/zinnia-policy-service-openapi.yml#Policy By Version
+- name: getHealth
+  description: Zahara BPM Health Check
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getHealth
+- name: getTransactionData
+  description: Secure API to get TransactionData by transactionId
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getTransactionData
+- name: getSupportedConfigurationsPaymentForms
+  description: Get supported configurations for a transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getSupportedConfigurationsPaymentForms
+- name: getPreValidationReference
+  description: Get supported configurations for a transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getPreValidationReference
+- name: getEligibleTransactions
+  description: Get eligible transaction types for a policy by CUSIP and policy number
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getEligibleTransactions
+- name: updateAuthorizationStatus
+  description: Receives policyholder authorization status from MPV and updates the status
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updateAuthorizationStatus
+- name: post_bpm_v1_policies_planCode_policyNumber_basecoverageupdate_eligibilitycheck
+  description: base coverage update
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#post_bpm_v1_policies_planCode_policyNumber_basecoverageupdate_eligibilitycheck
+- name: billingFeatureChangeEligibilityCheck
+  description: Eligibility Check Billing Feature Change
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#billingFeatureChangeEligibilityCheck
+- name: billingFeatureChangeValidation
+  description: Validate Billing Feature Change
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#billingFeatureChangeValidation
+- name: submitInitialDeathClaim
+  description: Submit Initial Death Claim Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#submitInitialDeathClaim
+- name: initialDeathClaimEligibilityCheck
+  description: Initial Death Claim Eligibility Check
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#initialDeathClaimEligibilityCheck
+- name: initialDeathClaimValidation
+  description: Initial Death Claim Validation
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#initialDeathClaimValidation
+- name: getRefDataByPolicy
+  description: Get PPFA Reference Data by Policy
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getRefDataByPolicy
+- name: eligibilitycheckNonFinancialTransaction
+  description: Eligibility Check For Non-Financial Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#eligibilitycheckNonFinancialTransaction
+- name: cancelCase
+  description: Cancel a case
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#cancelCase
+- name: createCase
+  description: Create case for transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#createCase
+- name: getPreValidationReference1
+  description: Get supported configurations for a transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getPreValidationReference1
+- name: submitActiveRestrictPolicyApi
+  description: Submit active restrict transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#submitActiveRestrictPolicyApi
+- name: getActiveRestrictAlertsPolicyApi
+  description: Get restriction alerts for a policy
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getActiveRestrictAlertsPolicyApi
+- name: getActiveRestrictAlertsV2PolicyApi
+  description: Get restriction alerts for a policy
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getActiveRestrictAlertsV2PolicyApi
+- name: eligibilitycheckAddressTransaction1
+  description: Eligibility Check Address Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#eligibilitycheckAddressTransaction1
+- name: addressValidation2
+  description: Validate Address based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#addressValidation2
+- name: eligibilitycheckbankTransaction1
+  description: Eligibility Check Bank Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#eligibilitycheckbankTransaction1
+- name: billingFeatureChangeEligibilityCheck1
+  description: Eligibility Check Billing Feature Change
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#billingFeatureChangeEligibilityCheck1
+- name: billingFeatureChangeValidation1
+  description: Validate Billing Feature Change
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#billingFeatureChangeValidation1
+- name: cancelTransaction1
+  description: Cancel Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#cancelTransaction1
+- name: eligibilitycheckCommunicationPreferenceTransaction1
+  description: Eligibility Check Communication Preference Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#eligibilitycheckCommunicationPreferenceTransaction1
+- name: setDeliveryDate1
+  description: Set Delivery Date Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#setDeliveryDate1
+- name: setDeliveryDateEligibilityCheck1
+  description: Eligibility Check to Set Delivery Date
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#setDeliveryDateEligibilityCheck1
+- name: EDeliveryEnrollment1
+  description: EDelivery Enrollment
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#EDeliveryEnrollment1
+- name: eligibilitycheckEmailAddressTransaction1
+  description: Eligibility Check Email Address Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#eligibilitycheckEmailAddressTransaction1
+- name: emailAddressValidation1
+  description: Add new Email Address based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#emailAddressValidation1
+- name: freelookcancellation1
+  description: Freelook cancellation request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#freelookcancellation1
+- name: freelookcancellationEligibility1
+  description: Freelook cancellation request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#freelookcancellationEligibility1
+- name: validationFreelookCancellationTransaction1
+  description: Validation Freelook Cancellation Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#validationFreelookCancellationTransaction1
+- name: fullsurrender1
+  description: Submit full surrender
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fullsurrender1
+- name: fullsurrenderEligibilityCheck1
+  description: FullSurrender Eligibility Check endpoint
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fullsurrenderEligibilityCheck1
+- name: fullsurrenderValidation1
+  description: Fullsurrender Validation Endpoint
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fullsurrenderValidation1
+- name: fundAllocation1
+  description: Fund Allocation Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fundAllocation1
+- name: fundAllocationEligibility1
+  description: Eligibility Check For Fund Allocation
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fundAllocationEligibility1
+- name: fundAllocationValidation1
+  description: Validation Check For Fund Allocation
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fundAllocationValidation1
+- name: fundTransfer1
+  description: Fund Transfer Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fundTransfer1
+- name: fundTransferEligibility1
+  description: Eligibility Check For Fund Transfer
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fundTransferEligibility1
+- name: fundTransferValidation1
+  description: Validation Check For Fund Transfer
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#fundTransferValidation1
+- name: initialPremium1
+  description: Initial Premium Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#initialPremium1
+- name: initialPremiumEligibility1
+  description: Eligibility Check For Initial Premium
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#initialPremiumEligibility1
+- name: initialPremiumValidation1
+  description: Validation Check For Initial Premium
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#initialPremiumValidation1
+- name: loanrepaymentonetime1
+  description: Submit loan Repayment OneTime Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#loanrepaymentonetime1
+- name: loanrepaymentonetimeeligibilitycheck1
+  description: EligibilityCheck Loan Repayment OneTime Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#loanrepaymentonetimeeligibilitycheck1
+- name: loanrepaymentonetimeValidation1
+  description: Validate loan Repayment One Time Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#loanrepaymentonetimeValidation1
+- name: validationMultiAgentTransaction1
+  description: Validation multi agent Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#validationMultiAgentTransaction1
+- name: newLoan1
+  description: Submit New Loan Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#newLoan1
+- name: nwLoanEligibilityCheck1
+  description: NewLoan Eligibility Check endpoint
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#nwLoanEligibilityCheck1
+- name: newloanRequestValidation1
+  description: Fullsurrender Validation Endpoint
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#newloanRequestValidation1
+- name: nonForfeiture1
+  description: Non-Forfeiture Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#nonForfeiture1
+- name: nonForfeitureEligibility1
+  description: Eligibility Check For Non-Forfeiture Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#nonForfeitureEligibility1
+- name: nonForfeitureValidation1
+  description: Validation Check For Non-Forfeiture Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#nonForfeitureValidation1
+- name: submitOneTimePremiumTransaction
+  description: Submit OneTime Premium Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#submitOneTimePremiumTransaction
+- name: eligibilitycheckOneTimePremiumTransactions
+  description: Eligibility Check OneTime Premium Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#eligibilitycheckOneTimePremiumTransactions
+- name: validationOneTimePremiumTransactions
+  description: Validation OneTime Premium Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#validationOneTimePremiumTransactions
+- name: submitOnetimeRmdTransactions
+  description: Submit OneTime RMD Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#submitOnetimeRmdTransactions
+- name: eligibilitycheckOnetimeRmdTransactions
+  description: Eligibility Check OneTime RMD Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#eligibilitycheckOnetimeRmdTransactions
+- name: validationOnetimeRmdTransactions
+  description: Validation OneTime RMD Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#validationOnetimeRmdTransactions
+- name: outgoingFundTransfer1
+  description: Outgoing Fund Transfer Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#outgoingFundTransfer1
+- name: outgoingFundTransferEligibility1
+  description: Eligibility Check For Outgoing Fund Transfer
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#outgoingFundTransferEligibility1
+- name: outgoingFundTransferValidation1
+  description: Validation Check For Outgoing Fund Transfer
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#outgoingFundTransferValidation1
+- name: partialWithdrawalOneTime1
+  description: Submit Partial Withdrawal OneTime
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#partialWithdrawalOneTime1
+- name: partialWithdrawalOneTimeEligibilityCheck1
+  description: Eligibility Check Partial Withdrawal One Time
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#partialWithdrawalOneTimeEligibilityCheck1
+- name: partialWithdrawalOneTimeValidation1
+  description: Eligibility Check Partial Withdrawal One Time
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#partialWithdrawalOneTimeValidation1
+- name: submitTaxWithholding1
+  description: Submit Tax Withholding Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#submitTaxWithholding1
+- name: eligibilitycheckTaxWithholding1
+  description: Eligibility Check Tax Withholding
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#eligibilitycheckTaxWithholding1
+- name: validationTaxWithholding1
+  description: Validate Tax Withholding
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#validationTaxWithholding1
+- name: addNewAddress1
+  description: Create new address based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#addNewAddress1
+- name: updateAddress1
+  description: Address Change Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updateAddress1
+- name: addNewBankAccount1
+  description: Add new Bank Account based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#addNewBankAccount1
+- name: updateBankAccount1
+  description: Bank Account Change Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updateBankAccount1
+- name: changeCommunicationPreference1
+  description: Update Communication Preference based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#changeCommunicationPreference1
+- name: validateCommunicationPreference1
+  description: Validate Communication Preference based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#validateCommunicationPreference1
+- name: emailNewAddress1
+  description: Create new Emailaddress based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#emailNewAddress1
+- name: updateemailAddress1
+  description: Email Address Change Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updateemailAddress1
+- name: updateemailAddress3
+  description: Multiple Email Address Change Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updateemailAddress3
+- name: identifierChange1
+  description: Identifier change Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#identifierChange1
+- name: changePartyName1
+  description: Update Party Name based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#changePartyName1
+- name: addNewPhone1
+  description: Create new Phone Number based on request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#addNewPhone1
+- name: updatePhone1
+  description: Phone Number Change Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updatePhone1
+- name: updatePhone2
+  description: Multiple Phone Number Change Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updatePhone2
+- name: updateParty1
+  description: Party Change request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updateParty1
+- name: updatePartyValidation1
+  description: Party Change request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#updatePartyValidation1
+- name: addParty1
+  description: Party Add request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#addParty1
+- name: partyRoleeligibilitycheck1
+  description: EligibilityCheck For Party Role Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#partyRoleeligibilitycheck1
+- name: getRefDataByPolicy1
+  description: Get PPFA Reference Data by Policy
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#getRefDataByPolicy1
+- name: submitReinstatementTransaction
+  description: Submit reinstatement transaction request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#submitReinstatementTransaction
+- name: reinstatementEligibilityCheck
+  description: Eligibility Check Reinstatement Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#reinstatementEligibilityCheck
+- name: reverserecreate1
+  description: Request to reverse and recreate
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#reverserecreate1
+- name: systematicProgram1
+  description: Submit Systematic Program Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#systematicProgram1
+- name: systematicProgrameligibilitycheck1
+  description: Eligibility Check Systematic Program Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#systematicProgrameligibilitycheck1
+- name: systematicProgramQuote
+  description: Systematic Program Quote Request
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#systematicProgramQuote
+- name: systematicProgramValidation1
+  description: Validate Systematic Program Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#systematicProgramValidation1
+- name: systematicProgramUpdates
+  description: Submit Systematic Program Update Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#systematicProgramUpdates
+- name: systematicProgramUpdateeligibilitychecks
+  description: EligibilityCheck Systematic Program Update Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#systematicProgramUpdateeligibilitychecks
+- name: systematicProgramUpdateValidations
+  description: Validate Systematic Program Update Transaction
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#systematicProgramUpdateValidations
+- name: evaluateTransactionEligibilityByPolicy
+  description: Transaction eligibility
+  source_operation: openapi/zinnia-policy-transactions-openapi.yml#evaluateTransactionEligibilityByPolicy
+- name: CreateProduct
+  description: Create Product
+  source_operation: openapi/zinnia-product-service-openapi.yml#CreateProduct
+- name: QueryProduct
+  description: Query and retrieve products with optional filtering. Always returns an array of products, even when no products match the criteria (returns empty array) or when
+  source_operation: openapi/zinnia-product-service-openapi.yml#QueryProduct
+- name: searchProducts
+  description: Search for products by criteria
+  source_operation: openapi/zinnia-product-service-openapi.yml#searchProducts
+- name: getProductById
+  description: Get product by ID
+  source_operation: openapi/zinnia-product-service-openapi.yml#getProductById
