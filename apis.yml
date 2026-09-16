@@ -21,11 +21,11 @@ tags:
 - Annuities
 - Policy Administration
 - Insurtech
-- Financial Services
+- Financial-Services
 - Third Party Administration
 - New Business
 - Order Entry
-- Document Management
+- Document-Management
 - Underwriting
 - Enterprise
 tags_raw:
@@ -42,244 +42,2217 @@ tags_raw:
 - underwriting
 - enterprise
 apis:
-- name: Zinnia Policy Transactions API
-  description: Enterprise API for enforcing policy transactions and validations across the in-force annuity and life book
-    - financial and non-financial transaction management, policy party management, systematic program management and eligibility/validation
-    pre-checks. 102 operations across eligibility check, validation and submit triples for withdrawals, surrenders, loans,
-    fund transfers, premiums, RMDs, reinstatement, free-look cancellation, party and address/bank/phone/email changes.
+- aid: zinnia:zinnia-annuity-health-check-api
+  name: Zinnia Annuity Health Check API
+  description: >-
+    EAPP API Health Check and Annuity (Annuity app validation, app processing, payment processing, TOA,
+    eApp, and suitability) services Health check
   humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
   baseURL: https://qa.api.zinnia.io
   tags:
-  - Insurance
-  - Annuities
-  - Policy Administration
-  - Financial Services
-  tags_raw:
-  - insurance
-  - annuities
-  - policy-administration
-  - financial-services
+  - Annuity Health Check
   properties:
   - type: OpenAPI
-    url: openapi/zinnia-policy-transactions-openapi.yml
+    url: openapi/zinnia-annuity-health-check-api-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
-  - type: Overlay
-    url: overlays/zinnia-policy-transactions-overlay.yaml
-- name: Zinnia Policy Service API
-  description: Central policy record service for the life and annuity policy lifecycle - policy detail retrieval by plan code
-    and policy number, policy version history with filtering and pagination, one-time premium quoting, fund and party data,
-    and DTCC/ACORD-aligned reference identifiers.
-  humanURL: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
-  baseURL: https://api.zinnia.io
-  tags:
-  - Insurance
-  - Policy Administration
-  - Annuities
-  tags_raw:
-  - insurance
-  - policy-administration
-  - annuities
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-policy-service-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
   - type: APIReference
     url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
-  - type: Overlay
-    url: overlays/zinnia-policy-service-overlay.yaml
-- name: Zinnia Market Connect Order Entry API
-  description: Headless order entry API that lets external distribution platforms, banks, broker-dealers and IMOs electronically
-    initiate, save-and-resume, validate and submit life insurance and annuity applications, with ACORD-aligned prefill from
-    existing quotes and suitability assessments, dataset-driven form rendering and real-time application status tracking.
-  humanURL: https://developers.zinnia.com/apis/market-connect-order-entry/docs
-  baseURL: https://uat.api.zinnia.io
-  tags:
-  - Insurance
-  - Order Entry
-  - New Business
-  - Annuities
-  tags_raw:
-  - insurance
-  - order-entry
-  - new-business
-  - annuities
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-market-connect-order-entry-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
-  - type: Overlay
-    url: overlays/zinnia-market-connect-order-entry-overlay.yaml
-- name: Zinnia Illustration Generation API
-  description: Illustration generation service for life and annuity products - synchronous and asynchronous illustration requests,
-    in-force, new-business and administration calculation modes, raw numeric projections and formatted PDF output, with request
-    tracking and calculation metrics.
-  humanURL: https://developers.zinnia.com/apis/illustration-3-0-8/docs
-  baseURL: https://dev.api.zinnia.io
-  tags:
-  - Insurance
-  - Life Insurance
-  - Annuities
-  - Quoting
-  tags_raw:
-  - insurance
-  - life-insurance
-  - annuities
-  - quoting
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-illustration-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
   - type: APIReference
     url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
   - type: Examples
     url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
-  - type: Overlay
-    url: overlays/zinnia-illustration-overlay.yaml
-- name: Zinnia Enterprise Documents API
-  description: The Enterprise Document Service (EDS) is the system of record for documents across Zinnia's life insurance
-    and annuity platforms. Documents are stored once and can be retrieved, updated or searched throughout their retention
-    period, alongside a tax-forms surface for 1099 and related output.
-  humanURL: https://developers.zinnia.com/apis/documents-0-3-0/docs
-  baseURL: https://api.zinnia.io
-  tags:
-  - Insurance
-  - Document Management
-  - Policy Administration
-  tags_raw:
-  - insurance
-  - document-management
-  - policy-administration
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-documents-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/documents-0-3-0/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/documents-0-3-0/docs
-  - type: Overlay
-    url: overlays/zinnia-documents-overlay.yaml
-- name: Zinnia New Business API
-  description: Life new business API covering application intake, requirement and case orchestration, party and agent validation,
-    and DTCC-referenced downstream handoff for the Zinnia life new business platform.
-  humanURL: https://developers.zinnia.com/apis/new-business/docs
-  baseURL: https://api.zinnia.io
-  tags:
-  - Insurance
-  - Life Insurance
-  - New Business
-  - Underwriting
-  tags_raw:
-  - insurance
-  - life-insurance
-  - new-business
-  - underwriting
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-new-business-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/new-business/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/new-business/docs
-  - type: Overlay
-    url: overlays/zinnia-new-business-overlay.yaml
-- name: Zinnia New Business Annuity API
-  description: Annuity new business API for application submission, case status, requirements and DTCC participant resolution
-    on the Zinnia annuity origination platform.
-  humanURL: https://developers.zinnia.com/apis/new-business-annuity/docs
-  baseURL: https://api.zinnia.io
-  tags:
-  - Insurance
-  - Annuities
-  - New Business
-  tags_raw:
-  - insurance
-  - annuities
-  - new-business
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-new-business-annuity-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/new-business-annuity/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/new-business-annuity/docs
-  - type: Overlay
-    url: overlays/zinnia-new-business-annuity-overlay.yaml
-- name: Zinnia Product Service API
-  description: Product configuration and reference data service - product definitions, features, eligibility rules and related
-    metadata for insurance and financial offerings, so partners can configure, present and integrate products across new business
-    and servicing workflows.
-  humanURL: https://developers.zinnia.com/apis/product-service/docs
-  baseURL: https://uat.api.zinnia.io
-  tags:
-  - Insurance
-  - Product Configuration
-  - Annuities
-  tags_raw:
-  - insurance
-  - product-configuration
-  - annuities
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-product-service-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/product-service/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/product-service/docs
-  - type: Overlay
-    url: overlays/zinnia-product-service-overlay.yaml
-- name: Zinnia Case Management API
-  description: Case orchestration API for creating and retrieving case instances that group the documents, requirements and
-    transactions belonging to a single piece of work across the Zinnia platform.
-  humanURL: https://developers.zinnia.com/apis/case-management-1-0-0/docs
-  baseURL: https://api.zinnia.io
-  tags:
-  - Insurance
-  - Policy Administration
-  - Workflow
-  tags_raw:
-  - insurance
-  - policy-administration
-  - workflow
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-case-management-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
-  - type: Overlay
-    url: overlays/zinnia-case-management-overlay.yaml
-- name: Zinnia Illustration Client Cases API
-  description: Client case manager for the illustration workflow - create, search, retrieve and update the client-level cases
-    that illustration requests are generated against.
-  humanURL: https://developers.zinnia.com/apis/illustration-client-cases/docs
-  baseURL: https://uat.api.zinnia.io
-  tags:
-  - Insurance
-  - Quoting
-  - Life Insurance
-  tags_raw:
-  - insurance
-  - quoting
-  - life-insurance
-  properties:
-  - type: OpenAPI
-    url: openapi/zinnia-illustration-client-cases-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/illustration-client-cases/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/illustration-client-cases/docs
-  - type: Overlay
-    url: overlays/zinnia-illustration-client-cases-overlay.yaml
+- aid: zinnia:zinnia-annuity-version-1-api
+  name: Zinnia Annuity Version 1 API
+  description: EAPP API Version 1
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Annuity Version 1
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-annuity-version-1-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-annuity-version-2-api
+  name: Zinnia Annuity Version 2 API
+  description: EAPP API Version 2
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Annuity Version 2
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-annuity-version-2-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-attachment-api
+  name: Zinnia Attachment API
+  description: Attachment operations for transaction documents.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Attachment
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-attachment-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-authorization-status-update-api
+  name: Zinnia Authorization Status Update API
+  description: >-
+    The Authorization Status Update API from Zinnia — 1 operation(s) for authorization status update.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Authorization Status Update
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-authorization-status-update-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-case-instance-api
+  name: Zinnia Case Instance API
+  description: Manages cases for all processes
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Case Instance
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-case-instance-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-clientcase-api
+  name: Zinnia Client Case API
+  description: The ClientCase API from Zinnia — 9 operation(s) for clientcase.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - ClientCase
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-clientcase-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-comments-api
+  name: Zinnia Comments API
+  description: Comment management operations (save, list, and delete transaction comments)
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Comments
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-comments-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-dataset-api
+  name: Zinnia Dataset API
+  description: Dataset operations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Dataset
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-dataset-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-details-api
+  name: Zinnia Details API
+  description: Get policy details
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Details
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-details-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-documents-v2-api
+  name: Zinnia Documents V2 API
+  description: The Documents V2 API from Zinnia — 3 operation(s) for documents v2.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Documents V2
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-documents-v2-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-documents-v3-api
+  name: Zinnia Documents V3 API
+  description: The Documents V3 API from Zinnia — 4 operation(s) for documents v3.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Documents V3
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-documents-v3-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-financial-transactions-api
+  name: Zinnia Financial Transactions API
+  description: Financial Transactions
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Financial Transactions
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-financial-transactions-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-health-api
+  name: Zinnia Health API
+  description: The Health API from Zinnia — 2 operation(s) for health.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-health-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-hybrid-iul-term-hit-illustrations-api
+  name: Zinnia Hybrid-IUL-Term (HIT) Illustrations API
+  description: Hybrid-IUL/Term product illustrations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Hybrid-IUL-Term (HIT) Illustrations
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-hybrid-iul-term-hit-illustrations-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-illustration-engine-api
+  name: Zinnia Illustration Engine API
+  description: API Endpoints for use by the internal illustration engines
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Illustration Engine
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-illustration-engine-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-indexed-universal-life-iul-illustrations-api
+  name: Zinnia Indexed Universal Life (IUL) Illustrations API
+  description: Term Life product illustrations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Indexed Universal Life (IUL) Illustrations
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-indexed-universal-life-iul-illustrations-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-metrics-api
+  name: Zinnia Metrics API
+  description: Get policy metrics
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Metrics
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-metrics-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-new-business-annuity-api
+  name: Zinnia New Business Annuity API
+  description: New Business Annuity Application Submission API Version 3
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - New Business Annuity
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-new-business-annuity-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-new-business-life-api
+  name: Zinnia New Business Life API
+  description: The New Business Life API from Zinnia — 1 operation(s) for new business life.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - New Business Life
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-new-business-life-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-new-business-transactions-v1-api
+  name: Zinnia New Business Transactions V1 API
+  description: New Business Orchestration Services Version 1
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - New Business Transactions V1
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-new-business-transactions-v1-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-new-business-transactions-v2-api
+  name: Zinnia New Business Transactions V2 API
+  description: New Business Orchestration Services Version 2
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - New Business Transactions V2
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-new-business-transactions-v2-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-non-financial-transactions-api
+  name: Zinnia Non Financial Transactions API
+  description: Non Financial Transactions
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Non Financial Transactions
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-non-financial-transactions-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-overview-api
+  name: Zinnia Overview API
+  description: Get policy overview
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Overview
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-overview-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-policy-transactions-api
+  name: Zinnia Policy - Transactions API
+  description: All Apis related to policy operations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Policy - Transactions
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-policy-transactions-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-product-api
+  name: Zinnia Product API
+  description: The Product API from Zinnia — 1 operation(s) for product.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Product
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-product-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-product-eligibility-api
+  name: Zinnia Product Eligibility API
+  description: The product-eligibility API from Zinnia — 1 operation(s) for product-eligibility.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - product-eligibility
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-product-eligibility-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-product-v2-api
+  name: Zinnia Product V2 API
+  description: The Product V2 API from Zinnia — 2 operation(s) for product v2.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Product V2
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-product-v2-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-ref-data-api
+  name: Zinnia Ref Data API
+  description: Ref-Data
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Ref-Data
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-ref-data-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-reference-schemas-api
+  name: Zinnia Reference Schemas API
+  description: The Reference Schemas API from Zinnia — 3 operation(s) for reference schemas.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Reference Schemas
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-reference-schemas-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-revieweraction-api
+  name: Zinnia Reviewer Action API
+  description: >-
+    Reviewer workflow actions (Approved, Declined, Terminate) forwarded to the product order-entry service
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - ReviewerAction
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-revieweraction-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-search-api
+  name: Zinnia Search API
+  description: Search for policies
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Search
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-search-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-taxforms-v2-api
+  name: Zinnia TaxForms V2 API
+  description: The TaxForms V2 API from Zinnia — 2 operation(s) for taxforms v2.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - TaxForms V2
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-taxforms-v2-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-taxforms-v3-api
+  name: Zinnia TaxForms V3 API
+  description: The TaxForms V3 API from Zinnia — 2 operation(s) for taxforms v3.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - TaxForms V3
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-taxforms-v3-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-term-life-tl-illustrations-api
+  name: Zinnia Term Life (TL) Illustrations API
+  description: Term Life product illustrations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Term Life (TL) Illustrations
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-term-life-tl-illustrations-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-transaction-api
+  name: Zinnia Transaction API
+  description: Transaction management operations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Transaction
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-transaction-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-transactiondata-api
+  name: Zinnia Transaction Data API
+  description: The TransactionData API from Zinnia — 1 operation(s) for transactiondata.
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - TransactionData
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-transactiondata-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-transactions-eligibility-api
+  name: Zinnia Transactions Eligibility API
+  description: Eligibility evaluation for different operations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Transactions Eligibility
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-transactions-eligibility-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-utility-api
+  name: Zinnia Utility API
+  description: Utility operations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Utility
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-utility-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-whole-life-wl-illustrations-api
+  name: Zinnia Whole Life (WL) Illustrations API
+  description: Whole Life product illustrations
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Whole Life (WL) Illustrations
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-whole-life-wl-illustrations-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-e-signature-api
+  name: Zinnia E Signature API
+  description: >-
+    E-signature for DocuSign: load recipients, submit the case, poll signer status, cancel ceremony (void
+    envelope; Pending), and retrigger signing email when in progress
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - E Signature
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-e-signature-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+- aid: zinnia:zinnia-product-pricing-api
+  name: Zinnia Product Pricing API
+  description: Product pricing retrieval for a transaction
+  humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  baseURL: https://qa.api.zinnia.io
+  tags:
+  - Product Pricing
+  properties:
+  - type: OpenAPI
+    url: openapi/zinnia-product-pricing-api-openapi.yml
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs/policy-details
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/policy-service-0-1-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/market-connect-order-entry/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/illustration-service
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs
+  - type: Examples
+    url: https://developers.zinnia.com/apis/illustration-3-0-8/docs/samples
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/documents-0-3-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/new-business-annuity/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/product-service/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/case-management-1-0-0/docs
+  - type: Documentation
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
+  - type: APIReference
+    url: https://developers.zinnia.com/apis/illustration-client-cases/docs
 common:
+- type: Overlay
+  url: overlays/zinnia-policy-transactions-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-policy-service-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-market-connect-order-entry-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-illustration-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-documents-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-new-business-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-new-business-annuity-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-product-service-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-case-management-overlay.yaml
+- type: Overlay
+  url: overlays/zinnia-illustration-client-cases-overlay.yaml
 - type: DomainSecurity
   url: security/zinnia-domain-security.yml
 - type: Authentication
