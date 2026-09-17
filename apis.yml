@@ -2126,18 +2126,18 @@ apis:
     url: https://developers.zinnia.com/apis/illustration-client-cases/docs
   - type: APIReference
     url: https://developers.zinnia.com/apis/illustration-client-cases/docs
-- aid: zinnia:zinnia-e-signature-api
-  name: Zinnia E Signature API
+- aid: zinnia:zinnia-esignature-api
+  name: Zinnia Esignature API
   description: >-
     E-signature for DocuSign: load recipients, submit the case, poll signer status, cancel ceremony (void
     envelope; Pending), and retrigger signing email when in progress
   humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
   baseURL: https://qa.api.zinnia.io
   tags:
-  - E Signature
+  - Esignature
   properties:
   - type: OpenAPI
-    url: openapi/zinnia-e-signature-api-openapi.yml
+    url: openapi/zinnia-esignature-api-openapi.yml
   - type: Documentation
     url: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
   - type: APIReference
