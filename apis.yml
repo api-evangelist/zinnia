@@ -467,6 +467,8 @@ apis:
   humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
   baseURL: https://qa.api.zinnia.io
   tags:
+  - Datasets
+  tags_raw:
   - Dataset
   properties:
   - type: OpenAPI
@@ -1403,6 +1405,8 @@ apis:
   humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
   baseURL: https://qa.api.zinnia.io
   tags:
+  - Product Eligibility
+  tags_raw:
   - product-eligibility
   properties:
   - type: OpenAPI
@@ -1924,6 +1928,8 @@ apis:
   humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
   baseURL: https://qa.api.zinnia.io
   tags:
+  - Transaction Data
+  tags_raw:
   - TransactionData
   properties:
   - type: OpenAPI
@@ -2134,6 +2140,8 @@ apis:
   humanURL: https://developers.zinnia.com/apis/policy-transactions-1-0-2/docs
   baseURL: https://qa.api.zinnia.io
   tags:
+  - E-Signature
+  tags_raw:
   - Esignature
   properties:
   - type: OpenAPI
