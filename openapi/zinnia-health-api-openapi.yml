@@ -1,0 +1,78 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Health API
+  version: '1.0'
+  description: 'Operations tagged Health across 2 of this provider''s published API definitions: zinnia-illustration-client-cases-openapi.json, zinnia-market-connect-order-entry-openapi.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://uat.api.zinnia.io
+  description: Main server address for this environment
+- url: https://dev.api.zinnia.io
+- url: https://qa.api.zinnia.io
+tags:
+- name: Health
+paths:
+  /client-case-manager/health:
+    get:
+      tags:
+      - Health
+      responses:
+        '200':
+          description: OK
+      summary: Get client case manager health
+      x-summary-source: derived
+      operationId: getClientCaseManagerHealth
+      x-operation-id-source: derived
+    servers:
+    - url: https://uat.api.zinnia.io
+      description: Main server address for this environment
+  /market-connect/order-entry/v1/health:
+    get:
+      tags:
+      - Health
+      summary: Returns a simple health status indicating the API process is running
+      description: Returns a simple health status. No authentication required.
+      operationId: getHealth
+      responses:
+        '200':
+          description: API is healthy
+      security:
+      - openIdConnect: []
+    servers:
+    - url: https://dev.api.zinnia.io
+    - url: https://qa.api.zinnia.io
+    - url: https://uat.api.zinnia.io
+components:
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.uat.zinnia.com/
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          audience_claim:
+          - aud
+          audience_required:
+          - https://uat.api.zinnia.io
+          auth_methods:
+          - bearer
+          scopes: []
+        enabled: true
+        protocols:
+        - http
+        - https
+    openIdConnect:
+      type: openIdConnect
+      description: 'OpenID Connect via Auth0. Clients present a JWT bearer token issued by the tenant in the `Authorization: Bearer <token>` header.'
+      openIdConnectUrl: https://login.qa.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          auth_methods:
+          - bearer
+          verify_signature: true
+          ignore_signature: []
+          consumer_claim:
+          - sub
+          consumer_optional: true
+x-refined-from:
+- zinnia-illustration-client-cases-openapi.json
+- zinnia-market-connect-order-entry-openapi.json

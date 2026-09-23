@@ -1,0 +1,1017 @@
+openapi: 3.2.0
+info:
+  title: Market Connect Order Entry Attachment API
+  description: '**The Market Connect – Order Entry API** enables external distribution platforms and partner systems to electronically initiate, manage, and submit life insurance and annuity applications through a unified digital workflow.'
+  termsOfService: https://zinnia.com/terms
+  contact:
+    name: API Support
+    email: orderentrysupport@zinnia.com
+  license:
+    name: Proprietary
+    url: https://zinnia.com/terms
+  version: 1.0.3
+servers:
+- url: https://dev.api.zinnia.io
+- url: https://qa.api.zinnia.io
+- url: https://uat.api.zinnia.io
+security:
+- openIdConnect: []
+tags:
+- name: Attachment
+  description: Attachment operations for transaction documents.
+paths:
+  /market-connect/order-entry/v1/attachment/{transactionId}:
+    get:
+      tags:
+      - Attachment
+      summary: Retrieves the attachment payload (documents, required documents and rules) for…
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```NOT_FOUND``` - No attachments were found for the specified transaction.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: getAttachment
+      parameters:
+      - name: transactionId
+        in: path
+        description: Unique identifier assigned when the Order Entry transaction is created. Resolves to the internal transaction; caller must be authorized for this transaction.
+        required: true
+        schema:
+          type: string
+        example: '1125715'
+      responses:
+        '200':
+          description: Returns the attachment payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentResponse'
+              examples:
+                with-documents:
+                  summary: Attachments with uploaded files
+                  description: Includes documents array entries with documentId (EDS) and documentSize in bytes.
+                  value:
+                    transactionId: '1125715'
+                    distributorCode: ABCD
+                    carrierCode: ABCD
+                    sourceSystem: AnnuityNet
+                    caseId: CA0000188538
+                    data:
+                      additionalDocumentTypes:
+                      - attachmentType: []
+                        documentType:
+                        - Wet-signed Paperwork
+                        - Supporting Documents
+                        - Trust Certification
+                        - Green Card
+                        - Driver License – Proof of Age
+                        - Illustration
+                        - POA Paperwork
+                        - Check Deposit Form
+                        formType: []
+                      documentRules:
+                      - conditions: Owner age < 65
+                        key: PROOF_OF_AGE
+                        message: Proof of age documentation may be required.
+                        value: optional
+                      documents:
+                      - documentType: ESIGNATURE
+                        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+                        uploadDate: 04/06/2026 11:22:05 PM
+                        documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                        documentSize: 9000000
+                        attachmentType: null
+                        formType: null
+                      - documentType: DRIVER LICENSE – PROOF OF AGE
+                        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM1.pdf
+                        uploadDate: 04/06/2026 11:26:07 PM
+                        documentId: b2c3d4e5-f6a7-8901-bcde-f12345678901
+                        documentSize: 10000000
+                        attachmentType: null
+                        formType: null
+                      requiredDocuments:
+                      - attachmentType: APP
+                        displayName: Signed application
+                        documentType: APPLICATION
+                        formType: APP_FULL
+                        message: Upload the fully signed application prior to submission.
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: abc
+                errors:
+                - code: INVALID_TRANSACTION_ID
+                  description: Invalid transaction ID provided
+                  details: Transaction ID abc is not valid
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1125715'
+                errors:
+                - code: NOT_FOUND
+                  description: Attachments not found
+                  details: The requested attachments could not be found
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1125715'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Attachment service error
+                  details: Failed to get attachments
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/attachment:
+    post:
+      tags:
+      - Attachment
+      summary: Ingests an EDS document attachment notification for a transaction
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```NOT_FOUND``` - The specified transaction was not found.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: ingestAttachmentDocument
+      requestBody:
+        description: The document ingestion payload.
+        content:
+          application/json:
+            schema:
+              required:
+              - transactionId
+              - documentId
+              - sourceSystem
+              - action
+              allOf:
+              - $ref: '#/components/schemas/IngestAttachmentDocumentRequest'
+              example:
+                transactionId: '123456'
+                documentId: 6a3c4358bd44a9000c8d140e
+                sourceSystem: AnnuityNet
+                action: added
+            examples:
+              document-added:
+                summary: Document added
+                description: A new EDS document was added for the transaction.
+                value:
+                  transactionId: '123456'
+                  documentId: 6a3c4358bd44a9000c8d140e
+                  sourceSystem: AnnuityNet
+                  action: added
+              document-deleted:
+                summary: Document deleted
+                description: An EDS document was removed from the transaction.
+                value:
+                  transactionId: '123456'
+                  documentId: 6a3c4358bd44a9000c8d140e
+                  sourceSystem: LifeSpeed
+                  action: deleted
+        required: true
+      responses:
+        '200':
+          description: Returns the ingestion result envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestAttachmentDocumentResponse'
+              example:
+                caseId: CA0000188538
+                isSuccess: true
+                message: Attachment document ingested successfully.
+                status: Success
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '123456'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Invalid source system provided
+                  details: sourceSystem must be AnnuityNet or LifeSpeed
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: The requested resource could not be found
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '123456'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Attachment service error
+                  details: Failed to ingest attachment document
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+components:
+  schemas:
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
+    AdditionalDocumentType:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of attachment type codes
+        documentType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of document type codes
+        formType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of form type codes
+      additionalProperties: false
+    AttachmentDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code when applicable; otherwise null.
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type label or code.
+        fileName:
+          type:
+          - string
+          - 'null'
+          description: Original file name as uploaded.
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code when applicable; otherwise null.
+        uploadDate:
+          type:
+          - string
+          - 'null'
+          description: Upload timestamp as returned by the attachment service.
+        documentId:
+          type:
+          - string
+          - 'null'
+          description: Electronic document service (EDS) identifier for the uploaded file.
+        documentSize:
+          type:
+          - integer
+          - 'null'
+          description: Size of the uploaded file in bytes.
+          format: int64
+      additionalProperties: false
+      example:
+        documentType: ESIGNATURE
+        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+        uploadDate: 04/06/2026 11:22:05 PM
+        documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        documentSize: 9000000
+        attachmentType: null
+        formType: null
+    AttachmentData:
+      type: object
+      properties:
+        additionalDocumentTypes:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/AdditionalDocumentType'
+          description: Document types the user may optionally upload.
+        documentRules:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/DocumentRule'
+          description: Conditional rules for required or optional documents.
+        documents:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/AttachmentDocument'
+          description: Files already stored for the transaction, including EDS documentId and documentSize in bytes.
+        requiredDocuments:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/RequiredDocument'
+          description: Documents still required before submission.
+      additionalProperties: false
+      example:
+        additionalDocumentTypes:
+        - attachmentType: []
+          documentType:
+          - Wet-signed Paperwork
+          - Supporting Documents
+          - Trust Certification
+          - Green Card
+          - Driver License – Proof of Age
+          - Illustration
+          - POA Paperwork
+          - Check Deposit Form
+          formType: []
+        documentRules:
+        - conditions: Owner age < 65
+          key: PROOF_OF_AGE
+          message: Proof of age documentation may be required.
+          value: optional
+        documents:
+        - documentType: ESIGNATURE
+          fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+          uploadDate: 04/06/2026 11:22:05 PM
+          documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+          documentSize: 9000000
+          attachmentType: null
+          formType: null
+        - documentType: DRIVER LICENSE – PROOF OF AGE
+          fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM1.pdf
+          uploadDate: 04/06/2026 11:26:07 PM
+          documentId: b2c3d4e5-f6a7-8901-bcde-f12345678901
+          documentSize: 10000000
+          attachmentType: null
+          formType: null
+        requiredDocuments:
+        - attachmentType: APP
+          displayName: Signed application
+          documentType: APPLICATION
+          formType: APP_FULL
+          message: Upload the fully signed application prior to submission.
+    AttachmentResponse:
+      required:
+      - carrierCode
+      - data
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+          description: Unique identifier for the Order Entry transaction.
+        carrierCode:
+          minLength: 1
+          type: string
+          description: Carrier code required to push documents to EDS.
+        distributorCode:
+          type:
+          - string
+          - 'null'
+          description: Optional distributor code.
+        sourceSystem:
+          enum:
+          - AnnuityNet
+          - LifeSpeed
+          type:
+          - string
+          - 'null'
+          description: 'Source system identifier. Allowed values: AnnuityNet, LifeSpeed.'
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction.
+        data:
+          allOf:
+          - $ref: '#/components/schemas/AttachmentData'
+          description: Documents already uploaded, required documents, optional types, and document rules.
+          example:
+            additionalDocumentTypes:
+            - attachmentType: []
+              documentType:
+              - Wet-signed Paperwork
+              - Supporting Documents
+              - Trust Certification
+              - Green Card
+              - Driver License – Proof of Age
+              - Illustration
+              - POA Paperwork
+              - Check Deposit Form
+              formType: []
+            documentRules:
+            - conditions: Owner age < 65
+              key: PROOF_OF_AGE
+              message: Proof of age documentation may be required.
+              value: optional
+            documents:
+            - documentType: ESIGNATURE
+              fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+              uploadDate: 04/06/2026 11:22:05 PM
+              documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+              documentSize: 9000000
+              attachmentType: null
+              formType: null
+            - documentType: DRIVER LICENSE – PROOF OF AGE
+              fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM1.pdf
+              uploadDate: 04/06/2026 11:26:07 PM
+              documentId: b2c3d4e5-f6a7-8901-bcde-f12345678901
+              documentSize: 10000000
+              attachmentType: null
+              formType: null
+            requiredDocuments:
+            - attachmentType: APP
+              displayName: Signed application
+              documentType: APPLICATION
+              formType: APP_FULL
+              message: Upload the fully signed application prior to submission.
+      additionalProperties: false
+      example:
+        transactionId: '1125715'
+        distributorCode: ABCD
+        carrierCode: ABCD
+        sourceSystem: AnnuityNet
+        caseId: CA0000188538
+        data:
+          additionalDocumentTypes:
+          - attachmentType: []
+            documentType:
+            - Wet-signed Paperwork
+            - Supporting Documents
+            - Trust Certification
+            - Green Card
+            - Driver License – Proof of Age
+            - Illustration
+            - POA Paperwork
+            - Check Deposit Form
+            formType: []
+          documentRules:
+          - conditions: Owner age < 65
+            key: PROOF_OF_AGE
+            message: Proof of age documentation may be required.
+            value: optional
+          documents:
+          - documentType: ESIGNATURE
+            fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+            uploadDate: 04/06/2026 11:22:05 PM
+            documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+            documentSize: 9000000
+            attachmentType: null
+            formType: null
+          - documentType: DRIVER LICENSE – PROOF OF AGE
+            fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM1.pdf
+            uploadDate: 04/06/2026 11:26:07 PM
+            documentId: b2c3d4e5-f6a7-8901-bcde-f12345678901
+            documentSize: 10000000
+            attachmentType: null
+            formType: null
+          requiredDocuments:
+          - attachmentType: APP
+            displayName: Signed application
+            documentType: APPLICATION
+            formType: APP_FULL
+            message: Upload the fully signed application prior to submission.
+    IngestAttachmentDocumentResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the ingestion operation was successful.
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result.
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation (for example, Success, ValidationError, Failure).
+      additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Attachment document ingested successfully.
+        status: Success
+    DocumentRule:
+      type: object
+      properties:
+        conditions:
+          type:
+          - string
+          - 'null'
+          description: Conditions under which the rule applies
+        key:
+          type:
+          - string
+          - 'null'
+          description: Rule key
+        message:
+          type:
+          - string
+          - 'null'
+          description: Rule message shown to the user
+        value:
+          type:
+          - string
+          - 'null'
+          description: Rule value
+      additionalProperties: false
+    RequiredDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code
+        displayName:
+          type:
+          - string
+          - 'null'
+          description: Display name shown to the user
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type code
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code
+        message:
+          type:
+          - string
+          - 'null'
+          description: Instructional message for the required document
+      additionalProperties: false
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+    IngestAttachmentDocumentRequest:
+      required:
+      - action
+      - documentId
+      - sourceSystem
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier for the Order Entry transaction (positive integer encoded as a string).
+        documentId:
+          minLength: 1
+          type: string
+          description: Electronic document service (EDS) identifier for the uploaded or deleted file.
+        sourceSystem:
+          minLength: 1
+          enum:
+          - AnnuityNet
+          - LifeSpeed
+          type: string
+          description: Originating source system identifier (for example, AnnuityNet or LifeSpeed).
+        action:
+          minLength: 1
+          enum:
+          - added
+          - deleted
+          type: string
+          description: 'Document lifecycle action. Allowed values: added, deleted.'
+      additionalProperties: false
+      example:
+        transactionId: '123456'
+        documentId: 6a3c4358bd44a9000c8d140e
+        sourceSystem: AnnuityNet
+        action: added
+  securitySchemes:
+    openIdConnect:
+      type: openIdConnect
+      description: 'OpenID Connect via Auth0. Clients present a JWT bearer token issued by the tenant in the `Authorization: Bearer <token>` header.'
+      openIdConnectUrl: https://login.qa.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          auth_methods:
+          - bearer
+          verify_signature: true
+          ignore_signature: []
+          consumer_claim:
+          - sub
+          consumer_optional: true

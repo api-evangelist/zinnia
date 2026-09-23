@@ -1,0 +1,1437 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Policy Transactions API. Policy - Transactions API
+  description: 'Enterprise API for enforcing policy transactions and validations. This API provides a comprehensive interface for - Policy transaction validation and processing
+
+    - Financial and non-financial transaction management
+
+    - Policy party management and updates
+
+    - Systematic program management
+
+    **Version History** * Draft version 1.0.6
+
+    - Added Two Endpoints- Reinstatement eligibility check api, Reinstatement actual transaction api
+
+    * Draft Specifications (Subject to Change Upon Review)'
+  version: 1.0.8
+  x-changelog:
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — aligned InitialDeathClaimRequest with the revised FNOL payload: added policy.isContestable/isFuneralHomeAssigned, deathDetails.causeOfDeath, COVEREDINSURED party role, deathNotification.partyRole enum; renamed documents[].edsDocumentId to documents[].documentId; removed parties[].isFuneralHomeAssigned (now policy-level only)'
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — added deathNotification.partyId (now required, enforced via bean validation on submit) and deathNotification.partyRole to identify the deceased party, and a riderClaim[] array (DeathClaimRiderClaim: riderCode, riderName, riderElected, partyId)'
+  - date: '2026-08-03'
+    change: Initial death claim — added POST initialdeathclaim/eligibilitycheck (no request body; returns TransactionResponse)
+  - date: '2026-08-03'
+    change: Initial death claim submit — aligned InitialDeathClaimRequest with IdnClaimRequest (added documents/DeathClaimDocument, party isNotifier, expanded partyRole and relationshipToInsured enums); responses now use shared TransactionAcceptedResponse (202) and TransactionResponse (errors)
+  - date: '2026-07-29'
+    change: Billing feature change — eligibility and validation endpoints with BillingFeatureChangeRequest payload (policyFeatures, transactionReason, signatures, documents, selfServeFlow)
+  - date: '2026-07-24'
+    change: Partial withdrawal one-time — updated PartialWithdrawalOneTime payload (selfServeFlow; tax withholding top-level fields and w4r; removed authorization from request body)
+  - date: '2026-05-26'
+    change: Added POST initialdeathclaim endpoint with standalone Initial Death Claim schemas
+  - date: '2026-05-11'
+    change: Systematic program — extended SystematicProgramUpdate request (MFA, agent, policyHolder, tax, funds, feature product, submittedDate, currency, disbursementType); PaymentForm EFT; Frequency BIANNUAL/DEFAULT; optional pdfId on TransactionAcceptedResponse for systematic program submit 202
+  - date: '2026-03-18'
+    change: Active restrict — POST/GET /bpm/v1/policies/{planCode}/{policyNumber}/Restrict and policy API alias
+  - date: '2025-07-17'
+    change: CMW-29105 - Updated SystematicProgramUpdate Post to PUT
+  - date: '2025-07-22'
+    change: CMW-30437 - New End point for Systematic Programs Quote API
+  - date: '2025-09-01'
+    change: CMW-31343 - New End point for Reinstatement Quote API and Reinstatement Actual Transaction API
+  - date: '2025-09-03'
+    change: ZDR-3002 - Added One time premium 400 error example
+servers:
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+tags:
+- name: Policy - Transactions
+  description: All Apis related to policy operations
+paths:
+  /bpm/actuator/health:
+    get:
+      x-internal: true
+      summary: Zahara BPM Health Check
+      tags:
+      - Policy - Transactions
+      description: Returns the health status of the application
+      operationId: getHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+  /policy/v1/transactions/case:
+    post:
+      x-kong-plugin-pre-function:
+        config:
+          access:
+          - 'local path = kong.request.get_path()
+
+            local new_path = path:gsub("^/policy/v1/transactions", "/bpm/v1/policies")
+
+            kong.service.request.set_path(new_path)
+
+            '
+      tags:
+      - Policy - Transactions
+      summary: Create case for transaction
+      description: This operation must be invoked before submitting a transaction request. The service is responsible for creating a new case record, which becomes the prerequisite reference for all subsequent transaction activities.
+      operationId: createCase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCaseRequest'
+      responses:
+        '201':
+          description: Case Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              examples:
+                NewBusiness:
+                  value:
+                    message: Unauthorized
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+  /policy/v1/cases/{caseId}/cancel:
+    put:
+      x-kong-plugin-pre-function:
+        config:
+          access:
+          - 'local path = kong.request.get_path()
+
+            local new_path = path:gsub("^/policy/v1/cases", "/bpm/v1/cases")
+
+            kong.service.request.set_path(new_path)
+
+            '
+      tags:
+      - Policy - Transactions
+      summary: Cancel a case
+      description: Cancels an existing case based on eligibility rules. The API validates that the case exists and that the associated BPM process has not yet started. If eligible, the case is transitioned to a CANCELLED status, cancellation metadata is persisted, and a NES cancellation event is emitted. Only cases in NOT_STARTED BPM state can be cancelled.
+      operationId: cancelCase
+      parameters:
+      - name: caseId
+        in: path
+        required: true
+        description: The unique identifier of the case to cancel
+        schema:
+          type: string
+          example: CA0000007516
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseCancellationRequest'
+            example:
+              correlationId: 218d8992-3783-42ac-b59a-66cbc36adaa2
+              planCode: TL0101
+              policyNumber: FIUL463340020
+              reason: User requested cancellation
+              requestedBy: CLIENT
+              type: Reinstatement
+              subType: Reinstatement
+      responses:
+        '202':
+          description: Cancellation accepted and BPM process triggered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseCancellationResponse'
+              example:
+                caseId: CA0000007516
+                correlationId: 218d8992-3783-42ac-b59a-66cbc36adaa2
+                caseStatus: CANCELLED
+                message: Case cancellation initiated successfully
+        '400':
+          description: Bad Request - Missing or invalid required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+              example:
+                statusCode: 400
+                timestamp: '2026-02-18T10:30:00Z'
+                errorId: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
+                message: Validation failed
+                error:
+                - reason is required
+                - type is required
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              examples:
+                Unauthorized:
+                  value:
+                    message: Unauthorized
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '404':
+          description: Case not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+              example:
+                statusCode: 404
+                timestamp: '2026-02-18T10:30:00Z'
+                errorId: b5b68ed1-3d2c-5933-0060-4c96ee9b97e4
+                message: Case not found
+                error:
+                - 'No case found for caseId: CA0000007516'
+        '409':
+          description: Cancellation not allowed - BPM process is not in an eligible state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+              example:
+                statusCode: 409
+                timestamp: '2026-02-18T10:30:00Z'
+                errorId: c6c79fe2-4e3d-6044-1171-5da7fface85
+                message: Cancellation not allowed
+                error:
+                - Cancellation not allowed once transaction processing has started.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+  /policy/v1/transactions/{planCode}/{policyNumber}/systematicprograms/quote:
+    post:
+      tags:
+      - Policy - Transactions
+      summary: Systematic Program Quote Request
+      operationId: systematicProgramQuote
+      parameters:
+      - name: planCode
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: policyNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystematicProgramQuoteRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/successTransactionResponse'
+        '400':
+          description: OneTime Premium Failure Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+              examples:
+                failure:
+                  $ref: '#/components/examples/failureTransactionResponse'
+        '500':
+          description: Unexpected error occured, please check server logs
+      security:
+      - Auth0: []
+      x-kong-plugin-pre-function:
+        config:
+          access:
+          - 'local path = kong.request.get_path()
+
+            local new_path = path:gsub("^/policy/v1/transactions", "/bpm/v1/policies")
+
+            kong.service.request.set_path(new_path)
+
+            '
+  /policy/v1/transactions/{planCode}/{policyNumber}/canceltransaction:
+    post:
+      x-kong-plugin-pre-function:
+        config:
+          access:
+          - 'local path = kong.request.get_path()
+
+            local new_path = path:gsub("^/policy/v1/transactions", "/bpm/v1/policies")
+
+            kong.service.request.set_path(new_path)
+
+            '
+      tags:
+      - Policy - Transactions
+      summary: Cancel Transaction
+      operationId: cancelTransaction1
+      parameters:
+      - name: planCode
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: policyNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelTransactionRequest'
+        required: true
+      responses:
+        '202':
+          description: Submit Transaction Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionAcceptedResponse'
+        '500':
+          description: Internal server error. Please check server logs for more details.
+      security:
+      - Auth0: []
+components:
+  schemas:
+    ValidationResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 400
+        timestamp:
+          type: string
+          format: date-time
+        errorId:
+          type: string
+          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
+        message:
+          type: string
+          example: JSON Valdiation fails with error
+        error:
+          type: array
+          items:
+            type: string
+            example: Mandatory attribute label missing
+    AmountType:
+      type: string
+      enum:
+      - AMOUNT
+      - PERCENTAGE
+      - MAX
+      - FREEWITHDRAWALAMOUNT
+      - WITHDRAWALUNTILBASIS
+      - EARNINGSONLY
+      - PRORATA
+      description: Amount Type selected by user. Following is dropdown list 1. Amount -- If selected user should be able to enter Amount for Transaction Amount field 2. Percent -- If selected user should be able to enter Percentage for Transaction Amount field 3. Max -- If selected user should NOT be able to enter Amount. Auto calculated using Maximum Withdrawal Amount. 4. Free Withdrawal Amount -- If selected user should NOT be able to enter Amount. Auto calcualted using Free Withdrawal Amount. 5. Withdraw Until Basis ---- If selected user should NOT be able to enter Amount. Auto calcualted using Cost Basis.
+    PartyRole:
+      type: string
+      enum:
+      - OWNER
+      - PRIMARYBENEFICIARY
+      - CONTINGENTBENEFICIARY
+      - INSURED
+      - PAYOR
+      - PAYEE
+      - AGENT
+      - THIRDPARTYDESIGNEE
+      description: Party Role
+    PaymentForm:
+      type: string
+      enum:
+      - DTCC
+      - CREDITCARD
+      - ACH
+      - CHECK
+      - WIRE
+      - EXCHANGE
+      - EFT
+      description: Mode of payment
+    BaseAdhocParty:
+      type: object
+      properties:
+        partyId:
+          type: string
+          example: Party_PI_1
+          description: Impacted Party in the event of financial transaction
+        bankId:
+          type: string
+          example: Bank_1
+          description: Comes in Acord 103
+    IdentifierInstance:
+      type: object
+      description: An object representing an identifier and its corresponding value.
+      properties:
+        identifier:
+          type: string
+          enum:
+          - eAppId
+          - policyNumber
+          description: The type of identifier.
+        value:
+          type: string
+          description: The value of the identifier.
+          example: ABC123349257367
+    CreateCaseRequest:
+      type: object
+      properties:
+        planCode:
+          type: string
+          description: Product code provided by the Zinnia system
+          example: ABC001
+        policyNumber:
+          type: string
+          description: In case of Post Issue Policy Number will be mandatory
+          example: EVGL1234567
+        correlationId:
+          type: string
+          description: The correlationId associated with the case.
+          example: 218d8992-3783-42ac-b59a-66cbc36adaab
+        caseType:
+          type: string
+          enum:
+          - Reinstatement
+          - New Business
+          description: The type associated with the case.
+          example: Reinstatement
+        caseSubType:
+          type: string
+          enum:
+          - Reinstatement
+          - Life Application
+          description: The type associated with the case.
+          example: Reinstatement
+        identifiers:
+          type: array
+          description: A list of identifiers associated with the case.
+          items:
+            $ref: '#/components/schemas/IdentifierInstance'
+      required:
+      - planCode
+      - caseType
+      - caseSubType
+      - identifiers
+    TransactionResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+          - failure
+        error:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        quoteResponse:
+          type: object
+    Error:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          example: BPM.NM.002
+          description: This is the NIGO id generated by BPM system
+        attribute:
+          type: string
+        error:
+          type: string
+          description: This is the error generated by BPM system
+        resolution:
+          type: string
+          description: Resolution generated by BPM system to resolve the error
+    AdhocSystematicProgram:
+      type: object
+      properties:
+        paymentForm:
+          $ref: '#/components/schemas/PaymentForm'
+        arrangementType:
+          $ref: '#/components/schemas/ArrangementType'
+        amountType:
+          $ref: '#/components/schemas/AmountType'
+        amount:
+          type: number
+          format: double
+          example: 5
+          description: Requested amount value
+        fractionalAmount:
+          type: number
+          format: double
+          example: 0.5
+          description: Fractional portion of the requested amount
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+        startDate:
+          type: string
+          format: date
+          description: Date (with pattern "yyyy-mm-dd")
+        endDate:
+          type: string
+          format: date
+          description: Date (with pattern "yyyy-mm-dd")
+        previousProgramDate:
+          type: string
+          format: date
+          description: Date (with pattern "yyyy-mm-dd")
+        nextProgramDate:
+          type: string
+          format: date
+          description: Date (with pattern "yyyy-mm-dd")
+        disbursementType:
+          $ref: '#/components/schemas/DisbursementType'
+        party:
+          $ref: '#/components/schemas/BaseAdhocParty'
+        parties:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdhocDisbursementParty'
+      required:
+      - paymentForm
+      - arrangementType
+    SystematicProgramQuoteRequest:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/SystematicProgramQuote'
+      properties:
+        caseId:
+          type: string
+          example: CA0000007389
+          description: Zinnia Live Case ID
+        externalTransactionId:
+          type: string
+          description: Transaction ID from external system
+          example: A12345
+    CaseSuccessResponse:
+      type: object
+      properties:
+        caseId:
+          type: string
+          example: CA000000536
+        correlationId:
+          type: string
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        eappId:
+          type: string
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        policyNumber:
+          type: string
+          example: ABC37457845
+    SystematicProgramQuote:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          example: 657b717b7dcf554abf9ef067
+          description: The unique ID to track transaction request across all systems
+        effectiveDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd") when the transaction was originally scheduled or expected to happen, can be a non-business day
+        reverseInitiator:
+          type: boolean
+          description: Property to isolate source transaction(s) that initiated the reversal
+        arrangementId:
+          type: string
+          example: arr_1
+          description: The unique ID for the systematic programs available in the policy
+        systematicProgram:
+          $ref: '#/components/schemas/AdhocSystematicProgram'
+      required:
+      - effectiveDate
+      - systematicProgram
+    ArrangementType:
+      type: string
+      enum:
+      - PAYMENT
+      - WITHDRAWAL
+      - LOANREPAYMENT
+      - REQUIREDMINIMUMDISTRIBUTION
+      - PAYOUT
+      description: The type of payment such as fixed or flexible
+    DisbursementType:
+      type: string
+      enum:
+      - GROSS
+      - NET
+      - NETNET
+      description: The type of amount for  withdrawal such as Gross or Net
+    CaseCancellationResponse:
+      type: object
+      properties:
+        caseId:
+          type: string
+          description: The unique identifier of the cancelled case
+          example: CA0000007516
+        correlationId:
+          type: string
+          description: Unique identifier to trace the request across systems
+          example: 218d8992-3783-42ac-b59a-66cbc36adaa2
+        caseStatus:
+          type: string
+          description: The updated status of the case
+          example: CANCELLED
+        message:
+          type: string
+          description: Confirmation message
+          example: Case cancellation initiated successfully
+    CancelTransactionRequest:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/CancelTransaction'
+      properties:
+        caseId:
+          type: string
+          example: CA0000007389
+          description: Zinnia Live Case ID
+    CaseCancellationRequest:
+      type: object
+      required:
+      - correlationId
+      - planCode
+      - policyNumber
+      - reason
+      - type
+      properties:
+        correlationId:
+          type: string
+          description: Unique identifier to trace the request across systems
+          example: 218d8992-3783-42ac-b59a-66cbc36adaa2
+        planCode:
+          type: string
+          description: Product code provided by the Zinnia system
+          example: TL0101
+        policyNumber:
+          type: string
+          description: The policy number associated with the case
+          example: FIUL463340020
+        reason:
+          type: string
+          description: The reason for cancelling the case
+          example: User requested cancellation
+        requestedBy:
+          type: string
+          description: The entity requesting cancellation. Derived from the authenticated token.
+          example: CLIENT
+        type:
+          type: string
+          description: The transaction type associated with the case
+          example: Reinstatement
+        subType:
+          type: string
+          description: The transaction sub-type associated with the case
+          example: Reinstatement
+    Frequency:
+      type: string
+      enum:
+      - DAILY
+      - EVERYTWOWEEKS
+      - MONTHLY
+      - SEMIANNUAL
+      - BIANNUAL
+      - QUARTERLY
+      - ANNUAL
+      - SINGLEPAYMENT
+      - DEFAULT
+      description: frequency
+    TransactionAcceptedResponse:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          example: 3a2a3435-2089-4b81-9959-e0d569ccf4f0
+          description: Unique identifier which used by every system to trace the request
+        caseId:
+          type: string
+          example: CA0000369469
+          description: Zinnia Live Case ID
+        caseStatus:
+          type: string
+          example: IN_PROGRESS
+          description: Zinnia Live Case Status
+        pdfId:
+          type: string
+          description: Identifier for the generated or associated PDF document (e.g. OnBase document number). Returned on systematic program setup and update submit when available.
+          example: DOC-10004567
+    AdhocDisbursementParty:
+      type: object
+      properties:
+        partyRole:
+          $ref: '#/components/schemas/PartyRole'
+        partyId:
+          type: string
+          description: Pending Review by Product Team
+          example: Party_PI_1
+        paymentForm:
+          $ref: '#/components/schemas/PaymentForm'
+        allocationPercentage:
+          type: number
+          format: double
+          description: At Policy Level for Each Applicable Fund (Everly there is only one Fixed) Therefore this be 100%
+          example: 100
+        bankId:
+          type: string
+          example: Bank_1
+          description: Comes in Acord 103
+        addressId:
+          type: string
+          example: '1'
+          description: Address Id
+        forBenefitOfOrForFurtherCredit:
+          type: string
+          example: TBD
+          description: FBO - For Benefit Of, FFC - For Further Credit. To notate a second beneficiary or to designate a person or organization when funds are disbursed out.
+      required:
+      - partyId
+      - paymentForm
+      - allocationPercentage
+    ServerErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 500
+        timestamp:
+          type: integer
+          format: int64
+          example: 1681395423438
+        errorId:
+          type: string
+          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+        message:
+          type: string
+          example: Failed to process request
+    AccessDeniedResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 403
+        timestamp:
+          type: integer
+          format: int64
+          example: 1681395423438
+        errorId:
+          type: string
+          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+        message:
+          type: string
+          example: 'User is not authorized for the carrier : CarrierName_1'
+    CancelTransaction:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          example: 657b717b7dcf554abf9ef067
+        transactionId:
+          type: string
+          example: '377'
+        reason:
+          type: string
+          description: Reason for cancellation
+          example: Entered Incorrect Email Id
+        externalTransactionId:
+          type: string
+          description: Transaction ID from external system
+          example: A12345
+      required:
+      - transactionId
+      - reason
+  examples:
+    failureTransactionResponse:
+      value:
+        status: failure
+        validationResult:
+        - errorCode: BPM.NM.005
+          attribute: null
+          error: Amount request is invalid.
+          resolution: Please check the One Time Premium Amount and submit the request again.
+        - errorCode: BPM.NM.003
+          attribute: null
+          error: Party information does not match with information in the Zahara system.
+          resolution: Please validate the party information and submit the request again.
+    successTransactionResponse:
+      value:
+        status: success
+        quoteResponse:
+          status: Success
+          message: Request successful
+          data:
+            correlationId: 657b717dcf55411abf9ef067
+            transactionAmounts:
+              requestedAmount: 25
+              calculatedAmount: null
+              appliedAmount: 25
+            policy:
+              id: 659fdafc075b950b7bd00feb
+              event: InterestCreditMatch
+              carrierID: SB
+              tpaID: tpa-12345
+              lineOfBusiness: LIFE
+              planName: SB UL Premium Match
+              productType: UNIVERSALLIFE
+              marketingName: Everly Life
+              shortName: SB UL
+              distribution: THIRDPARTYDIRECTTOCONSUMER
+              banding: NOPREMIUMBANDING
+              planCode: SBFIXUL1
+              glPlanCode: V2201
+              holdingForm: INDIVIDUAL
+              renewable: null
+              qualificationType: NONQUALIFIED
+              policyTerm: 20
+              policyYear: 1
+              monthOfYear: 1
+              policyNumber: BPM0000001
+              policyStatus: ACTIVE
+              nonforfeitureOption: null
+              issueType: FULLUNDERWRITING
+              residenceState: VT
+              issueState: VT
+              premiumFrequency: MONTHLY
+              currency: USD
+              policyStartDate: '2023-12-27'
+              applicationDate: '2023-12-27'
+              issueDate: '2023-12-27'
+              effectiveDate: '2024-01-11T00:00:00.000Z'
+              contestabilityStartDate: '2023-12-27'
+              contestabilityEndDate: '2025-12-26'
+              policyDeliveryDate: '2023-12-27'
+              previousPolicyAnniversaryDate: '2023-12-27'
+              previousPolicyMonthiversaryDate: '2023-12-27'
+              nextAnniversaryDate: '2024-12-27'
+              maturityDate: '2125-12-26'
+              policyTerminationDate: null
+              dateOfDeath: null
+              initialPaymentExpiryDate: '2024-01-10'
+              nextMonthivesaryDate: '2024-01-27'
+              costBasis: 105
+              costBasisDate: '2024-11-04'
+              conversionDate: null
+              policyValues:
+                beginningAcctValue: 35.759837
+                endingAcctValue: 60.759837
+                minRequiredAcctValue: 0
+                acctValueByPolicyYear: 0
+                unloanedPortionOfAcctValue: 60.759837
+                loanedPortionOfAcctValue: 0
+                surrenderValue: 60.759837
+                netAmountAtRisk: 499920
+                initialPremiumRequestAmount: 80
+                initialPremiumAppliedAmount: 80
+                initialPaymentAmountReceivedDate: '2023-12-27'
+                cumulativePremSinceIssue: 105
+                totalYTDPremiumAmount: 105
+                mecAuthorization: false
+                projectedLapseIndicator: null
+                policyGainAmount: 0
+              loanValues:
+                totalLoanBalance: 0
+                totalLoanPrincipal: 0
+                loanPayoffAmount: 0
+                maxLoanAmount: 60.759837
+                minLoanAmount: 0
+                totalLoanAccruedInterest: 0
+                lastLoanInterestDueDate: null
+                totalNumberOfLoan: 0
+                loanInterestMethod: ARREARS
+                totalYTDLoanTaken: 0
+                loanRepaymentType: null
+                minLoanRepayment: 1
+              withDrawalValues:
+                totalWithdrawalAmount: 0
+                freeWithdrawalAmount: null
+                minWithdrawalAmount: 1
+                maxWithdrawalAmount: 60.759837
+                annualWithLimNoCovDecrease: null
+                maxWithdrawalRequestDuringVestingPeriod: 1
+                maxWithdrawalRequestAfterVestingPeriod: 12
+                totalYTDWithdrawalTaken: 0
+                numberOfWithdrawal: 0
+                withdrawalAllowedStartDate: '2023-12-27'
+              testValues:
+                guidelinePremiumTestDate: '2024-11-04'
+                definitionOfLifeInsurance: GPT
+                guidelineSinglePremium: 68933.997746
+                guidelineLevelPremium: 5122.813261
+                amountExcessToGuideline: 0
+                totalGuidelineLevelPremiumSinceIssue: 5122.813261
+                mecTestDate: '2024-11-04'
+                amountExcessToMEC: 0
+                mecStatusDate: null
+                mecStatus: false
+                sevenPayTestBasis: 185
+                sevenPayPremium: 25074.702628
+                sevenPayStartDate: '2023-12-27'
+                sevenPayPeriod: '2030-12-26'
+                sevenPayLimit: 25074.702628
+                yearInPeriod: 1
+              timestamp: '2024-01-11T12:11:40.723Z'
+              deathBenefit:
+                deathBenefitOption: LEVEL
+                dboEffectiveDate: '2023-12-27'
+                dboChangedEffectiveDate: null
+                deathBenefitAgeGuarantee: 38
+              coverage:
+                id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.731Z'
+                totalCoverageAmount: 500000
+                cumGrossDeathBenefitAmount: 500000
+                minCoverageAmount: 10000
+                maxCoverageAmount: 10000000
+                coverageChangeEffectiveDate: '2024-12-27'
+                coverageBand: BAND3
+                maxAnnualCoverageChangeAllowedPerPolicy: 1
+                minCoverageDecreaseAmount: 10000
+                maxCoverageDecreaseAmount: 490000
+                maxAgeNoCovAmountDecrease: 120
+                coverageAmountDecreaseAllowed: 1
+                minCoverageIncreaseAmount: 1
+                maxCoverageIncreaseAmount: 9500000
+                maxAgeNoCovAmountIncrease: 50
+                coverageAmountIncreaseAllowed: 1
+                coverageLayers:
+                - coverageID: Base_Coverage
+                  coverageType: Base
+                  coverageName: SB UL Premium Match
+                  productCode: SBFIXUL1
+                  currentAmount: 500000
+                  orignalCoverageAmount: 500000
+                  minCoverageAmount: 10000
+                  maxCoverageAmount: 10000000
+                  grossDeathBenefitAmount: 500000
+                  lowDeathBenefitAmount: 500000
+                  coverageChangeAmount: 0
+                  coverageEffectiveDate: '2023-12-27'
+                  coverageChangeEffectiveDate: null
+                  coverageTerminationDate: null
+                  unitOfCoverage: 500
+                  valuePerUnitOfCoverage: 1000
+                  premiumFrequency: null
+                  guidelineSinglePremium: 68933.997746
+                  guidelineLevelPremium: 5122.813261
+                  sevenPayPremium: 25074.702628
+                  coverageParticipants:
+                  - partyID: Party_PI_1
+                    issueAge: 18
+                    riskClass: Standard Tobacco
+                    subStandardRating: None
+                    flatExtra:
+                    - flatExtraType: null
+                      flatExtraDuration: 0
+                      flatExtraAmount: 0
+                      flatExtraStartDate: null
+                - coverageID: Rider_SBLCHR
+                  coverageType: RIDER
+                  coverageName: Chronic Illness Accelerated Death Benefit Rider
+                  productCode: SBLCHR
+                  currentAmount: null
+                  orignalCoverageAmount: null
+                  minCoverageAmount: null
+                  maxCoverageAmount: null
+                  grossDeathBenefitAmount: null
+                  lowDeathBenefitAmount: null
+                  coverageChangeAmount: 0
+                  coverageEffectiveDate: '2023-12-27'
+                  coverageChangeEffectiveDate: null
+                  coverageTerminationDate: '2125-12-26'
+                  unitOfCoverage: null
+                  valuePerUnitOfCoverage: null
+                  premiumFrequency: null
+                  guidelineSinglePremium: null
+                  guidelineLevelPremium: null
+                  sevenPayPremium: null
+                  coverageParticipants:
+                  - partyID: Party_PI_1
+                    issueAge: 18
+                    riskClass: null
+                    subStandardRating: null
+                    flatExtra: []
+                - coverageID: Rider_SBLCRI
+                  coverageType: RIDER
+                  coverageName: Critical Illness Accelerated Death Benefit Rider
+                  productCode: SBLCRI
+                  currentAmount: null
+                  orignalCoverageAmount: null
+                  minCoverageAmount: null
+                  maxCoverageAmount: null
+                  grossDeathBenefitAmount: null
+                  lowDeathBenefitAmount: null
+                  coverageChangeAmount: 0
+                  coverageEffectiveDate: '2023-12-27'
+                  coverageChangeEffectiveDate: null
+                  coverageTerminationDate: '2125-12-26'
+                  unitOfCoverage: null
+                  valuePerUnitOfCoverage: null
+                  premiumFrequency: null
+                  guidelineSinglePremium: null
+                  guidelineLevelPremium: null
+                  sevenPayPremium: null
+                  coverageParticipants:
+                  - partyID: Party_PI_1
+                    issueAge: 18
+                    riskClass: null
+                    subStandardRating: null
+                    flatExtra: []
+                - coverageID: Rider_SBLTRM
+                  coverageType: RIDER
+                  coverageName: Terminal Illness Accelerated Death Benefit Rider
+                  productCode: SBLTRM
+                  currentAmount: null
+                  orignalCoverageAmount: null
+                  minCoverageAmount: null
+                  maxCoverageAmount: null
+                  grossDeathBenefitAmount: null
+                  lowDeathBenefitAmount: null
+                  coverageChangeAmount: 0
+                  coverageEffectiveDate: '2023-12-27'
+                  coverageChangeEffectiveDate: null
+                  coverageTerminationDate: '2125-12-26'
+                  unitOfCoverage: null
+                  valuePerUnitOfCoverage: null
+                  premiumFrequency: null
+                  guidelineSinglePremium: null
+                  guidelineLevelPremium: null
+                  sevenPayPremium: null
+                  coverageParticipants:
+                  - partyID: Party_PI_1
+                    issueAge: 18
+                    riskClass: null
+                    subStandardRating: null
+                    flatExtra: []
+                - coverageID: Rider_OPR
+                  coverageType: RIDER
+                  coverageName: Overloan Protection Rider
+                  productCode: SBLOPR
+                  currentAmount: null
+                  orignalCoverageAmount: null
+                  minCoverageAmount: null
+                  maxCoverageAmount: null
+                  grossDeathBenefitAmount: null
+                  lowDeathBenefitAmount: null
+                  coverageChangeAmount: 0
+                  coverageEffectiveDate: '2023-12-27'
+                  coverageChangeEffectiveDate: null
+                  coverageTerminationDate: '2125-12-26'
+                  unitOfCoverage: null
+                  valuePerUnitOfCoverage: null
+                  premiumFrequency: null
+                  guidelineSinglePremium: null
+                  guidelineLevelPremium: null
+                  sevenPayPremium: null
+                  coverageParticipants:
+                  - partyID: Party_PI_1
+                    issueAge: 18
+                    riskClass: null
+                    subStandardRating: null
+                    flatExtra: []
+                version: 1
+              riders:
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.729Z'
+                type: RIDER
+                riderName: Chronic Illness Accelerated Death Benefit Rider
+                riderElected: ELECTED
+                riderCode: SBLCHR
+                effectiveDate: '2023-12-27'
+                terminationDate: '2125-12-26'
+                status: ACTIVE
+                coverageID: Rider_SBLCHR
+                amount: null
+                riderParticipant:
+                - insuredID: Party_PI_1
+                  insuredAgeAtIssue: 18
+                charge:
+                  chargeID: null
+                  value: null
+                  effectiveRate: null
+                  nextEvaluationDate: null
+                riderExerciseCharge: null
+                maxChronicIllnessBenefitPct: 50
+                maxPeriodicPaymentPeriod: 120
+                claimStatus: null
+                riderExerciseChargeRate: null
+                nextEvaluationDate: null
+                riderPaymentDate: null
+                riderPaymentAmount: null
+                paymentMode: null
+                paymentOption: null
+                maxCriticalIllnessBenefitPct: null
+                t1MaxCriticalIllnessBenefitPct: null
+                t1MaxCriticalIllnessBenefitAmount: null
+                t2MaxCriticalIllnessBenefitPct: null
+                t2MaxCriticalIllnessBenefitAmount: null
+                t1CriticalRiderPaymentDate: null
+                t1CriticalRiderPaymentAmount: null
+                t2CriticalRiderPaymentDate: null
+                t2CriticalRiderPaymentAmount: null
+                terminalRiderPaymentAmount: null
+                version: 1
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.729Z'
+                type: RIDER
+                riderName: Critical Illness Accelerated Death Benefit Rider
+                riderElected: ELECTED
+                riderCode: SBLCRI
+                effectiveDate: '2023-12-27'
+                terminationDate: '2125-12-26'
+                status: ACTIVE
+                coverageID: Rider_SBLCRI
+                amount: null
+                riderParticipant:
+                - insuredID: Party_PI_1
+                  insuredAgeAtIssue: 18
+                charge:
+                  chargeID: null
+                  value: null
+                  effectiveRate: null
+                  nextEvaluationDate: null
+                riderExerciseCharge: null
+                maxChronicIllnessBenefitPct: null
+                maxPeriodicPaymentPeriod: null
+                claimStatus: null
+                riderExerciseChargeRate: null
+                nextEvaluationDate: null
+                riderPaymentDate: null
+                riderPaymentAmount: null
+                paymentMode: null
+                paymentOption: null
+                maxCriticalIllnessBenefitPct: 50
+                t1MaxCriticalIllnessBenefitPct: 5
+                t1MaxCriticalIllnessBenefitAmount: 5000
+                t2MaxCriticalIllnessBenefitPct: 50
+                t2MaxCriticalIllnessBenefitAmount: 500000
+                t1CriticalRiderPaymentDate: null
+                t1CriticalRiderPaymentAmount: null
+                t2CriticalRiderPaymentDate: null
+                t2CriticalRiderPaymentAmount: null
+                terminalRiderPaymentAmount: null
+                version: 1
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.729Z'
+                type: RIDER
+                riderName: Overloan Protection Rider
+                riderElected: ELECTED
+                riderCode: SBLOPR
+                effectiveDate: '2023-12-27'
+                terminationDate: '2125-12-26'
+                status: ACTIVE
+                coverageID: Rider_SBLOPR
+                amount: null
+                riderParticipant:
+                - insuredID: Party_PI_1
+                  insuredAgeAtIssue: 18
+                charge:
+                  chargeID: null
+                  value: null
+                  effectiveRate: null
+                  nextEvaluationDate: null
+                riderExerciseCharge: null
+                maxChronicIllnessBenefitPct: null
+                maxPeriodicPaymentPeriod: null
+                claimStatus: null
+                riderExerciseChargeRate: null
+                nextEvaluationDate: null
+                riderPaymentDate: null
+                riderPaymentAmount: null
+                paymentMode: null
+                paymentOption: null
+                maxCriticalIllnessBenefitPct: null
+                t1MaxCriticalIllnessBenefitPct: null
+                t1MaxCriticalIllnessBenefitAmount: null
+                t2MaxCriticalIllnessBenefitPct: null
+                t2MaxCriticalIllnessBenefitAmount: null
+                t1CriticalRiderPaymentDate: null
+                t1CriticalRiderPaymentAmount: null
+                t2CriticalRiderPaymentDate: null
+                t2CriticalRiderPaymentAmount: null
+                terminalRiderPaymentAmount: null
+                version: 1
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.729Z'
+                type: RIDER
+                riderName: Terminal Illness Accelerated Death Benefit Rider
+                riderElected: ELECTED
+                riderCode: SBLTRM
+                effectiveDate: '2023-12-27'
+                terminationDate: '2125-12-26'
+                status: ACTIVE
+                coverageID: Rider_SBLTRM
+                amount: null
+                riderParticipant:
+                - insuredID: Party_PI_1
+                  insuredAgeAtIssue: 18
+                charge:
+                  chargeID: null
+                  value: null
+                  effectiveRate: null
+                  nextEvaluationDate: null
+                riderExerciseCharge: null
+                maxChronicIllnessBenefitPct: null
+                maxPeriodicPaymentPeriod: null
+                claimStatus: null
+                riderExerciseChargeRate: null
+                nextEvaluationDate: null
+                riderPaymentDate: null
+                riderPaymentAmount: null
+                paymentMode: null
+                paymentOption: null
+                maxCriticalIllnessBenefitPct: null
+                t1MaxCriticalIllnessBenefitPct: null
+                t1MaxCriticalIllnessBenefitAmount: null
+                t2MaxCriticalIllnessBenefitPct: null
+                t2MaxCriticalIllnessBenefitAmount: null
+                t1CriticalRiderPaymentDate: null
+                t1CriticalRiderPaymentAmount: null
+                t2CriticalRiderPaymentDate: null
+                t2CriticalRiderPaymentAmount: null
+                terminalRiderPaymentAmount: null
+                version: 1
+              systematicPrograms:
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.730Z'
+                arrType: PAYMENT
+                arrangementID: Arr_1
+                allocationOptionType: DOLLAR
+                reason: PREMIUMREASON
+                numberOfOccurrence: null
+                loanRepaymentType: null
+                disbursementType: null
+                status: ACTIVE
+                paymentForm: EFT
+                frequency: MONTHLY
+                requestedDate: '2023-12-27'
+                startDate: '2024-01-27'
+                endDate: '2043-11-27'
+                lastActivityDate: '2023-12-27'
+                nextActivityDate: '2024-01-27'
+                amountType: AMOUNT
+                amount: 80
+                payors:
+                - partyRole: Payee
+                  partyID: Party_PI_1
+                  bankId: Bank_1
+                  percentage: 100
+                payees: null
+                version: 1
+              policyFeatures:
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.733Z'
+                featureType: freeLook
+                startDate: null
+                endDate: '2024-01-26'
+                status: null
+                period: 30
+                effectiveDate: null
+                totalRequiredAmount: null
+                totalMinimumRequiredAmount: null
+                paymentAmount: null
+                totalPaymentAmount: null
+                uwDecision: null
+                approvalDate: null
+                version: 1
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.733Z'
+                featureType: lapseAssessment
+                startDate: null
+                endDate: null
+                status: false
+                period: null
+                effectiveDate: null
+                totalRequiredAmount: null
+                totalMinimumRequiredAmount: null
+                paymentAmount: null
+                totalPaymentAmount: null
+                uwDecision: null
+                approvalDate: null
+                version: 1
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.733Z'
+                featureType: lapseProtection
+                startDate: '2023-12-27'
+                endDate: '2043-12-26'
+                status: null
+                period: 20
+                effectiveDate: null
+                totalRequiredAmount: null
+                totalMinimumRequiredAmount: null
+                paymentAmount: 51.78
+                totalPaymentAmount: 51.78
+                uwDecision: null
+                approvalDate: null
+                version: 1
+              - id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.733Z'
+                featureType: reinstatement
+                startDate: null
+                endDate: null
+                status: null
+                period: null
+                effectiveDate: null
+                totalRequiredAmount: null
+                totalMinimumRequiredAmount: null
+                paymentAmount: null
+                totalPaymentAmount: null
+                uwDecision: null
+                approvalDate: null
+                version: 1
+              allocation:
+                id: null
+                policyDetailsId: null
+                ledgerDocId: null
+                timestamp: '2024-01-11T12:11:40.732Z'
+                investmentType: INVESTMENTFUND
+                modelName: null
+                modelID: null
+                fundAllocationsInvestments:
+                - fundID: FundAccount1
+                  fundName: Everly Fixed Fund UL2
+                  fundAccountType: null
+                  allocPercent: 100
+                  startDate: '2023-12-27'
+                  endDate: null
+                funds:
+                - fundAccountType: null
+                  fundID: FundAccount1
+                  fundName: Fixed Fund
+                  glFundCode: V2201
+                  totalFundValue: 60.759837
+                  fundSegments:
+                  - segmentID: '1'
+                    fundID: null
+                    originalDepositAmount: 80
+                    originalDepositDate: '2023-12-27'
+                    depositDate: '2024-11-04'
+                    depositAmount: 25
+                    currentAmount: 60.759837
+                    renewalDate: null
+                    numberOfUnits: null
+                    sweepAccountID: null
+                    startDate: '2023-12-27'
+                    endDate: null
+                matchSegment:
+                  segmentID: Match1
+                  matchAccountValue: 1.05129
+                  cumulativeMatchPaymentAmount: 1.05
+                  ytdMatchValue: 1.05
+                  maxLifeTimeVestingAmount: 500
+                  maxAnnVestingAmount: 500
+                  minPaymentsForMatch: 0
+                  matchVestingDate: '2034-12-26'
+                  glFundCode: V2201
+                  vestingPeriod: 10
+                loanSegments: []
+                version: 1
+              version: 40
+          error: null
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

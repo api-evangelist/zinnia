@@ -1,0 +1,205 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Policy Transactions API. Transaction Data API
+  description: 'Enterprise API for enforcing policy transactions and validations. This API provides a comprehensive interface for - Policy transaction validation and processing
+
+    - Financial and non-financial transaction management
+
+    - Policy party management and updates
+
+    - Systematic program management
+
+    **Version History** * Draft version 1.0.6
+
+    - Added Two Endpoints- Reinstatement eligibility check api, Reinstatement actual transaction api
+
+    * Draft Specifications (Subject to Change Upon Review)'
+  version: 1.0.8
+  x-changelog:
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — aligned InitialDeathClaimRequest with the revised FNOL payload: added policy.isContestable/isFuneralHomeAssigned, deathDetails.causeOfDeath, COVEREDINSURED party role, deathNotification.partyRole enum; renamed documents[].edsDocumentId to documents[].documentId; removed parties[].isFuneralHomeAssigned (now policy-level only)'
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — added deathNotification.partyId (now required, enforced via bean validation on submit) and deathNotification.partyRole to identify the deceased party, and a riderClaim[] array (DeathClaimRiderClaim: riderCode, riderName, riderElected, partyId)'
+  - date: '2026-08-03'
+    change: Initial death claim — added POST initialdeathclaim/eligibilitycheck (no request body; returns TransactionResponse)
+  - date: '2026-08-03'
+    change: Initial death claim submit — aligned InitialDeathClaimRequest with IdnClaimRequest (added documents/DeathClaimDocument, party isNotifier, expanded partyRole and relationshipToInsured enums); responses now use shared TransactionAcceptedResponse (202) and TransactionResponse (errors)
+  - date: '2026-07-29'
+    change: Billing feature change — eligibility and validation endpoints with BillingFeatureChangeRequest payload (policyFeatures, transactionReason, signatures, documents, selfServeFlow)
+  - date: '2026-07-24'
+    change: Partial withdrawal one-time — updated PartialWithdrawalOneTime payload (selfServeFlow; tax withholding top-level fields and w4r; removed authorization from request body)
+  - date: '2026-05-26'
+    change: Added POST initialdeathclaim endpoint with standalone Initial Death Claim schemas
+  - date: '2026-05-11'
+    change: Systematic program — extended SystematicProgramUpdate request (MFA, agent, policyHolder, tax, funds, feature product, submittedDate, currency, disbursementType); PaymentForm EFT; Frequency BIANNUAL/DEFAULT; optional pdfId on TransactionAcceptedResponse for systematic program submit 202
+  - date: '2026-03-18'
+    change: Active restrict — POST/GET /bpm/v1/policies/{planCode}/{policyNumber}/Restrict and policy API alias
+  - date: '2025-07-17'
+    change: CMW-29105 - Updated SystematicProgramUpdate Post to PUT
+  - date: '2025-07-22'
+    change: CMW-30437 - New End point for Systematic Programs Quote API
+  - date: '2025-09-01'
+    change: CMW-31343 - New End point for Reinstatement Quote API and Reinstatement Actual Transaction API
+  - date: '2025-09-03'
+    change: ZDR-3002 - Added One time premium 400 error example
+servers:
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+tags:
+- name: TransactionData
+paths:
+  /bpm/v1/policies/withdrawals/transactionstore/entities/{transactionId}:
+    get:
+      x-internal: true
+      tags:
+      - TransactionData
+      summary: Secure API to get TransactionData by transactionId
+      operationId: getTransactionData
+      parameters:
+      - name: transactionId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Transaction Model success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionModelResponse'
+        '401':
+          description: Unauthorized - Missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 401
+                message: 'Authentication failed: missing or invalid bearer token.'
+        '403':
+          description: Forbidden - Insufficient permissions or invalid scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 403
+                message: 'Access denied: client does not have permission to get contract details via this API.'
+        '404':
+          description: Not Found - Transaction not found or correlationId unknown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                message: 'Transaction not found for correlationId: 468cd184-fb43-4a20-aa8c-23df99c0a353'
+        '500':
+          description: Internal Server Error - Unexpected system failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                message: An unexpected error occurred while processing the callback request.
+      security:
+      - Auth0: []
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
+    TransactionModelResponse:
+      type: object
+      description: Model for a transaction with detailed information.
+      properties:
+        recordId:
+          type: string
+          description: Unique identifier for the transaction record.
+        correlationId:
+          type: string
+          description: Correlation ID associated with the transaction.
+        transactionType:
+          type: string
+          description: Type of transaction.
+        carrier:
+          type: string
+          description: Carrier associated with the transaction.
+        source:
+          type: string
+          description: Source of the transaction.
+        entityType:
+          type: string
+          description: Type of the entity involved.
+        entityId:
+          type: string
+          description: Unique identifier for the entity.
+        entity:
+          type: object
+          description: Actual entity information as JSON Object.
+        expireTs:
+          type: string
+          format: date-time
+          description: Expiration timestamp for the transaction.
+        createdTs:
+          type: string
+          format: date-time
+          description: Timestamp when the transaction was created.
+        updatedTs:
+          type: string
+          format: date-time
+          description: Timestamp when the transaction was last updated.
+        createdBy:
+          type: string
+          description: User or system that created the transaction.
+        updatedBy:
+          type: string
+          description: User or system that last updated the transaction.
+        identifiers:
+          type: array
+          description: List of identifiers related to the transaction.
+          items:
+            $ref: '#/components/schemas/Identifiers'
+    Identifiers:
+      type: object
+      description: Identifier model with key-value pair.
+      properties:
+        identifier:
+          type: string
+          description: Identifier key.
+        value:
+          type: string
+          description: Identifier value.
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

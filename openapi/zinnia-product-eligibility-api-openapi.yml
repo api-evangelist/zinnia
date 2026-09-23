@@ -1,0 +1,196 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Policy Transactions API. Product Eligibility API
+  description: 'Enterprise API for enforcing policy transactions and validations. This API provides a comprehensive interface for - Policy transaction validation and processing
+
+    - Financial and non-financial transaction management
+
+    - Policy party management and updates
+
+    - Systematic program management
+
+    **Version History** * Draft version 1.0.6
+
+    - Added Two Endpoints- Reinstatement eligibility check api, Reinstatement actual transaction api
+
+    * Draft Specifications (Subject to Change Upon Review)'
+  version: 1.0.8
+  x-changelog:
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — aligned InitialDeathClaimRequest with the revised FNOL payload: added policy.isContestable/isFuneralHomeAssigned, deathDetails.causeOfDeath, COVEREDINSURED party role, deathNotification.partyRole enum; renamed documents[].edsDocumentId to documents[].documentId; removed parties[].isFuneralHomeAssigned (now policy-level only)'
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — added deathNotification.partyId (now required, enforced via bean validation on submit) and deathNotification.partyRole to identify the deceased party, and a riderClaim[] array (DeathClaimRiderClaim: riderCode, riderName, riderElected, partyId)'
+  - date: '2026-08-03'
+    change: Initial death claim — added POST initialdeathclaim/eligibilitycheck (no request body; returns TransactionResponse)
+  - date: '2026-08-03'
+    change: Initial death claim submit — aligned InitialDeathClaimRequest with IdnClaimRequest (added documents/DeathClaimDocument, party isNotifier, expanded partyRole and relationshipToInsured enums); responses now use shared TransactionAcceptedResponse (202) and TransactionResponse (errors)
+  - date: '2026-07-29'
+    change: Billing feature change — eligibility and validation endpoints with BillingFeatureChangeRequest payload (policyFeatures, transactionReason, signatures, documents, selfServeFlow)
+  - date: '2026-07-24'
+    change: Partial withdrawal one-time — updated PartialWithdrawalOneTime payload (selfServeFlow; tax withholding top-level fields and w4r; removed authorization from request body)
+  - date: '2026-05-26'
+    change: Added POST initialdeathclaim endpoint with standalone Initial Death Claim schemas
+  - date: '2026-05-11'
+    change: Systematic program — extended SystematicProgramUpdate request (MFA, agent, policyHolder, tax, funds, feature product, submittedDate, currency, disbursementType); PaymentForm EFT; Frequency BIANNUAL/DEFAULT; optional pdfId on TransactionAcceptedResponse for systematic program submit 202
+  - date: '2026-03-18'
+    change: Active restrict — POST/GET /bpm/v1/policies/{planCode}/{policyNumber}/Restrict and policy API alias
+  - date: '2025-07-17'
+    change: CMW-29105 - Updated SystematicProgramUpdate Post to PUT
+  - date: '2025-07-22'
+    change: CMW-30437 - New End point for Systematic Programs Quote API
+  - date: '2025-09-01'
+    change: CMW-31343 - New End point for Reinstatement Quote API and Reinstatement Actual Transaction API
+  - date: '2025-09-03'
+    change: ZDR-3002 - Added One time premium 400 error example
+servers:
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+tags:
+- name: product-eligibility
+paths:
+  /bpm/v1/policies/{cusip}/{policyNumber}/eligibleTransactions:
+    get:
+      x-internal: true
+      security:
+      - Auth0: []
+      tags:
+      - product-eligibility
+      summary: Get eligible transaction types for a policy by CUSIP and policy number
+      description: Returns the list of eligible transaction types for the given CUSIP and policy number.
+      operationId: getEligibleTransactions
+      parameters:
+      - name: cusip
+        in: path
+        description: CUSIP number
+        required: true
+        schema:
+          type: string
+      - name: policyNumber
+        in: path
+        description: Policy number
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EligibleTransactionsResponse'
+              example:
+                cusip: '123456789'
+                productCode: ADDAARP
+                eligibleTransactionTypes:
+                - transactionTypeCode: '105'
+                  transactionTypeDisplayName: Withdrawal (one time only)
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Bad Request
+                status: 400
+                timestamp: '2025-10-06T14:35:07.364Z'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Unauthorized
+                status: 401
+                timestamp: '2025-10-06T14:35:07.364Z'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Forbidden
+                status: 403
+                timestamp: '2025-10-06T14:35:07.364Z'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Not Found
+                status: 404
+                timestamp: '2025-10-06T14:35:07.364Z'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Internal Server Error
+                status: 500
+                timestamp: '2025-10-06T14:35:07.364Z'
+components:
+  schemas:
+    EligibleTransactionsResponse:
+      type: object
+      properties:
+        cusip:
+          type: string
+          example: '123456789'
+        productCode:
+          type: string
+          example: ADDAARP
+        eligibleTransactionTypes:
+          type: array
+          description: List of eligible transaction types
+          items:
+            $ref: '#/components/schemas/EligibleTransactionType'
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
+    EligibleTransactionType:
+      type: object
+      properties:
+        transactionTypeCode:
+          type: string
+          description: Transaction type code as string
+          example: '105'
+        transactionTypeDisplayName:
+          type: string
+          example: Withdrawal (one time only)
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

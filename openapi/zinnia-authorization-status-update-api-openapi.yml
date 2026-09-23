@@ -1,0 +1,242 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Policy Transactions API.
+  description: 'Enterprise API for enforcing policy transactions and validations. This API provides a comprehensive interface for - Policy transaction validation and processing
+
+    - Financial and non-financial transaction management
+
+    - Policy party management and updates
+
+    - Systematic program management
+
+    **Version History** * Draft version 1.0.6
+
+    - Added Two Endpoints- Reinstatement eligibility check api, Reinstatement actual transaction api
+
+    * Draft Specifications (Subject to Change Upon Review)'
+  version: 1.0.8
+  x-changelog:
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — aligned InitialDeathClaimRequest with the revised FNOL payload: added policy.isContestable/isFuneralHomeAssigned, deathDetails.causeOfDeath, COVEREDINSURED party role, deathNotification.partyRole enum; renamed documents[].edsDocumentId to documents[].documentId; removed parties[].isFuneralHomeAssigned (now policy-level only)'
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — added deathNotification.partyId (now required, enforced via bean validation on submit) and deathNotification.partyRole to identify the deceased party, and a riderClaim[] array (DeathClaimRiderClaim: riderCode, riderName, riderElected, partyId)'
+  - date: '2026-08-03'
+    change: Initial death claim — added POST initialdeathclaim/eligibilitycheck (no request body; returns TransactionResponse)
+  - date: '2026-08-03'
+    change: Initial death claim submit — aligned InitialDeathClaimRequest with IdnClaimRequest (added documents/DeathClaimDocument, party isNotifier, expanded partyRole and relationshipToInsured enums); responses now use shared TransactionAcceptedResponse (202) and TransactionResponse (errors)
+  - date: '2026-07-29'
+    change: Billing feature change — eligibility and validation endpoints with BillingFeatureChangeRequest payload (policyFeatures, transactionReason, signatures, documents, selfServeFlow)
+  - date: '2026-07-24'
+    change: Partial withdrawal one-time — updated PartialWithdrawalOneTime payload (selfServeFlow; tax withholding top-level fields and w4r; removed authorization from request body)
+  - date: '2026-05-26'
+    change: Added POST initialdeathclaim endpoint with standalone Initial Death Claim schemas
+  - date: '2026-05-11'
+    change: Systematic program — extended SystematicProgramUpdate request (MFA, agent, policyHolder, tax, funds, feature product, submittedDate, currency, disbursementType); PaymentForm EFT; Frequency BIANNUAL/DEFAULT; optional pdfId on TransactionAcceptedResponse for systematic program submit 202
+  - date: '2026-03-18'
+    change: Active restrict — POST/GET /bpm/v1/policies/{planCode}/{policyNumber}/Restrict and policy API alias
+  - date: '2025-07-17'
+    change: CMW-29105 - Updated SystematicProgramUpdate Post to PUT
+  - date: '2025-07-22'
+    change: CMW-30437 - New End point for Systematic Programs Quote API
+  - date: '2025-09-01'
+    change: CMW-31343 - New End point for Reinstatement Quote API and Reinstatement Actual Transaction API
+  - date: '2025-09-03'
+    change: ZDR-3002 - Added One time premium 400 error example
+servers:
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+tags:
+- name: Authorization Status Update
+paths:
+  /bpm/v1/policies/{planCode}/{policyNumber}/authorization/status:
+    put:
+      x-internal: true
+      tags:
+      - Authorization Status Update
+      summary: Receives policyholder authorization status from MPV and updates the status
+      operationId: updateAuthorizationStatus
+      parameters:
+      - name: planCode
+        in: path
+        required: true
+        description: The plan code for the policy number
+        schema:
+          type: string
+          example: planCode
+      - name: policyNumber
+        in: path
+        required: true
+        description: Policy Number
+        schema:
+          type: string
+          example: policyNumber
+      requestBody:
+        description: Policyholder Authorization request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorizationStatusRequest'
+      responses:
+        '200':
+          description: OK - Callback processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationStatusResponse'
+              example:
+                status: 200
+        '400':
+          description: Bad Request - Missing or invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                message: 'Invalid or missing request field: correlationId'
+        '401':
+          description: Unauthorized - Missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 401
+                message: 'Authentication failed: missing or invalid bearer token.'
+        '403':
+          description: Forbidden - Insufficient permissions or invalid scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 403
+                message: 'Access denied: client does not have permission to invoke this API.'
+        '404':
+          description: Not Found - Transaction not found or correlationId unknown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                message: 'Transaction not found for correlationId: 468cd184-fb43-4a20-aa8c-23df99c0a353'
+        '409':
+          description: Conflict - Duplicate callback or status already updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 409
+                message: 'Duplicate callback detected for correlationId: 468cd184-fb43-4a20-aa8c-23df99c0a353'
+        '422':
+          description: Unprocessable Entity - Validation failed or inconsistent data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 422
+                message: AuthorizationStatus value DENIED is not valid for this transaction state.
+        '500':
+          description: Internal Server Error - Unexpected system failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                message: An unexpected error occurred while processing the callback request.
+      security:
+      - Auth0: []
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
+    AuthorizationStatusResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 200
+    AuthorizationStatusRequest:
+      type: object
+      required:
+      - recordId
+      - correlationId
+      - caseId
+      - policyNumber
+      - authorizationStatus
+      - actionTimestamp
+      properties:
+        recordId:
+          type: string
+          description: Unique record ID (maps to transactionID)
+          example: 546bed32-a8b6-43dc-8772-cefb1d469b1d
+        correlationId:
+          type: string
+          description: Correlation ID linking BPM - MPV transaction
+          example: 468cd184-fb43-4a20-aa8c-23df99c0a353
+        caseId:
+          type: string
+          description: Case identifier within BPM
+          example: CA0000487609
+        policyNumber:
+          type: string
+          description: Policy Number associated with the transaction
+          example: FM00000001
+        authorizationStatus:
+          type: string
+          enum:
+          - APPROVED
+          - DENIED
+          description: Policy Holder Authorization Status
+          example: APPROVED
+        actionTakenBy:
+          type: string
+          description: Name of Policy Holder
+          example: Flora Anderson
+        actionTimestamp:
+          type: string
+          format: date-time
+          description: Generated at Time
+          example: '2025-06-02T10:45:00Z'
+        source:
+          type: string
+          description: Source system sending the callback
+          default: MPV
+          example: My Policy View
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

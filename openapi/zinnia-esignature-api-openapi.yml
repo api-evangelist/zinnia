@@ -1,0 +1,2054 @@
+openapi: 3.2.0
+info:
+  title: Market Connect Order Entry Esignature API
+  description: '**The Market Connect – Order Entry API** enables external distribution platforms and partner systems to electronically initiate, manage, and submit life insurance and annuity applications through a unified digital workflow.'
+  termsOfService: https://zinnia.com/terms
+  contact:
+    name: API Support
+    email: orderentrysupport@zinnia.com
+  license:
+    name: Proprietary
+    url: https://zinnia.com/terms
+  version: 1.0.3
+servers:
+- url: https://dev.api.zinnia.io
+- url: https://qa.api.zinnia.io
+- url: https://uat.api.zinnia.io
+security:
+- openIdConnect: []
+tags:
+- name: ESignature
+  description: 'E-signature for DocuSign: load recipients, submit the case, poll signer status, cancel ceremony (void envelope; Pending), and retrigger signing email when in progress'
+paths:
+  /market-connect/order-entry/v1/esignature/{transactionId}:
+    get:
+      tags:
+      - ESignature
+      summary: Retrieves the e-signature signer list for a transaction
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: getEsignature
+      parameters:
+      - name: transactionId
+        in: path
+        description: Unique identifier assigned when the Order Entry transaction is created. Resolves to the internal transaction; caller must be authorized for this transaction.
+        required: true
+        schema:
+          type: string
+        example: '1064752'
+      responses:
+        '200':
+          description: Returns the e-signature signer payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EsignatureResponse'
+              examples:
+                success:
+                  summary: Signers retrieved
+                  description: success = true with signers from upstream (signerAccessCode and signerAuthMethod are string arrays). sessionExpired is consumed upstream-only and not returned.
+                  value:
+                    success: true
+                    message: Signer details retrieved successfully.
+                    signers:
+                    - recipientId: '11306862'
+                      signerName: EE EE
+                      signerEntityRole: PrimaryOwner
+                      signerEmail: anannya.gupta@everglades.com
+                      signerSequence: '1'
+                      signerAccessCode: []
+                      signerAuthMethod:
+                      - Phone
+                      - SMS
+                      signerCountryCode: '1'
+                      signerPhoneNo: '8650827071'
+                    - recipientId: '11306935'
+                      signerName: RR RR
+                      signerEntityRole: AgentOfRecord
+                      signerEmail: ''
+                      signerSequence: '2'
+                      signerAccessCode: []
+                      signerAuthMethod:
+                      - Phone
+                      - SMS
+                      signerCountryCode: '1'
+                      signerPhoneNo: '8650827071'
+                business-failure:
+                  summary: Upstream business failure
+                  description: success = false with a user-safe message and an empty signers array.
+                  value:
+                    success: false
+                    message: Unable to load e-signature signers for this transaction.
+                    signers: []
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '123'
+                errors:
+                - code: INVALID_TRANSACTION_ID
+                  description: Invalid transaction ID provided
+                  details: Transaction ID abc is not valid
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1064752'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: E-signature signers not found for transaction 1064752
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1064752'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: E-signature service error
+                  details: Failed to get e-signature signers
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/esignature/{transactionId}/signer-status:
+    get:
+      tags:
+      - ESignature
+      summary: Retrieves DocuSign signer status for each recipient on a transaction
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: getEsignatureSignerStatus
+      parameters:
+      - name: transactionId
+        in: path
+        description: Unique identifier assigned when the Order Entry transaction is created. Resolves to the internal transaction; caller must be authorized for this transaction.
+        required: true
+        schema:
+          type: string
+        example: '1064752'
+      responses:
+        '200':
+          description: Returns the signer status payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EsignatureSignerStatusResponse'
+              examples:
+                success:
+                  summary: Signer status retrieved
+                  description: success = true with per-recipient signerStatus and routing fields.
+                  value:
+                    success: true
+                    signers:
+                    - recipientId: '11306862'
+                      signerName: EE EE1
+                      signerStatus: Needs to Sign
+                      signerEmail: anannya.gupta@everglades.com
+                      dateOfAction: '2026-01-12T14:22:00'
+                      signerAuthMethod: Phone
+                      signerCountryCode: '1'
+                      signerPhoneNo: '8650827071'
+                    - recipientId: '11306935'
+                      signerName: RR RR
+                      signerStatus: Waiting for Other Signer(s)
+                      signerEmail: ''
+                      dateOfAction: ''
+                      signerAuthMethod: SMS
+                      signerCountryCode: '1'
+                      signerPhoneNo: '8650827071'
+                business-failure:
+                  summary: Upstream business failure
+                  description: success = false with an empty signers array.
+                  value:
+                    success: false
+                    signers: []
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '123'
+                errors:
+                - code: INVALID_TRANSACTION_ID
+                  description: Invalid transaction ID provided
+                  details: Transaction ID abc is not valid
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1064752'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: E-signature signer status not found for transaction 1064752
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1064752'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: E-signature service error
+                  details: Failed to get e-signature signer status
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/esignature:
+    post:
+      tags:
+      - ESignature
+      summary: Submits the Order Entry case for e-signature with the configured signer roster
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: submitEsignature
+      requestBody:
+        description: 'Case submission payload: transaction to submit and the final DocuSign signer roster (selected auth method per signer).'
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/SaveEsignatureRequest'
+              example:
+                transactionId: 1131068
+                signers:
+                - recipientId: '11306862'
+                  signerAccessCode: ''
+                  signerAuthMethod: Phone
+                  signerCountryCode: '1'
+                  signerEmail: anannya.gupta@everglades.com
+                  signerEntityRole: PrimaryOwner
+                  signerName: EE EE1
+                  signerPhoneNo: '8650827071'
+                  signerSequence: '1'
+                - recipientId: '11306935'
+                  signerAccessCode: ''
+                  signerAuthMethod: Phone
+                  signerCountryCode: '1'
+                  signerEmail: ''
+                  signerEntityRole: AgentOfRecord
+                  signerName: RR RR
+                  signerPhoneNo: '8650827071'
+                  signerSequence: '2'
+            example:
+              transactionId: 1131068
+              signers:
+              - recipientId: '11306862'
+                signerAccessCode: ''
+                signerAuthMethod: Phone
+                signerCountryCode: '1'
+                signerEmail: anannya.gupta@everglades.com
+                signerEntityRole: PrimaryOwner
+                signerName: EE EE1
+                signerPhoneNo: '8650827071'
+                signerSequence: '1'
+              - recipientId: '11306935'
+                signerAccessCode: ''
+                signerAuthMethod: Phone
+                signerCountryCode: '1'
+                signerEmail: ''
+                signerEntityRole: AgentOfRecord
+                signerName: RR RR
+                signerPhoneNo: '8650827071'
+                signerSequence: '2'
+        required: true
+      responses:
+        '200':
+          description: Returns the case submission result envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveEsignatureResponse'
+              examples:
+                success:
+                  summary: Case submitted
+                  description: success = true when the case was submitted to DocuSign for e-signature.
+                  value:
+                    success: true
+                    message: Case submitted for e-signature successfully.
+                business-failure:
+                  summary: Submission rejected
+                  description: success = false when upstream validation or business rules block submission.
+                  value:
+                    success: false
+                    message: Unable to submit case for e-signature. Verify signer contact details and try again.
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Invalid request body
+                  details: At least one signer is required to submit the case for e-signature
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: Transaction 1131068 could not be submitted for e-signature
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: E-signature service error
+                  details: Failed to submit case for e-signature
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/esignature/cancel-ceremony:
+    post:
+      tags:
+      - ESignature
+      summary: Cancels the e-signature ceremony for a case (voids the DocuSign envelope and…
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: cancelEsignatureCeremony
+      requestBody:
+        description: Identifies the case whose e-signature ceremony should be canceled (void DocuSign; case returns to Pending).
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/CancelEsignatureCeremonyRequest'
+              example:
+                transactionId: '1131068'
+            example:
+              transactionId: '1131068'
+        required: true
+      responses:
+        '200':
+          description: Returns the cancel result envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelEsignatureCeremonyResponse'
+              examples:
+                success:
+                  summary: Ceremony canceled
+                  description: success = true when DocuSign was voided and the case was set to Pending.
+                  value:
+                    success: true
+                    message: E-signature ceremony canceled; case is Pending.
+                business-failure:
+                  summary: Cancel rejected
+                  description: success = false when upstream rules block canceling the ceremony.
+                  value:
+                    success: false
+                    message: The e-signature ceremony cannot be canceled in its current state.
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: abc
+                errors:
+                - code: INVALID_TRANSACTION_ID
+                  description: Invalid transaction ID provided
+                  details: Transaction ID abc is not valid
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: E-signature ceremony cancel not found for transaction 1131068
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: E-signature service error
+                  details: Failed to cancel e-signature ceremony
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/esignature/retrigger-email-notification:
+    post:
+      tags:
+      - ESignature
+      summary: Retriggers the DocuSign e-signature email notification for a case (only when…
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: retriggerEsignatureEmailNotification
+      requestBody:
+        description: Identifies the case whose DocuSign signing notification should be resent (in-progress e-sign only).
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/RetriggerEsignatureEmailNotificationRequest'
+              example:
+                transactionId: '1131068'
+            example:
+              transactionId: '1131068'
+        required: true
+      responses:
+        '200':
+          description: Returns the retrigger result envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetriggerEsignatureEmailNotificationResponse'
+              examples:
+                success:
+                  summary: Notification retriggered
+                  description: success = true when the signing email was queued or sent again.
+                  value:
+                    success: true
+                    message: Notification successfully triggered.
+                not-in-progress:
+                  summary: E-sign not in progress
+                  description: success = false when the envelope is not in a state that allows retrigger (upstream message).
+                  value:
+                    success: false
+                    message: E-signature is not in progress; notification cannot be retriggered.
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: xyz
+                errors:
+                - code: INVALID_TRANSACTION_ID
+                  description: Invalid transaction ID provided
+                  details: Transaction ID xyz is not valid
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: E-signature email notification retrigger not found for transaction 1131068
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: E-signature service error
+                  details: Failed to retrigger e-signature email notification
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/esignature/update-signer:
+    post:
+      tags:
+      - ESignature
+      summary: Updates signer email or phone for a case while e-signature is pending upstream
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: updateEsignSignerDetails
+      requestBody:
+        description: Transaction ID and signer rows with corrected email and/or phone while e-signature is pending upstream.
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/UpdateEsignSignerDetailsRequest'
+              example:
+                transactionId: 1131068
+                signers:
+                - recipientId: '11306862'
+                  signerEmail: corrected.email@everglades.com
+                  signerSequence: '1'
+                  signerAuthMethod: Phone
+                  signerCountryCode: '1'
+                  signerPhoneNo: '8650827071'
+            example:
+              transactionId: 1131068
+              signers:
+              - recipientId: '11306862'
+                signerEmail: corrected.email@everglades.com
+                signerSequence: '1'
+                signerAuthMethod: Phone
+                signerCountryCode: '1'
+                signerPhoneNo: '8650827071'
+        required: true
+      responses:
+        '200':
+          description: Returns the update result envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEsignSignerDetailsResponse'
+              examples:
+                success:
+                  summary: Signer details updated
+                  description: success = true when corrected contact details were saved upstream.
+                  value:
+                    success: true
+                    message: Signer contact details updated successfully.
+                business-failure:
+                  summary: Update rejected
+                  description: success = false when e-sign is not pending or upstream validation fails.
+                  value:
+                    success: false
+                    message: Signer details cannot be updated unless e-signature is pending.
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Invalid request body
+                  details: At least one signer is required
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: E-signature signer update not found for transaction 1131068
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1131068'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: E-signature service error
+                  details: Failed to update e-signature signer details
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+components:
+  schemas:
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
+    RetriggerEsignatureEmailNotificationRequest:
+      required:
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+          description: String form of the transaction (case) id; must be a positive integer.
+      additionalProperties: false
+      example:
+        transactionId: '1131068'
+    CancelEsignatureCeremonyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when the DocuSign ceremony was voided and the case returned to Pending upstream.
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe message when success is false; may also confirm the outcome when true.
+      additionalProperties: false
+      example:
+        success: true
+        message: E-signature ceremony canceled; case is Pending.
+    EsignatureResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when signers were retrieved successfully.
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe message; populated when success is false.
+        signers:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/EsignatureSigner'
+          description: DocuSign recipients for the transaction, ordered by signing sequence.
+      additionalProperties: false
+      example:
+        success: true
+        message: Signer details retrieved successfully.
+        signers:
+        - recipientId: '11306862'
+          signerName: EE EE
+          signerEntityRole: PrimaryOwner
+          signerEmail: anannya.gupta@everglades.com
+          signerSequence: '1'
+          signerAccessCode: []
+          signerAuthMethod:
+          - Phone
+          - SMS
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+        - recipientId: '11306935'
+          signerName: RR RR
+          signerEntityRole: AgentOfRecord
+          signerEmail: ''
+          signerSequence: '2'
+          signerAccessCode: []
+          signerAuthMethod:
+          - Phone
+          - SMS
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+    UpdateEsignSignerRequest:
+      type: object
+      properties:
+        recipientId:
+          type:
+          - string
+          - 'null'
+          description: DocuSign recipient ID from GET signers or signer status.
+        signerEmail:
+          type:
+          - string
+          - 'null'
+          description: Corrected signer email address.
+        signerSequence:
+          type:
+          - string
+          - 'null'
+          description: Signing order when routing is sequential.
+        signerAuthMethod:
+          type:
+          - string
+          - 'null'
+          description: Auth method for the signer (for example Phone or SMS).
+        signerCountryCode:
+          type:
+          - string
+          - 'null'
+          description: Country calling code (default 1 for US).
+        signerPhoneNo:
+          type:
+          - string
+          - 'null'
+          description: Corrected phone digits only; stored without dashes.
+      additionalProperties: false
+    SaveEsignatureResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when the case was submitted to DocuSign for e-signature.
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe confirmation or failure text from the submission result.
+      additionalProperties: false
+      example:
+        success: true
+        message: Case submitted for e-signature successfully.
+    EsignatureSignerStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when signer status rows were retrieved successfully.
+        signers:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/EsignatureSignerStatus'
+          description: Per-recipient DocuSign status and contact details for the transaction.
+      additionalProperties: false
+      example:
+        success: true
+        signers:
+        - recipientId: '11306862'
+          signerName: EE EE1
+          signerStatus: Needs to Sign
+          signerEmail: anannya.gupta@everglades.com
+          dateOfAction: '2026-01-12T14:22:00'
+          signerAuthMethod: Phone
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+        - recipientId: '11306935'
+          signerName: RR RR
+          signerStatus: Waiting for Other Signer(s)
+          signerEmail: ''
+          dateOfAction: ''
+          signerAuthMethod: SMS
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+    CancelEsignatureCeremonyRequest:
+      required:
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+          description: String form of the transaction (case) id to cancel; must be a positive integer.
+      additionalProperties: false
+      example:
+        transactionId: '1131068'
+    UpdateEsignSignerDetailsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when signer contact details were updated (e-sign must be pending upstream).
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe message confirming the update or describing a failure.
+      additionalProperties: false
+      example:
+        success: true
+        message: Signer contact details updated successfully.
+    SaveEsignatureSignerRequest:
+      type: object
+      properties:
+        recipientId:
+          type:
+          - string
+          - 'null'
+          description: DocuSign recipient ID from GET signers (required for submission).
+        signerAccessCode:
+          type:
+          - string
+          - 'null'
+          description: Access code when required; empty string when none.
+        signerAuthMethod:
+          type:
+          - string
+          - 'null'
+          description: Selected auth method for submission (for example Phone).
+        signerCountryCode:
+          type:
+          - string
+          - 'null'
+          description: Country calling code (default 1 for US).
+        signerEmail:
+          type:
+          - string
+          - 'null'
+          description: Signer email; may be empty for some roles.
+        signerEntityRole:
+          type:
+          - string
+          - 'null'
+          description: Entity role (for example PrimaryOwner, AgentOfRecord).
+        signerName:
+          type:
+          - string
+          - 'null'
+          description: Display name sent to DocuSign for this recipient.
+        signerPhoneNo:
+          type:
+          - string
+          - 'null'
+          description: Phone digits only; stored without dashes.
+        signerSequence:
+          type:
+          - string
+          - 'null'
+          description: Signing order when routing is sequential.
+      additionalProperties: false
+    RetriggerEsignatureEmailNotificationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when the signing notification was retriggered (e-sign in progress upstream).
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe message; e.g. notification successfully triggered when success is true.
+      additionalProperties: false
+      example:
+        success: true
+        message: Notification successfully triggered.
+    UpdateEsignSignerDetailsRequest:
+      required:
+      - signers
+      type: object
+      properties:
+        transactionId:
+          minimum: 1
+          type: integer
+          description: Transaction (case) identifier whose signer contact details should be updated.
+          format: int64
+        signers:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateEsignSignerRequest'
+          description: Signer rows with corrected email and/or phone while e-sign is pending.
+      additionalProperties: false
+      example:
+        transactionId: 1131068
+        signers:
+        - recipientId: '11306862'
+          signerEmail: corrected.email@everglades.com
+          signerSequence: '1'
+          signerAuthMethod: Phone
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+    EsignatureSigner:
+      type: object
+      properties:
+        recipientId:
+          type:
+          - string
+          - 'null'
+          description: DocuSign recipient ID from the recipient proc.
+        signerName:
+          type:
+          - string
+          - 'null'
+          description: Display name shown in the signer grid.
+        signerEntityRole:
+          type:
+          - string
+          - 'null'
+          description: Entity role (for example PrimaryOwner, AgentOfRecord).
+        signerEmail:
+          type:
+          - string
+          - 'null'
+          description: Signer email; may be empty for some roles.
+        signerSequence:
+          type:
+          - string
+          - 'null'
+          description: Signing order when routing is sequential.
+        signerAccessCode:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: Access codes when configured; empty array when none.
+        signerAuthMethod:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: Array of auth method labels (for example Phone, SMS).
+        signerCountryCode:
+          type:
+          - string
+          - 'null'
+          description: Country calling code (default 1 for US).
+        signerPhoneNo:
+          type:
+          - string
+          - 'null'
+          description: Phone digits only; stored without dashes in proc.
+      additionalProperties: false
+      example:
+        recipientId: '11306862'
+        signerName: EE EE
+        signerEntityRole: PrimaryOwner
+        signerEmail: anannya.gupta@everglades.com
+        signerSequence: '1'
+        signerAccessCode: []
+        signerAuthMethod:
+        - Phone
+        - SMS
+        signerCountryCode: '1'
+        signerPhoneNo: '8650827071'
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+    EsignatureSignerStatus:
+      type: object
+      properties:
+        recipientId:
+          type:
+          - string
+          - 'null'
+          description: DocuSign recipient sequence (RecipientID from proc).
+        signerName:
+          type:
+          - string
+          - 'null'
+          description: Display name in the signer grid.
+        signerStatus:
+          type:
+          - string
+          - 'null'
+          description: Delivered | Needs to Sign | Needs to View | Waiting for Other Signer(s) | Completed (Signed).
+        signerEmail:
+          type:
+          - string
+          - 'null'
+          description: Signer email; may be read-only for AYCO.
+        dateOfAction:
+          type:
+          - string
+          - 'null'
+          description: When this recipient last acted or status changed, as returned by upstream (format varies; often empty until an action occurs).
+        signerAuthMethod:
+          type:
+          - string
+          - 'null'
+          description: Phone, SMS, or None.
+        signerCountryCode:
+          type:
+          - string
+          - 'null'
+          description: Country calling code (default 1 for US; up to ~3 characters).
+        signerPhoneNo:
+          type:
+          - string
+          - 'null'
+          description: Digits only (no dashes); typically 10 digits for US display.
+      additionalProperties: false
+      example:
+        recipientId: '11306862'
+        signerName: EE EE1
+        signerStatus: Needs to Sign
+        signerEmail: anannya.gupta@everglades.com
+        dateOfAction: '2026-01-12T14:22:00'
+        signerAuthMethod: Phone
+        signerCountryCode: '1'
+        signerPhoneNo: '8650827071'
+    SaveEsignatureRequest:
+      required:
+      - signers
+      type: object
+      properties:
+        transactionId:
+          minimum: 1
+          type: integer
+          description: Transaction (case) identifier to submit for e-signature.
+          format: int64
+        signers:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/SaveEsignatureSignerRequest'
+          description: Final signer roster with selected auth method and contact details.
+      additionalProperties: false
+      example:
+        transactionId: 1131068
+        signers:
+        - recipientId: '11306862'
+          signerAccessCode: ''
+          signerAuthMethod: Phone
+          signerCountryCode: '1'
+          signerEmail: anannya.gupta@everglades.com
+          signerEntityRole: PrimaryOwner
+          signerName: EE EE1
+          signerPhoneNo: '8650827071'
+          signerSequence: '1'
+        - recipientId: '11306935'
+          signerAccessCode: ''
+          signerAuthMethod: Phone
+          signerCountryCode: '1'
+          signerEmail: ''
+          signerEntityRole: AgentOfRecord
+          signerName: RR RR
+          signerPhoneNo: '8650827071'
+          signerSequence: '2'
+  securitySchemes:
+    openIdConnect:
+      type: openIdConnect
+      description: 'OpenID Connect via Auth0. Clients present a JWT bearer token issued by the tenant in the `Authorization: Bearer <token>` header.'
+      openIdConnectUrl: https://login.qa.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          auth_methods:
+          - bearer
+          verify_signature: true
+          ignore_signature: []
+          consumer_claim:
+          - sub
+          consumer_optional: true

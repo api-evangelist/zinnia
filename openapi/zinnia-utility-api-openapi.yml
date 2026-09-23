@@ -1,0 +1,130 @@
+openapi: 3.2.0
+info:
+  version: 3.5.3
+  title: Illustration Generation Utility API
+  description: Create and manage illustration requests
+servers:
+- url: https://dev.api.zinnia.io
+  description: Development
+tags:
+- name: Utility
+  description: Utility operations
+paths:
+  /illustration/v3/version:
+    get:
+      operationId: get-version
+      summary: Get API version
+      description: Returns the current version of the illustration API
+      responses:
+        '200':
+          description: Version information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The current API version
+                example: 3.2.12
+      tags:
+      - Utility
+  /illustration/v3/health:
+    get:
+      operationId: get-health
+      summary: Health Check
+      description: Returns 200
+      responses:
+        '200':
+          description: Empty 200 to indicate API is healthy
+      tags:
+      - Utility
+  /illustration/v3/utility/calculateAge:
+    post:
+      operationId: calculate-age
+      summary: Calculate age
+      description: Calculates age based on date of birth and as-of date using specified calculation method
+      requestBody:
+        description: Age calculation request containing date of birth, as-of date, and calculation method
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Age-Calculation-Request'
+      responses:
+        '200':
+          description: Age calculation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Age-Calculation-Response'
+        '400':
+          description: The request was malformed
+        '500':
+          description: An unexpected processing error occurred
+      security:
+      - Auth0: []
+      tags:
+      - Utility
+components:
+  schemas:
+    Age-Calculation-Response:
+      type: object
+      properties:
+        age:
+          type: integer
+          description: Calculated age
+          example: 35
+        monthsSinceLastBirthday:
+          type: integer
+          description: Number of months since last birthday
+          example: 0
+    Age-Calculation-Request:
+      type: object
+      required:
+      - dateOfBirth
+      - asOfDate
+      - calculationMethod
+      properties:
+        dateOfBirth:
+          type: string
+          format: date
+          description: Date of birth in ISO-8601 format
+          example: '1990-08-25'
+        asOfDate:
+          type: string
+          format: date
+          description: As-of date in ISO-8601 format
+          example: '2025-08-25'
+        calculationMethod:
+          $ref: '#/components/schemas/Age-Calculation-Method'
+    Age-Calculation-Method:
+      type: string
+      enum:
+      - AGE_LAST
+      - AGE_NEAREST
+      description: Age calculation method - AGE_LAST for age at last birthday, AGE_NEAREST for age at nearest birthday
+      example: AGE_LAST
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          auth_methods:
+          - bearer
+          scopes: []
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https
+x-kong-service-defaults:
+  connect_timeout: 120000
+  read_timeout: 120000
+  write_timeout: 120000

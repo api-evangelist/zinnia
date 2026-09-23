@@ -1,0 +1,262 @@
+openapi: 3.2.0
+info:
+  title: Policy Service Search API
+  description: Enterprise level policy service
+  version: 0.0.21
+  contact: {}
+servers:
+- url: https://api.zinnia.io
+tags:
+- name: Search
+  description: Search for policies
+paths:
+  /policy/v1/policies/search:
+    post:
+      operationId: Policy Search
+      summary: Search Policies
+      parameters:
+      - name: sortBy
+        required: false
+        in: query
+        description: field to sort by
+        schema:
+          type: string
+      - name: sortOrder
+        required: false
+        in: query
+        description: order to sort (asc or desc)
+        schema:
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: number of results to limit to
+        schema:
+          type: number
+      - name: offset
+        required: false
+        in: query
+        description: index to start page search at
+        schema:
+          type: number
+      requestBody:
+        required: true
+        description: Optional search criteria, none, some, or all criteria can be used. Values cannot be null.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicySearchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicySearchResponse'
+        default:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicySearchResponse'
+      security:
+      - Auth0: []
+      tags:
+      - Search
+components:
+  schemas:
+    PolicyReferenceDataModel:
+      type: object
+      properties:
+        policyNumber:
+          type: string
+          description: number/subjective id of policy
+          example: POLICY1234567890
+        planCode:
+          type: string
+          description: plan code for policy
+          example: PLAN001
+        productName:
+          type: string
+          description: product name of policy
+          example: Deluxe Universal Life
+        firstName:
+          type: string
+          description: policy owner first name
+          example: Nick
+        lastName:
+          type: string
+          description: policy owner last name
+          example: Burdell
+        fullName:
+          type: string
+          description: policy owner full name
+          example: Nick Burdell
+        policyStatus:
+          type: string
+          description: status of policy, needs to be enum
+          example: IGO
+        lineOfBusiness:
+          type: string
+          description: line of business, usually LIFE or ANNUITY
+          example: LIFE
+        restrictionStatus:
+          description: restriction status in SOR
+          example:
+          - LEGAL
+          type: array
+          items:
+            type: string
+        carrierId:
+          type: string
+          description: 4 character id of carrier, also called clientCode or companyCode
+          example: EVGL
+        companyName:
+          type: string
+          description: Company associated with policyholder
+          example: Everglades
+        ssn:
+          type: string
+          description: Social security number of policy holder, masked on return
+        productType:
+          type: string
+          description: Type of the product
+          example: universal
+        lastUpdated:
+          format: date-time
+          type: string
+          description: last time policy was updated
+        createdAt:
+          format: date-time
+          type: string
+          description: creation date of the policy
+        id:
+          type: string
+          description: reference id of the policy, fully unique
+          example: 3cc99edada4f4a88be77cef53ba0b3fd
+        partyIds:
+          description: list of party ids associated with the policy
+          example:
+          - 4fd32e7aecc24888be9c5418d6dc646a
+          - 2739e8897e7141189ccd366f7d054ff0
+          type: array
+          items:
+            type: string
+        issueDate:
+          type: string
+          format: date
+          description: Issue date of the policy in YYYY-MM-DD format
+          example: '2024-09-30'
+      required:
+      - policyNumber
+      - createdAt
+    PolicySearchRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: policy owner first name
+        policyNumber:
+          type: string
+          description: number/subjective id of policy. Optionally, you can partial search if SSN is also using partial search (e.g. `*1234`)
+        lastName:
+          type: string
+          description: policy owner last name
+        fullName:
+          type: string
+          description: policy owner full name. Optionally support partial search
+        policyStatus:
+          type: string
+          description: status of policy, needs to be enum
+        planCode:
+          type: string
+          description: plan code for policy
+        lastUpdated:
+          format: date-time
+          type: string
+          description: last time policy was updated
+        createdAt:
+          format: date-time
+          type: string
+          description: creation time of the policy
+        ssn:
+          type: string
+          description: Policy owner social security number. SSN should be 9 digits, or the last four (e.g. `*1234`) when policy number is also last four (partial search)
+        id:
+          type: string
+          description: reference id of the policy, fully unique
+        lineOfBusiness:
+          type: string
+          description: line of business to search for, options are LIFE or Annuity Product
+        partyIds:
+          description: list of party ids associated with the policy
+          example:
+          - 4fd32e7aecc24888be9c5418d6dc646a
+          - 2739e8897e7141189ccd366f7d054ff0
+          type: array
+          items:
+            type: string
+        issueDateFrom:
+          type: string
+          format: date
+          description: Start date for issue date range query in YYYY-MM-DD format
+          example: '2024-01-01'
+        issueDateTo:
+          type: string
+          format: date
+          description: End date for issue date range query in YYYY-MM-DD format
+          example: '2024-12-31'
+    PolicySearchResponse:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 121
+        count:
+          type: number
+          example: 1
+        next:
+          type: string
+          example: /policy/v1/policies/search?offset=10&limit=10
+        previous:
+          type: string
+          example: ''
+        results:
+          description: array of policy reference data
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyReferenceDataModel'
+      required:
+      - total
+      - count
+      - next
+      - previous
+      - results
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          issuer: https://login.zinnia.com/.well-known/openid-configuration
+          extra_jwks_uris:
+          - https://login.mypolicyview.com/.well-known/jwks.json
+          issuers_allowed:
+          - https://login.zinnia.com/
+          - https://login.mypolicyview.com/
+          run_on_preflight: true
+          scopes_claim:
+          - https://api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://api.zinnia.io
+          auth_methods:
+          - bearer
+          scopes: []
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

@@ -1,0 +1,6492 @@
+openapi: 3.2.0
+info:
+  title: Zinnia New Business API. New Business Transactions V1 API
+  description: Enterprise API for New Business.
+  version: 0.9.8
+  contact:
+    name: Zinnia New Business Life
+    email: hitesh.parakh@zinnia.com
+  x-changelog:
+  - date: '2025-07-14'
+    change: CMW-30141 - Added EIN Identifier and additional enums in Suffix
+  - date: '2025-07-15'
+    change: CMW-30141 - Added additional enums in entity type
+  - date: '2025-08-01'
+    change: CMW-30429 - Added new enum values in documentType(NB_STATE_REPLACEMENT, NB_CONVERSION)
+  - date: '2025-08-01'
+    change: CMW-29832 - Changed insuredHistory to policyHistory and updated the hierarchy of the policyHistory
+  - date: '2025-09-25'
+    change: CMW-29118 - Updated missing key in Beneficiary Role (birthSex)
+  - date: '2025-11-18'
+    change: CMW-32740 - Update BPM API to Support Additional File Types (JPEG, JPG, PNG)
+  - date: '2025-11-27'
+    change: CMW-32606 - Expose Health Check Endpoint Publicly Through Kong for New Business - Life
+  - date: '2025-11-29'
+    change: CMW-32446 - Expose Interim Status Update Endpoint On Kong - Life
+  - date: '2025-12-08'
+    change: CMW-33682 - Expose Case Export Endpoint On Kong - Life
+  - date: '2026-02-18'
+    change: CMW-35259 - Added replacementLtcIndicator to all Everly Workflows
+  - date: '2026-04-20'
+    change: ZNBA-209 - Introduced new enum to support Whole Life products
+servers:
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://uat.api.zinnia.io
+  description: UAT Environment
+- url: https://api.zinnia.io
+  description: PROD Environment
+tags:
+- name: New Business Transactions V1
+  description: New Business Orchestration Services Version 1
+paths:
+  /bpm/newbusiness/v1/policy-decision:
+    post:
+      x-internal: true
+      tags:
+      - New Business Transactions V1
+      summary: Policy Decision Processing
+      operationId: submitPolicyDecisionPayload
+      requestBody:
+        description: Details require to proceed further with tpp decision
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyDecisionRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+  /bpm/newbusiness/v1/evidence-request:
+    post:
+      x-internal: true
+      tags:
+      - New Business Transactions V1
+      summary: Evidence Request
+      operationId: evidenceRequest
+      requestBody:
+        description: Additional evidence requested from TPP to PG.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TppEvidenceRequest'
+        required: true
+      responses:
+        '201':
+          description: Case Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+  /bpm/newbusiness/v1/interim-status-update:
+    post:
+      x-internal: true
+      tags:
+      - New Business Transactions V1
+      summary: Submit interim status update
+      operationId: submitInterimStatusUpdate
+      requestBody:
+        description: Details required to submit interim status to PG
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterimStatusUpdateRequest'
+        required: true
+      responses:
+        '201':
+          description: Case Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+  /bpm/newbusiness/v1/application-validation:
+    post:
+      tags:
+      - New Business Transactions V1
+      summary: Create Underwriting Case
+      operationId: createUnderwritingCase
+      requestBody:
+        description: Details required to initiate the underwriting process and initial validation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationData'
+        required: true
+      responses:
+        '201':
+          description: Case Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+  /bpm/newbusiness/v1/underwriting-submission:
+    post:
+      tags:
+      - New Business Transactions V1
+      summary: Underwriting Processing
+      operationId: submitUnderwritingPayload
+      requestBody:
+        description: Details require to proceed further with underwriting process
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnderwritingRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+  /bpm/newbusiness/v1/evidence-submission:
+    post:
+      tags:
+      - New Business Transactions V1
+      summary: Receive additional information from UI in response to Underwriter's request
+      requestBody:
+        description: Required to submit additional details to Underwriting System.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceResponse'
+        required: true
+      responses:
+        '201':
+          description: Case Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                NewBusiness:
+                  value:
+                    caseId: cde717c9-5f7e-4c63-953c-ef50e44c021a
+                    carrier: CarrierName_1
+                    process: NewBusiness
+                    caseStatus: Open
+                    correlationId: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+      operationId: postBpmNewbusinessV1EvidenceSubmission
+      x-operation-id-source: derived
+  /bpm/newbusiness/v1/application-submission:
+    post:
+      tags:
+      - New Business Transactions V1
+      summary: Submit application details
+      operationId: submitApplicationDetails
+      parameters:
+      - name: Authorization
+        required: true
+        description: This will be passed as Bearer plus "token" as generated by above token API.
+        in: header
+        schema:
+          type: string
+        example: Bearer eykjsfjfjasdasdad
+      requestBody:
+        description: Details required for to submit the decisions to UI
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitPolicy'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+  /bpm/newbusiness/v1/agent-validation:
+    post:
+      tags:
+      - New Business Transactions V1
+      summary: Validate agent details
+      operationId: validateAgentDetails
+      parameters:
+      - name: Authorization
+        required: true
+        description: This will be passed as Bearer plus "token" as generated by above token API.
+        in: header
+        schema:
+          type: string
+        example: Bearer eykjsfjfjasdasdad
+      requestBody:
+        description: Details required to validate agent
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentValidationRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentValidationSuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+      security:
+      - Auth0: []
+components:
+  schemas:
+    ValidationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: FAILED
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: Bad Request
+        error:
+          type: array
+          items:
+            type: string
+            example: Mandatory attribute label missing
+    UnderwritingRequest:
+      type: object
+      properties:
+        eappId:
+          type: string
+          description: Unique application Id geenrated by the UI. Each application would have unique identifier
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        caseId:
+          type: string
+          description: Zinnia Live case
+          example: CA0000005656
+        correlationId:
+          type: string
+          description: Unique process identifier to track the all linked processed against one single application. This is an optional
+          example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+        carrier:
+          type: string
+          example: CarrierName1
+        customerId:
+          type: string
+          description: We get the customer Id as part of application request to support older products.
+          example: 0017b0000102A1UAAU
+        idpUserId:
+          type: string
+          example: abc
+        appStartDate:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application start date
+        actionType:
+          type: string
+          enum:
+          - Create
+          - Update
+          - Submit
+          description: To update the application, actionType would be - Update
+          example: Update
+        policyStatus:
+          type: string
+          enum:
+          - Applied For
+          - Approved
+          - Submitted to Underwriting
+          - Pending
+          - Declined
+          - Quoted
+          - Risk Not Acceptable
+          - Proposed
+          - Counter Offer
+          - Not Taken
+          - Issue Pending
+          - Issued
+          - Closed
+          - Active
+          - Lapsed
+          - Cancelled Not Taken
+          - Lapse Pending
+          - Cancelled FreeLook
+          - Cancelled
+          - Offer Accepted
+          - Death Claim Pending
+          - Death Claim Paid
+          - Expired
+          - Matured
+          - Surrendered
+          - Rescission
+          - Death Claim Approved
+          - Suspended Active
+          - Suspended Not Active
+          description: Status of the policy. It should be - Issued in order to issue the policy
+          example: Issued
+        appSubmissionType:
+          type: string
+          enum:
+          - Internet
+          - Electronic
+          - Handwritten
+          description: Submission method of the application
+          example: Electronic
+        policyHoldingForm:
+          type: string
+          enum:
+          - Individual
+          description: Holding Form. It should always be Individual.
+          example: Individual
+        policyHoldingStatus:
+          type: string
+          enum:
+          - Proposed
+          - Active
+          description: Holding Status
+          example: Proposed
+        consentInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Consent Indicator Value. Whether the user has provided the consent for this policy or not. This value is used by the underwriting system.
+        appState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          - GU
+          - PR
+          description: State Code
+          example: AL
+        consentIndState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: Consented state value
+        consentSubmissionType:
+          type: string
+          enum:
+          - Internet
+          - Electronic
+          - Handwritten
+          description: Consented submission method of the application
+          example: Electronic
+        appFormNumber:
+          type: string
+          description: Form number if applicable. The number assigned on the application form.
+          example: ICC20 ABC 104_08-20
+        appVersionNumber:
+          type: string
+          description: Form version number if applicable
+          example: ICC20 ABC 104_08-20
+        pageLastVisitedId:
+          type: string
+          description: User Id who has accessed this page last time.
+        appLastUpdated:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application last update date.
+        appExpirationDate:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application expiration date
+        marketingOptInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Marketing Indicator flag used by the distributor to capture the sale scope.
+        agreeToTermsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Agreed to terms and condition or not.
+        replacementIndicator:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Flag to dertermine whether this is replacement application or not.
+        replacementLtcIndicator:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicates whether the application involves replacement of existing Long-Term Care (LTC) coverage.
+        pageId:
+          type: string
+          description: Page Identifier
+          example: 5f45f7b34a3eea021f2fef1c
+        overrideDecisionFlag:
+          type: boolean
+          description: Flag to dertermine override decisions. In case of true Override results is required.
+        overrideResults:
+          $ref: '#/components/schemas/OverrideResults'
+        quote:
+          $ref: '#/components/schemas/Quote'
+        payload:
+          type: object
+          properties:
+            underwriting:
+              $ref: '#/components/schemas/Underwriting'
+            insured:
+              $ref: '#/components/schemas/PartyAdditional'
+            childInsured:
+              type: array
+              items:
+                $ref: '#/components/schemas/PartyChild'
+            coverageDetails:
+              $ref: '#/components/schemas/CoverageDetailsComplete'
+            additional:
+              $ref: '#/components/schemas/AdditionalInformation'
+            documents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Documents'
+      required:
+      - eappId
+      - caseId
+      - correlationId
+      - customerId
+      - carrier
+      - actionType
+      - policyStatus
+      - appSubmissionType
+      - policyHoldingForm
+      - consentInd
+      - appStartDate
+      - appState
+      - consentIndState
+      - consentSubmissionType
+    PartyOwners:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First Name of the party
+          example: Thomas
+        lastName:
+          type: string
+          description: Last Name of the the party
+          example: Lawrence
+        middleName:
+          type: string
+          description: Middle name of the party
+        name:
+          type: string
+          description: Full name of the party.
+          example: Thomas Lawrence
+        suffix:
+          type: string
+          description: Suffix for given party if Applicable
+          example: Sr
+        prefix:
+          type: string
+          description: Prefix for given party if Applicable
+          example: Dr
+        gender:
+          type: string
+          enum:
+          - Male
+          - Female
+          description: Gender of party
+          example: Male
+        dob:
+          type: string
+          format: date
+          description: Date of birth of party
+        age:
+          type: number
+          description: Age of the party
+          example: 26
+        ssn:
+          type: string
+          description: Party SSN. In case if non individual it should be Tax Id
+          minLength: 9
+          maxLength: 9
+          example: '121328426'
+        driverNumber:
+          type: string
+          description: Driver license number
+          example: T61217265934
+        driverState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        noDriversLicenseInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Flag for Driver License
+          example: 'No'
+        address1:
+          type: string
+          description: Addres line 1
+          example: Wt Road
+        address2:
+          type: string
+          description: Addres line 2
+          example: St Street
+        city:
+          type: string
+          description: City name
+          example: Test City
+        state:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        zip:
+          type: string
+          description: Zip Code. Max char allowed is 9.
+          maxLength: 9
+          example: '123456'
+        birthCountry:
+          type: string
+          enum:
+          - AF
+          - AX
+          - AL
+          - DZ
+          - AS
+          - AD
+          - AO
+          - AI
+          - AQ
+          - AG
+          - AR
+          - AM
+          - AN
+          - AW
+          - AU
+          - AT
+          - AZ
+          - BS
+          - BH
+          - BD
+          - BB
+          - BY
+          - BE
+          - BZ
+          - BJ
+          - BM
+          - BT
+          - BO
+          - BQ
+          - BA
+          - BW
+          - BV
+          - BR
+          - IO
+          - BN
+          - BG
+          - BF
+          - BI
+          - CV
+          - KH
+          - CM
+          - CA
+          - KY
+          - CF
+          - TD
+          - CL
+          - CN
+          - CX
+          - CC
+          - CO
+          - KM
+          - CD
+          - CG
+          - CK
+          - CR
+          - CI
+          - HR
+          - CU
+          - CW
+          - CY
+          - CZ
+          - DK
+          - DJ
+          - DM
+          - DO
+          - EC
+          - EG
+          - SV
+          - GQ
+          - ER
+          - EE
+          - SZ
+          - ET
+          - FK
+          - FO
+          - FJ
+          - FI
+          - FR
+          - GF
+          - PF
+          - TF
+          - GA
+          - GM
+          - GE
+          - DE
+          - GH
+          - GI
+          - GR
+          - GL
+          - GD
+          - GP
+          - GU
+          - GT
+          - GG
+          - GN
+          - GW
+          - GY
+          - HT
+          - HM
+          - VA
+          - HN
+          - HK
+          - HU
+          - IS
+          - IN
+          - ID
+          - IR
+          - IQ
+          - IE
+          - IM
+          - IL
+          - IT
+          - JM
+          - JP
+          - JE
+          - JO
+          - KZ
+          - KE
+          - KI
+          - KP
+          - KR
+          - KW
+          - KG
+          - LA
+          - LV
+          - LB
+          - LS
+          - LR
+          - LY
+          - LI
+          - LT
+          - LU
+          - MO
+          - MK
+          - MG
+          - MW
+          - MY
+          - MV
+          - ML
+          - MT
+          - MH
+          - MQ
+          - MR
+          - MU
+          - YT
+          - MX
+          - FM
+          - MD
+          - MC
+          - MN
+          - ME
+          - MS
+          - MA
+          - MZ
+          - MM
+          - NA
+          - NR
+          - NP
+          - NL
+          - NC
+          - NZ
+          - NI
+          - NE
+          - NG
+          - NU
+          - NF
+          - MP
+          - 'NO'
+          - OM
+          - PK
+          - PW
+          - PS
+          - PA
+          - PG
+          - PY
+          - PE
+          - PH
+          - PN
+          - PL
+          - PT
+          - PR
+          - QA
+          - RE
+          - RO
+          - RU
+          - RW
+          - BL
+          - SH
+          - KN
+          - LC
+          - MF
+          - PM
+          - VC
+          - WS
+          - SM
+          - ST
+          - SA
+          - SN
+          - RS
+          - SC
+          - SL
+          - SG
+          - SX
+          - SK
+          - SI
+          - SB
+          - SO
+          - ZA
+          - GS
+          - SS
+          - ES
+          - LK
+          - SD
+          - SR
+          - SJ
+          - SE
+          - CH
+          - SY
+          - TW
+          - TJ
+          - TZ
+          - TH
+          - TL
+          - TG
+          - TK
+          - TO
+          - TT
+          - TN
+          - TR
+          - TM
+          - TC
+          - TV
+          - UG
+          - UA
+          - AE
+          - GB
+          - UM
+          - US
+          - UY
+          - UZ
+          - VU
+          - VE
+          - VN
+          - VG
+          - VI
+          - WF
+          - EH
+          - XK
+          - YE
+          - ZM
+          - ZW
+          - Other
+          description: Birth Country
+          example: US
+        identification:
+          type: array
+          items:
+            type: object
+            properties:
+              governmentIdType:
+                type: string
+                enum:
+                - Passport
+                - StateId
+                - SSN
+                example: Passport
+              governmentId:
+                type: string
+                example: '213121414'
+              jurisdiction:
+                type: string
+                enum:
+                - AL
+                - AK
+                - AZ
+                - AR
+                - CA
+                - CO
+                - CT
+                - DC
+                - DE
+                - FL
+                - GA
+                - HI
+                - ID
+                - IL
+                - IN
+                - IA
+                - KS
+                - KY
+                - LA
+                - ME
+                - MD
+                - MA
+                - MI
+                - MN
+                - MS
+                - MO
+                - MT
+                - NE
+                - NV
+                - NH
+                - NJ
+                - NM
+                - NY
+                - NC
+                - ND
+                - OH
+                - OK
+                - OR
+                - PA
+                - RI
+                - SC
+                - SD
+                - TN
+                - TX
+                - UT
+                - VT
+                - VA
+                - WA
+                - WV
+                - WI
+                - WY
+                - GU
+                - PR
+                description: State Code if applicable. Provided in case of state issued Id
+                example: AL
+        phone:
+          type: string
+          description: Phone number
+          example: 111-111-2222
+        email:
+          type: string
+          description: Email Id of the party
+          example: test@abc.com
+        emailType:
+          type: string
+          enum:
+          - Personal
+          - Business
+          description: Type of email
+          example: Business
+        communicationPreference:
+          type: string
+          enum:
+          - Mail
+          - Email
+          - Phone
+          description: Communication preferences
+          example: Email
+        classification:
+          type: string
+          enum:
+          - Individual
+          - Business
+          - Trust
+          - Corporation
+          - Partnership
+          - Other
+          - Group of Individuals
+          - Estate
+          - Child
+          description: Party classification
+          example: Individual
+        dateOfTrust:
+          type: string
+          format: date
+          description: Date of trust
+        trusteeName:
+          type: array
+          items:
+            type: object
+            properties:
+              fullName:
+                type: string
+                description: Trusee Name
+                example: John Doe
+        stateExecution:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        trustBeneficiaries:
+          type: array
+          items:
+            type: object
+            properties:
+              fullName:
+                type: string
+                description: Trust Bene Name
+                example: John Smith
+        relationship:
+          type: string
+          enum:
+          - Aunt
+          - Brother
+          - Business
+          - Business Associate
+          - Charity
+          - Child
+          - Co-Mortgager
+          - Cousin
+          - Daughter
+          - Dependant
+          - Domestic Partner
+          - Estate
+          - Executors
+          - Father
+          - Fiance
+          - Fiancee
+          - Former Spouse
+          - Friend
+          - God Child
+          - God Parent
+          - Grandchild
+          - Grandparent
+          - Great Grandchild
+          - Great Grandparent
+          - Legal Guardian
+          - Life Partner
+          - Mother
+          - Nephew
+          - Niece
+          - Parent
+          - Parents In Law
+          - Sibling
+          - Sister
+          - Son
+          - Spouse
+          - Stepfather
+          - Stepmother
+          - Trust
+          - Uncle
+          - Self
+          - Other
+          description: Relationship with insured
+          example: Father
+    Payment:
+      type: object
+      properties:
+        paymentMethod:
+          type: string
+          enum:
+          - ACH
+          - CC
+          description: Payment methods
+          example: ACH
+        paymentFrequency:
+          type: string
+          enum:
+          - m
+          - q
+          - a
+          - sa
+          - sp
+          description: Frequency of premium payment
+          example: m
+        paymentAmount:
+          type: number
+          description: Payment amount
+          example: 100000
+      required:
+      - paymentMethod
+      - paymentFrequency
+      - paymentAmount
+    PartyChild:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First Name of the party
+          example: Thomas
+        lastName:
+          type: string
+          description: Last Name of the the party
+          example: Lawrence
+        middleName:
+          type: string
+          description: Middle name of the party
+        name:
+          type: string
+          description: Full name of the party.
+          example: Thomas Lawrence
+        gender:
+          type: string
+          enum:
+          - Male
+          - Female
+          description: Gender of party
+          example: Male
+        dob:
+          type: string
+          format: date
+          description: Date of birth of party
+        age:
+          type: number
+          description: Age of the party
+          example: 26
+        address1:
+          type: string
+          description: Address line 1
+          example: Wt Road
+        address2:
+          type: string
+          description: Address line 2
+          example: St Street
+        city:
+          type: string
+          description: City name
+          example: Test City
+        state:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        zip:
+          type: string
+          description: Zip Code. Max char allowed is 9.
+          maxLength: 9
+          example: '123456'
+        birthCountry:
+          type: string
+          enum:
+          - AF
+          - AX
+          - AL
+          - DZ
+          - AS
+          - AD
+          - AO
+          - AI
+          - AQ
+          - AG
+          - AR
+          - AM
+          - AN
+          - AW
+          - AU
+          - AT
+          - AZ
+          - BS
+          - BH
+          - BD
+          - BB
+          - BY
+          - BE
+          - BZ
+          - BJ
+          - BM
+          - BT
+          - BO
+          - BQ
+          - BA
+          - BW
+          - BV
+          - BR
+          - IO
+          - BN
+          - BG
+          - BF
+          - BI
+          - CV
+          - KH
+          - CM
+          - CA
+          - KY
+          - CF
+          - TD
+          - CL
+          - CN
+          - CX
+          - CC
+          - CO
+          - KM
+          - CD
+          - CG
+          - CK
+          - CR
+          - CI
+          - HR
+          - CU
+          - CW
+          - CY
+          - CZ
+          - DK
+          - DJ
+          - DM
+          - DO
+          - EC
+          - EG
+          - SV
+          - GQ
+          - ER
+          - EE
+          - SZ
+          - ET
+          - FK
+          - FO
+          - FJ
+          - FI
+          - FR
+          - GF
+          - PF
+          - TF
+          - GA
+          - GM
+          - GE
+          - DE
+          - GH
+          - GI
+          - GR
+          - GL
+          - GD
+          - GP
+          - GU
+          - GT
+          - GG
+          - GN
+          - GW
+          - GY
+          - HT
+          - HM
+          - VA
+          - HN
+          - HK
+          - HU
+          - IS
+          - IN
+          - ID
+          - IR
+          - IQ
+          - IE
+          - IM
+          - IL
+          - IT
+          - JM
+          - JP
+          - JE
+          - JO
+          - KZ
+          - KE
+          - KI
+          - KP
+          - KR
+          - KW
+          - KG
+          - LA
+          - LV
+          - LB
+          - LS
+          - LR
+          - LY
+          - LI
+          - LT
+          - LU
+          - MO
+          - MK
+          - MG
+          - MW
+          - MY
+          - MV
+          - ML
+          - MT
+          - MH
+          - MQ
+          - MR
+          - MU
+          - YT
+          - MX
+          - FM
+          - MD
+          - MC
+          - MN
+          - ME
+          - MS
+          - MA
+          - MZ
+          - MM
+          - NA
+          - NR
+          - NP
+          - NL
+          - NC
+          - NZ
+          - NI
+          - NE
+          - NG
+          - NU
+          - NF
+          - MP
+          - 'NO'
+          - OM
+          - PK
+          - PW
+          - PS
+          - PA
+          - PG
+          - PY
+          - PE
+          - PH
+          - PN
+          - PL
+          - PT
+          - PR
+          - QA
+          - RE
+          - RO
+          - RU
+          - RW
+          - BL
+          - SH
+          - KN
+          - LC
+          - MF
+          - PM
+          - VC
+          - WS
+          - SM
+          - ST
+          - SA
+          - SN
+          - RS
+          - SC
+          - SL
+          - SG
+          - SX
+          - SK
+          - SI
+          - SB
+          - SO
+          - ZA
+          - GS
+          - SS
+          - ES
+          - LK
+          - SD
+          - SR
+          - SJ
+          - SE
+          - CH
+          - SY
+          - TW
+          - TJ
+          - TZ
+          - TH
+          - TL
+          - TG
+          - TK
+          - TO
+          - TT
+          - TN
+          - TR
+          - TM
+          - TC
+          - TV
+          - UG
+          - UA
+          - AE
+          - GB
+          - UM
+          - US
+          - UY
+          - UZ
+          - VU
+          - VE
+          - VN
+          - VG
+          - VI
+          - WF
+          - EH
+          - XK
+          - YE
+          - ZM
+          - ZW
+          - Other
+          description: Birth Country
+          example: US
+        identification:
+          type: array
+          items:
+            type: object
+            properties:
+              governmentIdType:
+                type: string
+                enum:
+                - Passport
+                - StateId
+                - SSN
+                example: Passport
+              governmentId:
+                type: string
+                example: '213121414'
+              jurisdiction:
+                type: string
+                enum:
+                - AL
+                - AK
+                - AZ
+                - AR
+                - CA
+                - CO
+                - CT
+                - DC
+                - DE
+                - FL
+                - GA
+                - HI
+                - ID
+                - IL
+                - IN
+                - IA
+                - KS
+                - KY
+                - LA
+                - ME
+                - MD
+                - MA
+                - MI
+                - MN
+                - MS
+                - MO
+                - MT
+                - NE
+                - NV
+                - NH
+                - NJ
+                - NM
+                - NY
+                - NC
+                - ND
+                - OH
+                - OK
+                - OR
+                - PA
+                - RI
+                - SC
+                - SD
+                - TN
+                - TX
+                - UT
+                - VT
+                - VA
+                - WA
+                - WV
+                - WI
+                - WY
+                - GU
+                - PR
+                description: State Code if applicable. Provided in case of state issued Id
+                example: AL
+        phone:
+          type: string
+          description: Phone number
+          example: 111-111-2222
+        email:
+          type: string
+          description: Email Id of the party
+          example: test@abc.com
+        emailType:
+          type: string
+          enum:
+          - Personal
+          - Business
+          description: Type of email
+          example: Business
+        communicationPreference:
+          type: string
+          enum:
+          - Mail
+          - Email
+          - Phone
+          description: Communication preferences
+          example: Email
+        relationship:
+          type: string
+          enum:
+          - Child
+          description: Party relationship
+          example: Child
+        classification:
+          type: string
+          enum:
+          - Individual
+          description: Party classification
+          example: Individual
+        childMedicalHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              conditionType:
+                type: string
+                enum:
+                - Asthma
+                - Cancer
+                - Cystic fibrosis
+                - Depression
+                - Diabetes
+                - Down syndrome
+                - Epilepsy
+                - Heart Disorder
+                - Leukemia
+                - Muscular dystrophy
+                - Other
+                - Brain Disorder
+                - Kidney Disorder
+                description: Medical condition questions
+              isApplicable:
+                type: string
+                enum:
+                - 'Yes'
+                - 'No'
+                description: Indicator flag for medical history questions
+    ApplicationInfo:
+      type: object
+      properties:
+        TrackingID:
+          type: string
+        HOAppFormNumber:
+          type: string
+      required:
+      - HOAppFormNumber
+    DeceaseFamily:
+      type: object
+      properties:
+        relationship:
+          type: string
+          enum:
+          - Aunt
+          - Brother
+          - Business
+          - Business Associate
+          - Charity
+          - Child
+          - Co-Mortgager
+          - Cousin
+          - Daughter
+          - Dependant
+          - Domestic Partner
+          - Estate
+          - Executors
+          - Father
+          - Fiance
+          - Fiancee
+          - Former Spouse
+          - Friend
+          - God Child
+          - God Parent
+          - Grandchild
+          - Grandparent
+          - Great Grandchild
+          - Great Grandparent
+          - Legal Guardian
+          - Life Partner
+          - Mother
+          - Nephew
+          - Niece
+          - Parent
+          - Parents In Law
+          - Sibling
+          - Sister
+          - Son
+          - Spouse
+          - Stepfather
+          - Stepmother
+          - Trust
+          - Uncle
+          - Self
+          - Other
+          description: Relationship with the insured
+        ageOfDeath:
+          type: string
+          description: Age at death
+        diagnosis:
+          type: string
+          enum:
+          - Coronary artery disease
+          - Heart attack
+          - Heart failure or congestive heart failure
+          - Stroke
+          - Bladder Cancer
+          - Colon and Rectal Cancer
+          - Kidney Cancer
+          - Leukemia
+          - Liver Cancer
+          - Lung Cancer
+          - Melanoma
+          - Non-Hodgkin Lymphoma
+          - Pancreatic Cancer
+          - Prostate or testicular Cancer
+          - Thyroid Cancer
+          - Other
+          - Breast Cancer
+          - Endometrial/Ovarian/Cervical Cancer
+          description: Diagnosis reason
+    RiskInformation:
+      type: object
+      properties:
+        lostWeightRecently:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for weight loss
+        lostWeightReason:
+          type: array
+          items:
+            type: string
+            enum:
+            - Diet
+            - Illness
+            - Exercise
+            - Other
+            - Surgery
+            - Unknown
+            - Pregnancy
+          description: lostWeightReason
+        lostWeightOtherDesc:
+          type: string
+          description: Description value if lostWeightReason is selected as Other
+        dailyActivityAssistantInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for daily activity assistant required
+        durationTobaccoUsed:
+          type: string
+          description: Duration stating use of tobacco
+          example: '5'
+        marijuanaUsedInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for marijuana used
+        durationMarijuanaUsed:
+          type: string
+          description: Duration stating use of Marijuana
+          example: '5'
+        assistanceRequired:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for help needed or not
+        diagnosticTestInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for diagnostic tests
+        hospitalizedRecentlyInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for hospitalization history
+        outstandingTreatments:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for outstanding treatment except AIDS and HIV
+        treatmentList:
+          type: array
+          items:
+            type: string
+          enum:
+          - Allergy Testing
+          - Routine Blood work
+          - Routine Urine testing
+          - Routine Pap smear
+          - Routine colonoscopy
+          - Routine mammogram
+          - Routine EKG
+          - Imaging for bone or joint
+          - Routine bone density
+          - Pregnancy or fertility related
+          - Vision or Hearing
+          - Other
+        convictedInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag
+        felonyInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for felony
+        covid19Ind:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for covid 19 hospitalization
+        deceasedParentInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for parents
+        deceaseFamily:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeceaseFamily'
+        rejectionInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for rejection of insurence application
+        medicalHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicalHistory'
+        lifeStyleActivities:
+          $ref: '#/components/schemas/LifeStyleActivities'
+        violations:
+          $ref: '#/components/schemas/Violations'
+    AgentValidationRequest:
+      type: object
+      properties:
+        carrier:
+          type: string
+          description: client code
+        appStartDate:
+          type: string
+          description: Application start date
+          example: '2024-02-07'
+        appState:
+          type: string
+          description: application state
+          example: AL
+        productCode:
+          type: string
+          description: product code
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+      required:
+      - carrier
+      - appStartDate
+      - appState
+      - productCode
+    ResourceNotFoundResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: Resource not found
+        error:
+          type: array
+          items:
+            type: string
+            example: Resource not found for provided input
+    TXLifeRequest:
+      type: object
+      properties:
+        TransRefGUID:
+          type: string
+        transExeDate:
+          type: string
+        transExeTime:
+          type: string
+        OLifE:
+          $ref: '#/components/schemas/OLifE'
+      required:
+      - TransRefGUID
+      - OLifE
+    TreatmentDetail:
+      type: object
+      properties:
+        treatmentType:
+          type: string
+          enum:
+          - Medication
+          - Hospitalization
+          - CPAP
+          - Surgery
+          - Chemotherapy
+          - Radiation
+          - Other
+          - Test
+          - Medication Added
+          - Medication Increased
+          - Quit Medication
+          - None
+          description: Treatment Type
+        isApplicable:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for recovered status
+        description:
+          type: string
+          description: treatment description
+          example: other type of treatment
+        treatmentCompletionInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for treatment completion
+        otherTestRecommendInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for other test recommendation
+        complicationsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for treatment complication
+        dateLastSeen:
+          type: string
+          format: date
+          description: Last seen date for treatment observation
+        medication:
+          type: string
+          description: treatment description
+          example: prescribed pain meds
+        treatmentStartDate:
+          type: string
+          format: date
+          description: treatmentStartDate in 'YYYY-MM-DD' format.
+    OLifE:
+      type: object
+      properties:
+        Holding:
+          $ref: '#/components/schemas/Holding'
+        Party:
+          $ref: '#/components/schemas/EvidenceParty'
+        Relation:
+          $ref: '#/components/schemas/Relation'
+    QuoteQuestions:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Index number of the question
+          example: '1'
+        code:
+          type: string
+          enum:
+          - RelationshipStatus
+          - ChildrenStatus
+          - FinanceSavvy
+          - MoneyRelation
+          - FundsUsage
+          - FamilyUsage
+          description: RelationshipStatus
+          example: FinanceSavvy
+        description:
+          type: array
+          items:
+            type: string
+            enum:
+            - Single
+            - Future
+            - Engaged
+            - Recently Married
+            - Married
+            - None
+            - Plan To
+            - Trying
+            - Pregnant
+            - Yes-Plus
+            - Yes-Complete
+            - Novice
+            - Student
+            - Hobbyist
+            - Expert
+            - Adventurer
+            - Individualist
+            - Moderate
+            - Planner
+            - Saver
+            - Retirement Hedge
+            - Early Retirement
+            - Retirement Supplement
+            - Fund a Large Expense
+            - College Savings
+            - Disability Income
+            - Small Business Venture
+            - Build Wealth
+            - Other
+            - Nest Egg
+            - Protect Co-signers
+            - Pay Off Debts
+            - Fund College
+            - Cover Expenses
+            - Maintain Quality Of Life
+            - Support Additional Family
+            - Funeral Expenses
+            - Support Family
+            - Undecided
+            - Help With Illness
+          description: Response details
+    PartyOthers:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First Name of the party
+          example: Thomas
+        lastName:
+          type: string
+          description: Last Name of the the party
+          example: Lawrence
+        middleName:
+          type: string
+          description: Middle name of the party
+        name:
+          type: string
+          description: Full name of the party.
+          example: Thomas Lawrence
+        suffix:
+          type: string
+          description: Suffix for given party if Applicable
+          example: Sr
+        prefix:
+          type: string
+          description: Prefix for given party if Applicable
+          example: Dr
+        gender:
+          type: string
+          enum:
+          - Male
+          - Female
+          description: Gender of party
+          example: Male
+        dob:
+          type: string
+          format: date
+          description: Date of birth of party
+        age:
+          type: number
+          description: Age of the party
+          example: 26
+        ssn:
+          type: string
+          description: Party SSN
+          minLength: 9
+          maxLength: 9
+          example: '121328426'
+        driverNumber:
+          type: string
+          description: Driver license number
+          example: T61217265934
+        driverState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        noDriversLicenseInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Flag for Driver License
+          example: 'No'
+        address1:
+          type: string
+          description: Addres line 1
+          example: Wt Road
+        address2:
+          type: string
+          description: Addres line 2
+          example: St Street
+        city:
+          type: string
+          description: City name
+          example: Test City
+        state:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        zip:
+          type: string
+          description: Zip Code. Max char allowed is 9.
+          maxLength: 9
+          example: '123456'
+        birthCountry:
+          type: string
+          enum:
+          - AF
+          - AX
+          - AL
+          - DZ
+          - AS
+          - AD
+          - AO
+          - AI
+          - AQ
+          - AG
+          - AR
+          - AM
+          - AN
+          - AW
+          - AU
+          - AT
+          - AZ
+          - BS
+          - BH
+          - BD
+          - BB
+          - BY
+          - BE
+          - BZ
+          - BJ
+          - BM
+          - BT
+          - BO
+          - BQ
+          - BA
+          - BW
+          - BV
+          - BR
+          - IO
+          - BN
+          - BG
+          - BF
+          - BI
+          - CV
+          - KH
+          - CM
+          - CA
+          - KY
+          - CF
+          - TD
+          - CL
+          - CN
+          - CX
+          - CC
+          - CO
+          - KM
+          - CD
+          - CG
+          - CK
+          - CR
+          - CI
+          - HR
+          - CU
+          - CW
+          - CY
+          - CZ
+          - DK
+          - DJ
+          - DM
+          - DO
+          - EC
+          - EG
+          - SV
+          - GQ
+          - ER
+          - EE
+          - SZ
+          - ET
+          - FK
+          - FO
+          - FJ
+          - FI
+          - FR
+          - GF
+          - PF
+          - TF
+          - GA
+          - GM
+          - GE
+          - DE
+          - GH
+          - GI
+          - GR
+          - GL
+          - GD
+          - GP
+          - GU
+          - GT
+          - GG
+          - GN
+          - GW
+          - GY
+          - HT
+          - HM
+          - VA
+          - HN
+          - HK
+          - HU
+          - IS
+          - IN
+          - ID
+          - IR
+          - IQ
+          - IE
+          - IM
+          - IL
+          - IT
+          - JM
+          - JP
+          - JE
+          - JO
+          - KZ
+          - KE
+          - KI
+          - KP
+          - KR
+          - KW
+          - KG
+          - LA
+          - LV
+          - LB
+          - LS
+          - LR
+          - LY
+          - LI
+          - LT
+          - LU
+          - MO
+          - MK
+          - MG
+          - MW
+          - MY
+          - MV
+          - ML
+          - MT
+          - MH
+          - MQ
+          - MR
+          - MU
+          - YT
+          - MX
+          - FM
+          - MD
+          - MC
+          - MN
+          - ME
+          - MS
+          - MA
+          - MZ
+          - MM
+          - NA
+          - NR
+          - NP
+          - NL
+          - NC
+          - NZ
+          - NI
+          - NE
+          - NG
+          - NU
+          - NF
+          - MP
+          - 'NO'
+          - OM
+          - PK
+          - PW
+          - PS
+          - PA
+          - PG
+          - PY
+          - PE
+          - PH
+          - PN
+          - PL
+          - PT
+          - PR
+          - QA
+          - RE
+          - RO
+          - RU
+          - RW
+          - BL
+          - SH
+          - KN
+          - LC
+          - MF
+          - PM
+          - VC
+          - WS
+          - SM
+          - ST
+          - SA
+          - SN
+          - RS
+          - SC
+          - SL
+          - SG
+          - SX
+          - SK
+          - SI
+          - SB
+          - SO
+          - ZA
+          - GS
+          - SS
+          - ES
+          - LK
+          - SD
+          - SR
+          - SJ
+          - SE
+          - CH
+          - SY
+          - TW
+          - TJ
+          - TZ
+          - TH
+          - TL
+          - TG
+          - TK
+          - TO
+          - TT
+          - TN
+          - TR
+          - TM
+          - TC
+          - TV
+          - UG
+          - UA
+          - AE
+          - GB
+          - UM
+          - US
+          - UY
+          - UZ
+          - VU
+          - VE
+          - VN
+          - VG
+          - VI
+          - WF
+          - EH
+          - XK
+          - YE
+          - ZM
+          - ZW
+          - Other
+          description: Birth Country
+          example: US
+        phone:
+          type: string
+          description: Phone number
+          example: 111-111-2222
+        email:
+          type: string
+          description: Email Id of the party
+          example: test@abc.com
+        emailType:
+          type: string
+          enum:
+          - Personal
+          - Business
+          description: Type of email
+          example: Business
+        communicationPreference:
+          type: string
+          enum:
+          - Mail
+          - Email
+          - Phone
+          description: Communication preferences
+          example: Email
+        classification:
+          type: string
+          enum:
+          - Individual
+          - Business
+          - Trust
+          - Corporation
+          - Partnership
+          - Other
+          - Group of Individuals
+          - Estate
+          - Child
+          description: Party classification
+          example: Individual
+        relationship:
+          type: string
+          enum:
+          - Aunt
+          - Brother
+          - Business
+          - Business Associate
+          - Charity
+          - Child
+          - Co-Mortgager
+          - Cousin
+          - Daughter
+          - Dependant
+          - Domestic Partner
+          - Estate
+          - Executors
+          - Father
+          - Fiance
+          - Fiancee
+          - Former Spouse
+          - Friend
+          - God Child
+          - God Parent
+          - Grandchild
+          - Grandparent
+          - Great Grandchild
+          - Great Grandparent
+          - Legal Guardian
+          - Life Partner
+          - Mother
+          - Nephew
+          - Niece
+          - Parent
+          - Parents In Law
+          - Sibling
+          - Sister
+          - Son
+          - Spouse
+          - Stepfather
+          - Stepmother
+          - Trust
+          - Uncle
+          - Self
+          - Other
+          description: Relationship with insured
+          example: Father
+        percentage:
+          type: number
+          format: double
+          example: 100
+          description: Requested percentage value
+        dateOfTrust:
+          type: string
+          format: date
+          description: Date of trust
+        trusteeName:
+          type: array
+          items:
+            type: object
+            properties:
+              fullName:
+                type: string
+                description: Trusee Name
+                example: John Doe
+        stateExecution:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        trustBeneficiaries:
+          type: array
+          items:
+            type: object
+            properties:
+              fullName:
+                type: string
+                description: Trust Bene Name
+                example: John Smith
+    Holding:
+      type: object
+      properties:
+        attribute_id:
+          type: string
+        Policy:
+          $ref: '#/components/schemas/EvidencePolicy'
+      required:
+      - Policy
+    RequirementInfo:
+      type: object
+      properties:
+        attribute_id:
+          type: string
+        attribute_AppliesToPartyID:
+          type: string
+        ReqCode:
+          type: string
+        RequirementInfoUniqueID:
+          type: string
+        RequirementDetails:
+          type: string
+      required:
+      - RequirementDetails
+    ValidationResult:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          example: EM.035
+        error:
+          type: string
+          example: 1.) Add Transmittal Task. 2.) Pend Case 5 days.
+        resolution:
+          type: string
+          example: Transmittal to licensing - agent needs to complete product training and LOB updated
+    EvidenceResponse:
+      type: object
+      properties:
+        eappId:
+          type: string
+          description: Unique application Id generated by the UI. Each application would have unique identifier
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        caseId:
+          type: string
+          description: Zinnia Live case
+          example: CA0000005656
+        correlationId:
+          type: string
+          description: Unique process identifier to track the all linked processed against one single application. This is an optional
+          example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+        carrier:
+          type: string
+          example: CarrierName_1
+        firstName:
+          type: string
+          description: Frst Name of the party
+          example: Thomas
+        lastName:
+          type: string
+          description: Last Name of the the party
+          example: Lawrence
+        middleName:
+          type: string
+          description: Middle name of the party
+        name:
+          type: string
+          description: Full name of the party.
+          example: Thomas Lawrence
+        gender:
+          type: string
+          enum:
+          - Male
+          - Female
+          description: Gender of party
+          example: Male
+        dob:
+          type: string
+          format: date
+          description: Date of birth of party
+        ssn:
+          type: string
+          description: Party SSN. In case if non individual it should be Tax Id
+          minLength: 9
+          maxLength: 9
+          example: '121328426'
+        address1:
+          type: string
+          description: Address line 1
+          example: Wt Road
+        address2:
+          type: string
+          description: Address line 2
+          example: St Street
+        city:
+          type: string
+          description: City name
+          example: Test City
+        state:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        zip:
+          type: string
+          description: Zip Code. Max char allowed is 9.
+          maxLength: 9
+          example: '123456'
+        phone:
+          type: string
+          description: Phone number
+          example: 111-111-2222
+        classification:
+          type: string
+          enum:
+          - Individual
+          - Business
+          - Trust
+          - Corporation
+          - Partnership
+          - Other
+          - Group of Individuals
+          - Estate
+          - Child
+          description: Party classification
+          example: Individual
+        reqCode:
+          type: string
+          description: reqCode as string
+          example: Clarifying Question UW
+        reqId:
+          type: string
+          description: reqId as string
+          example: '1030000001'
+        requirementId:
+          type: string
+          description: requirementId as string
+          example: '2001234'
+        requestedDate:
+          type: string
+          format: date
+          description: requestedDate in 'YYYY-MM-DD' format.
+        appliesToPartyId:
+          type: string
+          description: Provided by the Underwriting System.
+          example: ID_407226
+        question:
+          type: string
+          description: Question will be free text entered by th case manager
+          example: Required utility bill to process the request
+        response:
+          type: string
+          description: Based on the question type. If it requires attachment then client will submit the document against it.
+          example: Sharing the utility bill details
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Documents'
+    BankInformation:
+      type: object
+      properties:
+        bankName:
+          type: string
+          enum:
+          - Bank of America
+          description: Name of Bank
+          example: Bank of America
+        accountNumber:
+          type: string
+          description: Account Number
+          example: '12345123400'
+        routingNumber:
+          type: string
+          description: Routing Number
+          example: '110000150'
+        accountType:
+          type: string
+          enum:
+          - Savings
+          - Checking
+          description: Account Type
+          example: Savings
+        purpose:
+          type: string
+          enum:
+          - Premium
+          description: Purpose
+          example: Premium
+      required:
+      - bankName
+      - accountNumber
+      - accountType
+    EvidenceAddress:
+      type: object
+      properties:
+        Zip:
+          type: string
+    State:
+      type: string
+      example: CA
+      enum:
+      - AL
+      - AK
+      - AZ
+      - AR
+      - AS
+      - AA
+      - AE
+      - AP
+      - CA
+      - CO
+      - CT
+      - DC
+      - DE
+      - FL
+      - GA
+      - GU
+      - HI
+      - ID
+      - IL
+      - IN
+      - IA
+      - KS
+      - KY
+      - LA
+      - ME
+      - MD
+      - MA
+      - MI
+      - MN
+      - MS
+      - MO
+      - MT
+      - MP
+      - NE
+      - NV
+      - NH
+      - NJ
+      - NM
+      - NY
+      - NC
+      - ND
+      - OH
+      - OK
+      - OR
+      - PA
+      - PR
+      - RI
+      - SC
+      - SD
+      - TN
+      - TX
+      - UT
+      - UM
+      - VT
+      - VA
+      - VI
+      - WA
+      - WV
+      - WI
+      - WY
+      description: Abbreviated names for states
+    ExistingPolicyHistory:
+      type: object
+      properties:
+        policyNumber:
+          type: string
+          description: Policy Number
+          example: ABC000007
+        productCode:
+          type: string
+          description: Product code
+          example: ABC001
+        amount:
+          type: number
+          description: Policy coverage amount
+          example: 25000
+        policyStatus:
+          type: string
+          enum:
+          - Applied For
+          - Approved
+          - Submitted to Underwriting
+          - Pending
+          - Declined
+          - Quoted
+          - Risk Not Acceptable
+          - Proposed
+          - Counter Offer
+          - Not Taken
+          - Issue Pending
+          - Issued
+          - Closed
+          - Active
+          - Lapsed
+          - Cancelled Not Taken
+          - Lapse Pending
+          - Cancelled FreeLook
+          - Cancelled
+          - Offer Accepted
+          - Death Claim Pending
+          - Death Claim Paid
+          - Expired
+          - Matured
+          - Surrendered
+          - Rescission
+          - Death Claim Approved
+          - Suspended Active
+          - Suspended Not Active
+          description: Policy status
+          example: Active
+        replacementCoverageAmount:
+          type: number
+          description: Replacement coverage amount
+          example: 10000
+        client:
+          type: string
+          description: Company name
+          example: Security Benefit
+        issueDate:
+          type: string
+          format: date
+          description: issueDate in 'YYYY-MM-DD' format.
+    Signature:
+      required:
+      - state
+      - date
+      type: object
+      properties:
+        date:
+          type: string
+          description: Sign Date
+          example: '2021-01-12'
+        city:
+          type: string
+          description: City name
+          example: Quincy
+        state:
+          $ref: '#/components/schemas/State'
+        ip:
+          type: string
+          description: IP address
+          example: 11.11.11.111
+    ApplicationAdditionalInformation:
+      type: object
+      properties:
+        existingPolicyHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExistingPolicyHistory'
+    EvidencePolicy:
+      type: object
+      properties:
+        CarrierCode:
+          type: string
+        ApplicationInfo:
+          $ref: '#/components/schemas/ApplicationInfo'
+        RequirementInfo:
+          $ref: '#/components/schemas/RequirementInfo'
+    SuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 201
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: Request Submitted Successfully
+    Underwriting:
+      type: object
+      properties:
+        decision:
+          type: string
+          enum:
+          - Approved
+          - Pending Decision
+          - Pending Review
+          - Declined
+          - Risk Not Acceptable
+          description: Underwriting decision
+        totalReplacementCoverageAmt:
+          type: number
+          description: Total replacement coverage amount
+          example: 250000
+        status:
+          type: string
+          enum:
+          - CLEAN_CASE
+          - DECLINED
+          - MODIFIED
+          - ADVERSE
+          - N/A
+          description: Status of UW case
+        issuedAsAppliedInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag to specify as no change
+        underwritingRiskClass:
+          type: string
+          enum:
+          - Elite Non-Tobacco
+          - Preferred Non-Tobacco
+          - Standard Non-Tobacco
+          - Standard Tobacco
+          - Standard Aggregate
+          - Substandard Non-Tobacco
+          - Substandard Tobacco
+          description: Risk Class Configured at Underwriting System.
+          example: Elite Non-Tobacco
+        decisionRiskClass:
+          type: string
+          enum:
+          - Elite Non-Tobacco
+          - Preferred Non-Tobacco
+          - Standard Non-Tobacco
+          - Standard Tobacco
+          - Standard Aggregate
+          - Substandard Non-Tobacco
+          - Substandard Tobacco
+          description: Decision Risk Class
+          example: Elite Non-Tobacco
+        underwritingMethod:
+          type: string
+          enum:
+          - FULL_UNDERWRITING
+          - ATTESTATION_VALIDATION
+          - ADDITIONAL_UNDERWRITING
+          - SIMPLIFIED_UNDERWRITING
+          - REDUCED_UNDERWRITING
+          description: Underwriting methods
+        tobaccoPremiumBasis:
+          type: string
+          enum:
+          - Smoker
+          - Non-Smoker
+          description: Premium basis
+        tableRating:
+          type: string
+          enum:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - F
+          - G
+          - H
+          description: Table rating from Underwriting System.
+          example: A
+        permFlatExtraAmt:
+          type: number
+          description: Extra Amount
+          example: 250000
+        tempFlatExtraAmt:
+          type: number
+          description: Temporary extra amount
+          example: 250000
+        flatExtrasDuration:
+          type: number
+          description: extra duration
+          example: 250000
+        approvedFaceAmount:
+          type: number
+          description: Approved Face Amount
+          example: 250000
+        approvedMaxFaceAmount:
+          type: number
+          description: Approved Maximum Face Amount
+          example: 250000
+        UnderwritingResult:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnderwritingResult'
+    InterimStatusUpdateRequest:
+      type: object
+      properties:
+        eappId:
+          type: string
+          description: Unique application Id generated by the UI. Each application would have unique identifier
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        caseId:
+          type: string
+          description: Zinnia Live case
+          example: CA0000005656
+        policyNumber:
+          type: string
+          description: Policy Number
+          example: AB00000001
+        uwCaseId:
+          type: string
+          description: Underwriter caseId
+          example: UW0000005656
+        carrier:
+          type: string
+          description: Client Code
+          example: CL0000001
+        policyStatus:
+          type: string
+          description: Status of Policy
+          example: Policy Status
+        underwriting:
+          allOf:
+          - $ref: '#/components/schemas/Underwriting'
+          - type: object
+            properties:
+              instantIdDecision:
+                type: string
+                description: InstantId decision
+      required:
+      - eappId
+      - caseId
+    Agent:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First Name of the party
+          example: Thomas
+        lastName:
+          type: string
+          description: Last Name of the the party
+          example: Lawrence
+        middleName:
+          type: string
+          description: Middle name of the party
+        name:
+          type: string
+          description: Full name of the party.
+          example: Thomas Lawrence
+        externalId:
+          type: string
+          description: Agent External id
+          example: PG000001
+        agentDistributorChannel:
+          type: string
+          description: Agent Distribution Channel
+          example: CAS
+        licenseNumber:
+          type: string
+          description: Agent license Number
+          example: '19584368'
+        brokerName:
+          type: string
+          description: Name of broker firm
+          example: ABC Company
+        brokerExternalid:
+          type: string
+          description: Broker External Id
+          example: '12324234'
+        taxIdType:
+          type: string
+          enum:
+          - P
+          - C
+          description: Type of Tax Id. P means Individual and C means Corporate
+          example: P
+        taxId:
+          type: string
+          description: Agent tax Id
+          example: '123456789'
+        npn:
+          type: string
+          description: NPN of the agent
+          example: '1223435346'
+        parentNpn:
+          type: string
+          description: Parent entity NPN number
+          example: '1242353455'
+        dateOfTrust:
+          type: string
+          format: date
+          description: Date of trust
+        parentTaxId:
+          type: string
+          description: Parent taxId
+          example: '1242353455'
+        type:
+          type: string
+          enum:
+          - Agent
+          - Primary Writing Agent
+          - Additional Writing Agent
+          - Primary Servicing Agent
+          - Additional Servicing Agent
+          - General Agent
+        solicitingServiceIndicator:
+          type: boolean
+          description: if the agent is servicing agent send the flag as True else false
+          example: true
+        agentPercent:
+          type: number
+          description: Agent percent
+          example: 100
+        classification:
+          type: string
+          enum:
+          - Individual
+          - Business
+          - Trust
+          - Corporation
+          - Partnership
+          - Other
+          - Group of Individuals
+          - Estate
+          description: Party classification
+          example: Individual
+      required:
+      - classification
+      - firstName
+      - lastName
+      - externalId
+      - brokerName
+      - licenseNumber
+      - taxId
+      - agentDistributorChannel
+      - solicitingServiceIndicator
+      - agentPercent
+    CoverageDetails:
+      type: object
+      properties:
+        lob:
+          type: string
+          enum:
+          - Life
+          description: Line of business
+          example: Life
+        productType:
+          type: string
+          enum:
+          - Indexed Universal Life
+          - Universal Life
+          - Term
+          description: type of product
+          example: Indexed Universal Life
+        productCode:
+          type: string
+          description: Product code
+          example: ABC001
+        riderInd:
+          type: string
+          description: Rider Indicator
+          example: 'Yes'
+        faceAmount:
+          type: number
+          description: Face Amount
+          example: 250000
+        deathBenefitOpt:
+          type: string
+          enum:
+          - Level
+          - Increasing
+        deathBenefitComplianceTest:
+          type: string
+          enum:
+          - Cash Value Accumulation Test
+          - Guideline Premium Test
+        paymentFrequency:
+          type: string
+          enum:
+          - m
+          - q
+          - a
+          - sa
+          - sp
+          description: Frequency of premium payment
+          example: m
+        plannedPremiumAmount:
+          type: number
+          format: double
+          description: Planned Premium Amount
+          example: 250000.12
+        fixedCostPeriod:
+          type: string
+          enum:
+          - '10'
+          - '15'
+          - '20'
+          - '25'
+          - '30'
+          - '65'
+          description: Period information
+          example: '20'
+        childCoverageInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Flag to indicate the child coverage
+        childCoverageAmount:
+          type: number
+          description: Per child coverage amount. This is an optional field
+          example: 250000
+        owners:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyOwners'
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+        existingPolicyCoverageAmount:
+          type: number
+          description: existingPolicyCoverageAmount
+          example: 250000
+        replacementCoverageAmount:
+          type: number
+          description: replacementCoverageAmount
+          example: 250000
+    AdditionalInformation:
+      type: object
+      properties:
+        tobaccoUsed:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for tobacco preferences
+        USResidentPast2YrsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for resident options
+        livingHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/LivingHistory'
+        foreignTravelPlanNext2yrs:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for foreign travel plans
+        foreignTravel:
+          type: array
+          items:
+            $ref: '#/components/schemas/ForeignTravel'
+        restrictedTravelPlanNext2yrs:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for foreign travel plans for 2 years
+        useExistingPolicyFunds:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for existing policy funds applicability
+        heightFeet:
+          type: string
+          description: height of party in feet
+          example: '5'
+        heightInches:
+          type: string
+          description: height of party in inches
+          example: '5'
+        weight:
+          type: string
+          description: Weight of party in pounds
+          example: '150'
+        primaryPhysicianInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for primary physician
+        disabilityBenefitsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for disability benefit
+        disabilityPaymentOptions:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for disability benefit
+        existingPolicyHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExistingPolicyHistory'
+        riskInfo:
+          $ref: '#/components/schemas/RiskInformation'
+    Quote:
+      type: object
+      properties:
+        quoteId:
+          type: string
+          description: Unique Id generated by the LPS system
+          example: Q332022203127424
+        carrier:
+          type: string
+          example: CarrierName_1
+        leadId:
+          type: string
+          description: Unique Id generated by the LPS system
+          example: Q332022203127424
+        riskClass:
+          type: string
+          enum:
+          - Elite Non-Tobacco
+          - Preferred Non-Tobacco
+          - Standard Non-Tobacco
+          - Standard Tobacco
+          - Standard Aggregate
+          - Substandard Non-Tobacco
+          - Substandard Tobacco
+          description: Risk Class Configured at LPS Engine
+          example: Elite Non-Tobacco
+        lob:
+          type: string
+          enum:
+          - Life
+          description: Line of business
+          example: Life
+        productType:
+          type: string
+          enum:
+          - Indexed Universal Life
+          - Universal Life
+          - Term
+          description: type of product
+          example: Indexed Universal Life
+        email:
+          type: string
+          description: Email id of the insured
+          example: test.qa182@test.com
+        productCode:
+          type: string
+          enum:
+          - ABC001
+          description: Product code
+          example: ABC001
+        state:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        faceAmount:
+          type: number
+          description: Face Amount
+          example: 250000
+        premiumAmount:
+          type: number
+          format: double
+          description: Premium amount
+          example: 216.16
+        paymentTerm:
+          type: string
+          description: Duration of payment
+          example: '20'
+        premiumFrequency:
+          type: string
+          enum:
+          - m
+          - q
+          - a
+          - sa
+          - sp
+          description: Frequency of premium payment
+          example: m
+        dob:
+          type: string
+          format: date
+          description: Date of birth of insured
+        ageAsOfDate:
+          type: string
+          format: date
+          description: Date as of when age needs to be calculated. This can be defaulted to current date in format YYYY-MM-DD or can be signature date to calculate issue age as of sign date.
+        gender:
+          type: string
+          enum:
+          - Male
+          - Female
+          description: Gender of insured
+          example: Male
+        smoker:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Smoking preferences
+          example: 'No'
+        health:
+          type: string
+          description: Health condition
+          example: Good
+        underwritingMethod:
+          type: string
+          enum:
+          - FULL_UNDERWRITING
+          - ATTESTATION_VALIDATION
+          - ADDITIONAL_UNDERWRITING
+          - SIMPLIFIED_UNDERWRITING
+          - REDUCED_UNDERWRITING
+          description: Underwriting types
+          example: FULL_UNDERWRITING
+        issueAge:
+          type: string
+          description: Age at issue
+          example: '26'
+        quoteDate:
+          type: string
+          format: date-time
+          description: date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Quote date
+        cashValue:
+          type: number
+          description: Cash value as on date
+          example: 3952.941779
+        success:
+          type: boolean
+          description: Quote status
+          example: false
+        annualIncome:
+          type: number
+          description: Annual of insured/owner
+          example: 0
+        annualPolicyMgmtFee:
+          type: number
+          description: Annual policy management fee
+          example: 0
+        additionalPaymentAmount:
+          type: number
+          description: Additional payment amount
+          example: 0
+        pricingVersion:
+          type: string
+          description: Internal to LPS
+          example: 2021.10.15
+        matchVersion:
+          type: string
+          description: Internal to LPS
+          example: 2021.10.15
+        matchPercent:
+          type: number
+          description: Match percent
+          example: 1
+        averageMonthlyCOI:
+          type: number
+          description: Average monthly cost of issuance
+          example: 76
+        firstMonthCOI:
+          type: number
+          description: first month cost of issuance
+          example: 17.46
+        adminFee:
+          type: number
+          description: Admin fee
+          example: 8
+        firstMonthSavings:
+          type: number
+          description: First month saving
+          example: 190.54
+        monthlySavings:
+          $ref: '#/components/schemas/MonthlySavings'
+        quoteQuestions:
+          items:
+            $ref: '#/components/schemas/QuoteQuestions'
+        approvedQuote:
+          $ref: '#/components/schemas/ApprovedQuote'
+      required:
+      - quoteId
+      - riskClass
+    MedicalHistory:
+      type: object
+      properties:
+        conditionType:
+          type: string
+          enum:
+          - None
+          - Substance Abuse
+          - Drug Abuse
+          - Alcoholism
+          - Self Help
+          - Arthritis
+          - Ankylosing Spondylitis
+          - Myositis
+          - Rheumatoid Arthritis
+          - Scleroderma
+          - SLE
+          - Granulomatosis
+          - Benign Tumor
+          - Brain Tumor
+          - Colon Polyps
+          - Insitu Melanoma
+          - Insitu Breast
+          - Ovarian Cyst
+          - Blood Disorder
+          - Aplastic Anemia
+          - Clotting Disorder
+          - Essential Thrombocytosis
+          - Hemochromatosis
+          - Low Platelets
+          - Polycythemia Vera
+          - Cancer
+          - Breast Cancer
+          - Colon Cancer
+          - Leukemia
+          - Lymphomas
+          - Lung Cancer
+          - Melanoma
+          - Ovarian Cancer
+          - Pancreatic Cancer
+          - Prostate Cancer
+          - Skin Cancer
+          - Testicular Cancer
+          - Alzheimer Disease
+          - ALS
+          - Cerebral Palsy
+          - Epilepsy
+          - Multiple Sclerosis
+          - Paraplegia
+          - Stroke
+          - Endocrine Disorder
+          - Addisons Disease
+          - Cushings Disease
+          - Hyperparathyroidism
+          - Hyperthyroidism
+          - Pituitary Disorder
+          - Thyroid Nodule
+          - Hypothyroidism
+          - Liver Disorder
+          - Autoimmune Hepatitis
+          - Barrett Esophagus
+          - Chronic Pancreatitis
+          - Liver Cirrhosis
+          - Crohns Disease
+          - Hepatitis B
+          - Hepatitis C
+          - Liver Enzymes
+          - Ulcerative Colitis
+          - Heart Disorder
+          - Abnormal Heart
+          - Aneurysm
+          - Brain Aneurysm
+          - Thrombosis
+          - Coronary Disease
+          - Heart Attack
+          - Heart Failure
+          - Cardiomyopathy
+          - Heart Valve
+          - HBP
+          - Pacemaker
+          - Kidney Disorder
+          - Kidney Infection
+          - Glomerulonephritis
+          - Kidney failure
+          - PKD
+          - Blood Urine
+          - Self Catheterization
+          - Respiratory Disorder
+          - Asthma
+          - COPD
+          - Sleep Apnea
+          - Mens Health
+          - PSA
+          - Enlarged Prostate
+          - Metabolic Disorder
+          - High Cholesterol
+          - Diabetes Type1
+          - Diabetes Type2
+          - Prediabetes
+          - Psychiatric Illness
+          - ADHD
+          - Anxiety
+          - Bipolar Disorder
+          - Depression
+          - Eating Disorder
+          - PTSD
+          - Schizophrenia
+          - UnspecifiedHIV
+          - AIDS
+          - ARC
+          - HIV
+          - Womens Health
+          - Abnormal Mammogram
+          - Abnormal Pap
+          - Brain Disorder
+          - Cystic Fibrosis
+          - Pulmonary Fibrosis
+          - Chronic Kidney Disease
+          - OCD
+          - Psychosis
+          - DrugAlcohol
+          - Pulmonary Hypertension
+          - Deep Vein Thrombosis
+          - Heart Disorder None Apply
+          - Metabolic Disorder None Apply
+          - Endocrine Disorder None Apply
+          - Respiratory Disorder None Apply
+          - Kidney Disorder None Apply
+          - Psychiatric Illness None Apply
+          - Womens Health None Apply
+          - Liver Disorder None Apply
+          - Brain Disorder None Apply
+          - Arthritis None Apply
+          - Blood Disorder None Apply
+          description: Medical condition questions
+        isApplicable:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for medical history questions
+        treatmentInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for treatment indicator
+        recoveredStatus:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for recovered status
+        stage:
+          type: string
+          description: Condition Stage
+          example: Stage 1
+        organCancerSpreadInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for organ cancer spread
+        basalSquamousSkinCancerInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for basal or squamous cell skin cancer
+        resultsKnownInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for test result value
+        bipolarSuicideInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for bipolar Suicide
+        motorAccidentInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for motar accident
+        resultsReading:
+          type: string
+          description: Results reading
+          example: '70'
+        resultsReadingDate:
+          type: string
+          format: date
+          description: Last result reading date
+        diagnosisDate:
+          type: string
+          format: date
+          description: Treatment Date
+        systolicBPReading:
+          type: string
+          description: BP reading upper
+          example: '140'
+        diastolicBPReading:
+          type: string
+          description: BP reading lower
+          example: '70'
+        yearOfFirstSeizure:
+          type: string
+          description: Year of first seizure in case of epilepsy
+          example: '2001'
+        dateOfLastSeizure:
+          type: string
+          format: date
+          description: Last Seizure date if applicable
+        numberOfSeizure:
+          type: string
+          description: number of seizure in past year. Maximum value applicable is 10.
+          example: '6'
+        raLmtdFingToesInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for Rheumatoid arthritis limitation
+        workSchlHmActRAInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for Rheumatoid arthritis life impact
+        treatmentDetail:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreatmentDetail'
+        substanceUsage:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubstanceUsage'
+    ForeignTravel:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country Name
+          example: IN
+        city:
+          type: string
+          description: City Name
+          example: abc
+    SubstanceUsage:
+      type: object
+      properties:
+        substanceType:
+          type: string
+          enum:
+          - Drug
+          - Alcohol
+          description: Type of substance
+        substanceTypeDesc:
+          type: string
+          description: Type of substance description
+          example: Cocaine
+        frequency:
+          type: string
+          enum:
+          - Per Day
+          - Per Week
+          - Per Year
+          - Per Month
+          - Per Lifetime
+          - Random
+          - Single
+          - Other
+          - Unknown
+          description: Violation date
+          example: Per Day
+        substanceAmount:
+          type: string
+          description: Amount of substance
+          example: '2'
+    PolicyDecisionRequest:
+      type: object
+      properties:
+        eappId:
+          type: string
+          description: Unique application Id geenrated by the UI. Each application would have unique identifier
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        caseId:
+          type: string
+          description: Zinnia Live case
+          example: CA0000005656
+        correlationId:
+          type: string
+          description: Unique process identifier to track the all linked processed against one single application. This is an optional
+          example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+        carrier:
+          type: string
+          example: CarrierName1
+        customerId:
+          type: string
+          description: We get the customer Id as part of application request to support older products.
+          example: 0017b0000102A1UAAU
+        idpUserId:
+          type: string
+          example: abc
+        appStartDate:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application start date
+        actionType:
+          type: string
+          enum:
+          - Create
+          - Update
+          - Submit
+          description: To update the application, actionType would be - Update
+          example: Update
+        policyStatus:
+          type: string
+          enum:
+          - Applied For
+          - Approved
+          - Submitted to Underwriting
+          - Pending
+          - Declined
+          - Quoted
+          - Risk Not Acceptable
+          - Proposed
+          - Counter Offer
+          - Not Taken
+          - Issue Pending
+          - Issued
+          - Closed
+          - Active
+          - Lapsed
+          - Cancelled Not Taken
+          - Lapse Pending
+          - Cancelled FreeLook
+          - Cancelled
+          - Offer Accepted
+          - Death Claim Pending
+          - Death Claim Paid
+          - Expired
+          - Matured
+          - Surrendered
+          - Rescission
+          - Death Claim Approved
+          - Suspended Active
+          - Suspended Not Active
+          description: Status of the policy. It should be - Issued in order to issue the policy
+          example: Issued
+        appSubmissionType:
+          type: string
+          enum:
+          - Internet
+          - Electronic
+          - Handwritten
+          description: Submission method of the application
+          example: Electronic
+        policyHoldingForm:
+          type: string
+          enum:
+          - Individual
+          description: Holding Form. It should always be Individual.
+          example: Individual
+        policyHoldingStatus:
+          type: string
+          enum:
+          - Proposed
+          - Active
+          description: Holding Status
+          example: Proposed
+        consentInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Consent Indicator Value. Whether the user has provided the consent for this policy or not. This value is used by the underwriting system.
+        appState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          - GU
+          - PR
+          description: State Code
+          example: AL
+        consentIndState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: Consented state value
+        consentSubmissionType:
+          type: string
+          enum:
+          - Internet
+          - Electronic
+          - Handwritten
+          description: Consented submission method of the application
+          example: Electronic
+        appFormNumber:
+          type: string
+          description: Form number if applicable. The number assigned on the application form.
+          example: ICC20 ABC 104_08-20
+        appVersionNumber:
+          type: string
+          description: Form version number if applicable
+          example: ICC20 ABC 104_08-20
+        pageLastVisitedId:
+          type: string
+          description: User Id who has accessed this page last time.
+        appLastUpdated:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application last update date.
+        appExpirationDate:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application expiration date
+        marketingOptInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Marketing Indicator flag used by the distributor to capture the sale scope.
+        agreeToTermsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Agreed to terms and condition or not.
+        replacementIndicator:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Flag to dertermine whether this is replacement application or not.
+        replacementLtcIndicator:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicates whether the application involves replacement of existing Long-Term Care (LTC) coverage.
+        pageId:
+          type: string
+          description: Page Identifier
+          example: 5f45f7b34a3eea021f2fef1c
+        overrideDecisionFlag:
+          type: boolean
+          description: Flag to dertermine override decisions. In case of true Override results is required.
+        overrideResults:
+          $ref: '#/components/schemas/OverrideResults'
+        quote:
+          $ref: '#/components/schemas/Quote'
+        payload:
+          type: object
+          properties:
+            underwriting:
+              $ref: '#/components/schemas/Underwriting'
+            insured:
+              $ref: '#/components/schemas/PartyAdditional'
+            childInsured:
+              type: array
+              items:
+                $ref: '#/components/schemas/PartyChild'
+            coverageDetails:
+              $ref: '#/components/schemas/CoverageDetailsComplete'
+            additional:
+              $ref: '#/components/schemas/AdditionalInformation'
+            documents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Documents'
+      required:
+      - eappId
+      - caseId
+    PartyAdditional:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First Name of the party
+          example: Thomas
+        lastName:
+          type: string
+          description: Last Name of the the party
+          example: Lawrence
+        middleName:
+          type: string
+          description: Middle name of the party
+        name:
+          type: string
+          description: Full name of the party.
+          example: Thomas Lawrence
+        suffix:
+          type: string
+          description: Suffix for given party if Applicable
+          example: Sr
+        prefix:
+          type: string
+          description: Prefix for given party if Applicable
+          example: Dr
+        gender:
+          type: string
+          enum:
+          - Male
+          - Female
+          description: Gender of party
+          example: Male
+        dob:
+          type: string
+          format: date
+          description: Date of birth of party
+        age:
+          type: number
+          description: Age of the party
+          example: 26
+        ssn:
+          type: string
+          description: Party SSN. In case if non individual it should be Tax Id
+          minLength: 9
+          maxLength: 9
+          example: '121328426'
+        driverNumber:
+          type: string
+          description: Driver license number
+          example: T61217265934
+        driverState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        noDriversLicenseInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Flag for Driver License
+          example: 'No'
+        address1:
+          type: string
+          description: Addres line 1
+          example: Wt Road
+        address2:
+          type: string
+          description: Addres line 2
+          example: St Street
+        city:
+          type: string
+          description: City name
+          example: Test City
+        state:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code
+          example: AL
+        zip:
+          type: string
+          description: Zip Code. Max char allowed is 9.
+          maxLength: 9
+          example: '12345'
+        birthCountry:
+          type: string
+          enum:
+          - AF
+          - AX
+          - AL
+          - DZ
+          - AS
+          - AD
+          - AO
+          - AI
+          - AQ
+          - AG
+          - AR
+          - AM
+          - AN
+          - AW
+          - AU
+          - AT
+          - AZ
+          - BS
+          - BH
+          - BD
+          - BB
+          - BY
+          - BE
+          - BZ
+          - BJ
+          - BM
+          - BT
+          - BO
+          - BQ
+          - BA
+          - BW
+          - BV
+          - BR
+          - IO
+          - BN
+          - BG
+          - BF
+          - BI
+          - CV
+          - KH
+          - CM
+          - CA
+          - KY
+          - CF
+          - TD
+          - CL
+          - CN
+          - CX
+          - CC
+          - CO
+          - KM
+          - CD
+          - CG
+          - CK
+          - CR
+          - CI
+          - HR
+          - CU
+          - CW
+          - CY
+          - CZ
+          - DK
+          - DJ
+          - DM
+          - DO
+          - EC
+          - EG
+          - SV
+          - GQ
+          - ER
+          - EE
+          - SZ
+          - ET
+          - FK
+          - FO
+          - FJ
+          - FI
+          - FR
+          - GF
+          - PF
+          - TF
+          - GA
+          - GM
+          - GE
+          - DE
+          - GH
+          - GI
+          - GR
+          - GL
+          - GD
+          - GP
+          - GU
+          - GT
+          - GG
+          - GN
+          - GW
+          - GY
+          - HT
+          - HM
+          - VA
+          - HN
+          - HK
+          - HU
+          - IS
+          - IN
+          - ID
+          - IR
+          - IQ
+          - IE
+          - IM
+          - IL
+          - IT
+          - JM
+          - JP
+          - JE
+          - JO
+          - KZ
+          - KE
+          - KI
+          - KP
+          - KR
+          - KW
+          - KG
+          - LA
+          - LV
+          - LB
+          - LS
+          - LR
+          - LY
+          - LI
+          - LT
+          - LU
+          - MO
+          - MK
+          - MG
+          - MW
+          - MY
+          - MV
+          - ML
+          - MT
+          - MH
+          - MQ
+          - MR
+          - MU
+          - YT
+          - MX
+          - FM
+          - MD
+          - MC
+          - MN
+          - ME
+          - MS
+          - MA
+          - MZ
+          - MM
+          - NA
+          - NR
+          - NP
+          - NL
+          - NC
+          - NZ
+          - NI
+          - NE
+          - NG
+          - NU
+          - NF
+          - MP
+          - 'NO'
+          - OM
+          - PK
+          - PW
+          - PS
+          - PA
+          - PG
+          - PY
+          - PE
+          - PH
+          - PN
+          - PL
+          - PT
+          - PR
+          - QA
+          - RE
+          - RO
+          - RU
+          - RW
+          - BL
+          - SH
+          - KN
+          - LC
+          - MF
+          - PM
+          - VC
+          - WS
+          - SM
+          - ST
+          - SA
+          - SN
+          - RS
+          - SC
+          - SL
+          - SG
+          - SX
+          - SK
+          - SI
+          - SB
+          - SO
+          - ZA
+          - GS
+          - SS
+          - ES
+          - LK
+          - SD
+          - SR
+          - SJ
+          - SE
+          - CH
+          - SY
+          - TW
+          - TJ
+          - TZ
+          - TH
+          - TL
+          - TG
+          - TK
+          - TO
+          - TT
+          - TN
+          - TR
+          - TM
+          - TC
+          - TV
+          - UG
+          - UA
+          - AE
+          - GB
+          - UM
+          - US
+          - UY
+          - UZ
+          - VU
+          - VE
+          - VN
+          - VG
+          - VI
+          - WF
+          - EH
+          - XK
+          - YE
+          - ZM
+          - ZW
+          - Other
+          description: Birth Country
+          example: US
+        identification:
+          type: array
+          items:
+            type: object
+            properties:
+              governmentIdType:
+                type: string
+                enum:
+                - Passport
+                - StateId
+                - SSN
+                example: Passport
+              governmentId:
+                type: string
+                example: '213121414'
+              jurisdiction:
+                type: string
+                enum:
+                - AL
+                - AK
+                - AZ
+                - AR
+                - CA
+                - CO
+                - CT
+                - DC
+                - DE
+                - FL
+                - GA
+                - HI
+                - ID
+                - IL
+                - IN
+                - IA
+                - KS
+                - KY
+                - LA
+                - ME
+                - MD
+                - MA
+                - MI
+                - MN
+                - MS
+                - MO
+                - MT
+                - NE
+                - NV
+                - NH
+                - NJ
+                - NM
+                - NY
+                - NC
+                - ND
+                - OH
+                - OK
+                - OR
+                - PA
+                - RI
+                - SC
+                - SD
+                - TN
+                - TX
+                - UT
+                - VT
+                - VA
+                - WA
+                - WV
+                - WI
+                - WY
+                - GU
+                - PR
+                description: State Code if applicable. Provided in case of state issued Id
+                example: AL
+        phone:
+          type: string
+          description: Phone number
+          example: 111-111-2222
+        email:
+          type: string
+          description: Email Id of the party
+          example: test@abc.com
+        emailType:
+          type: string
+          enum:
+          - Personal
+          - Business
+          description: Type of email
+          example: Business
+        communicationPreference:
+          type: string
+          enum:
+          - Mail
+          - Email
+          - Phone
+          description: Communication preferences
+          example: Email
+        classification:
+          type: string
+          enum:
+          - Individual
+          - Business
+          - Trust
+          - Corporation
+          - Partnership
+          - Other
+          - Group of Individuals
+          - Estate
+          - Child
+          description: Party classification
+          example: Individual
+        employed:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+        employmentStatus:
+          type: string
+          enum:
+          - Student
+          - Unemployed
+          - Primary Caregiver
+          - Salaried
+          - Other
+          description: Employment Status of the party
+          example: Salaried
+        occupation:
+          type: string
+          description: Occupation details
+          example: Self Employed
+        householdIncome:
+          type: string
+          description: Income details.
+          example: '200000'
+        netAnnualIncome:
+          type: string
+          description: Income details it can be range or any number.It will be US standard currency
+          example: '10000'
+        childExpectedInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Flag for Unborn Child
+          example: 'No'
+        existingLifeInsuranceInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Does party have any existing insurance policy
+        lifeInsuranceHistoryInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+    TppEvidenceRequest:
+      type: object
+      properties:
+        TXLife:
+          $ref: '#/components/schemas/TXLife'
+        AppliesToPartyID:
+          type: string
+        ReqId:
+          type: string
+      required:
+      - TXLife
+    TXLife:
+      type: object
+      properties:
+        TXLifeRequest:
+          $ref: '#/components/schemas/TXLifeRequest'
+      required:
+      - TXLifeRequest
+    Relation:
+      type: object
+      properties:
+        OriginatingObjectType:
+          type: string
+        RelatedObjectType:
+          type: string
+        RelationRoleCode:
+          type: string
+        BirthDate:
+          type: string
+    LivingHistory:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country Name
+          example: IN
+        fromDate:
+          type: string
+          format: date
+          description: From Date
+        toDate:
+          type: string
+          format: date
+          description: To Date
+        reason:
+          type: string
+          description: Reason of stay
+          example: Work
+    AgentValidationSuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: IGO or NIGO
+        validationResult:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationResult'
+    CoverageDetailsComplete:
+      type: object
+      properties:
+        lob:
+          type: string
+          enum:
+          - Life
+          description: Line of business
+          example: Life
+        riderInd:
+          type: string
+          example: 'Yes'
+        productType:
+          type: string
+          enum:
+          - Indexed Universal Life
+          - Universal Life
+          - Term
+          description: type of product
+          example: Indexed Universal Life
+        productCode:
+          type: string
+          description: Product code
+          example: ABC001
+        faceAmount:
+          type: number
+          description: Face Amount
+          example: 250000
+        deathBenefitOpt:
+          type: string
+          enum:
+          - Level
+          - Increasing
+        deathBenefitComplianceTest:
+          type: string
+          enum:
+          - Cash Value Accumulation Test
+          - Guideline Premium Test
+        paymentFrequency:
+          type: string
+          enum:
+          - m
+          - q
+          - a
+          - sa
+          - sp
+          description: Frequency of premium payment
+          example: m
+        plannedPremiumAmount:
+          type: number
+          format: double
+          description: Planned Premium Amount
+          example: 250000.12
+        fixedCostPeriod:
+          type: string
+          enum:
+          - '10'
+          - '15'
+          - '20'
+          - '25'
+          - '30'
+          - '65'
+          description: Period information
+          example: '20'
+        childCoverageInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Flag to indicate the child coverage
+        childCoverageAmount:
+          type: number
+          description: Per child coverage amount. This is an optional field
+          example: 250000
+        owners:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyOwners'
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+        primary:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyOthers'
+        contingent:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyOthers'
+        physician:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyOthers'
+        payor:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyOwners'
+        thirdPartyDesignation:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyOthers'
+        secondaryAddressee:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyOthers'
+        existingPolicyCoverageAmount:
+          type: number
+          description: existingPolicyCoverageAmount
+          example: 250000
+        replacementCoverageAmount:
+          type: number
+          description: replacementCoverageAmount
+          example: 250000
+    DocumentInformation:
+      type: object
+      properties:
+        documentStream:
+          type: string
+          description: Document binary string
+        documentType:
+          type: string
+          enum:
+          - Terms of Use
+          - Notice and Consent
+          - Privacy Policy
+          - GLBA Privacy Notice
+          - FCRA
+          - MIB Pre Notice
+          - ID Verification Notice
+          - HIPAA
+          - Accelerated Benefit Rider
+          - Buyer Guide
+          - Illustration
+          - Suitability
+          - Application
+          - Signed Application
+          - Replacements Acknowledgement
+          - 1035 Exchange Surrender
+          - Evidence Document
+          - Amendment
+          - Electronic Funds Transfer
+          - Supplemental Application
+          - Conforming Illustration
+          - Signed Illustration
+          - Overflow Additional Information
+          description: Types of document
+          example: Illustration
+        documentCategory:
+          type: string
+          description: Category of the document as per OnBase system
+          example: NB Supporting Document
+        documentFileType:
+          type: string
+          enum:
+          - application/pdf
+          - image/jpeg
+          - image/jpg
+          - image/png
+          description: Type of file
+    EvidencePerson:
+      type: object
+      properties:
+        FirstName:
+          type: string
+        LastName:
+          type: string
+        Gender:
+          type: string
+          description: 'Allowed values: M, F'
+        BirthDate:
+          type: string
+    SubmitPolicy:
+      type: object
+      properties:
+        eappId:
+          type: string
+          description: Unique application Id generated by the UI. Each application would have unique identifier
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        caseId:
+          type: string
+          description: Zinnia Live case
+          example: CA0000005656
+        correlationId:
+          type: string
+          description: Unique process identifier to track the all linked processed against one single application. This is an optional
+          example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+        carrier:
+          type: string
+          description: Four characters carrier code provided by zinnia
+          example: ABCD
+        uwCaseId:
+          type: string
+          description: Underwriting case Id generated by the underwriting system
+          example: '1124152'
+        customerId:
+          type: string
+          description: We get the customer Id as part of application request to support older products.
+          example: 0017b0000102A1UAAU
+        appStartDate:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application start date
+        actionType:
+          type: string
+          enum:
+          - Create
+          - Update
+          - Submit
+          description: To submit the application, actionType would be - Submit
+          example: Submit
+        policyStatus:
+          type: string
+          enum:
+          - Applied For
+          - Approved
+          - Submitted to Underwriting
+          - Pending
+          - Declined
+          - Quoted
+          - Risk Not Acceptable
+          - Proposed
+          - Counter Offer
+          - Not Taken
+          - Issue Pending
+          - Issued
+          - Closed
+          - Active
+          - Lapsed
+          - Cancelled Not Taken
+          - Lapse Pending
+          - Cancelled FreeLook
+          - Cancelled
+          - Offer Accepted
+          - Death Claim Pending
+          - Death Claim Paid
+          - Expired
+          - Matured
+          - Surrendered
+          - Rescission
+          - Death Claim Approved
+          - Suspended Active
+          - Suspended Not Active
+          description: Status of the policy. It should be - Issued in order to issue the policy
+          example: Issued
+        appSubmissionType:
+          type: string
+          enum:
+          - Internet
+          - Electronic
+          - Handwritten
+          description: Submission method of the application
+          example: Electronic
+        policyHoldingForm:
+          type: string
+          enum:
+          - Individual
+          description: Holding Form. It should always be Individual.
+          example: Individual
+        policyHoldingStatus:
+          type: string
+          enum:
+          - Proposed
+          - Active
+          description: Holding Status
+          example: Proposed
+        consentInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Consent Indicator Value. Whether the user has provided the consent for this policy or not. This value is used by the underwriting system.
+        appState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: State Code. The application state.
+          example: AL
+        consentIndState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: Consented state value
+        consentSubmissionType:
+          type: string
+          enum:
+          - Internet
+          - Electronic
+          - Handwritten
+          description: Consented submission method of the application
+          example: Electronic
+        appFormNumber:
+          type: string
+          description: Form number if applicable. The number assigned on the application form.
+          example: ICC20 ABC 104_08-20
+        appVersionNumber:
+          type: string
+          description: Form version number if applicable
+          example: ICC20 ABC 104_08-20
+        pageLastVisitedId:
+          type: string
+          description: User Id who has accessed this page last time.
+        appLastUpdated:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application last update date.
+        appExpirationDate:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application expiration date
+        marketingOptInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Marketing Indicator flag used by the distributor to capture the sale scope
+        agreeToTermsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Agreed to terms and condition or not.
+        replacementIndicator:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Flag to determine whether this is replacement application or not.
+        replacementLtcIndicator:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicates whether the application involves replacement of existing Long-Term Care (LTC) coverage.
+        pageId:
+          type: string
+          description: Page Identifier
+          example: 5f45f7b34a3eea021f2fef1c
+        reason:
+          type: string
+          description: Reason for declining the policy. This is needed if the policy status is declined or not taken.
+        overrideDecisionFlag:
+          type: boolean
+          description: Flag to determine override decisions. In case of true Override results is required.
+        overrideResults:
+          $ref: '#/components/schemas/OverrideResults'
+        quote:
+          $ref: '#/components/schemas/Quote'
+        payload:
+          type: object
+          properties:
+            underwriting:
+              $ref: '#/components/schemas/Underwriting'
+            insured:
+              $ref: '#/components/schemas/PartyAdditional'
+            childInsured:
+              type: array
+              items:
+                $ref: '#/components/schemas/PartyChild'
+            coverageDetails:
+              $ref: '#/components/schemas/CoverageDetailsComplete'
+            additional:
+              $ref: '#/components/schemas/AdditionalInformation'
+            payment:
+              $ref: '#/components/schemas/Payment'
+            bankInformation:
+              $ref: '#/components/schemas/BankInformation'
+            documents:
+              type: array
+              items:
+                $ref: '#/components/schemas/DocumentsList'
+          required:
+          - insured
+          - coverageDetails
+          - documents
+          - underwriting
+          - payment
+          - bankInformation
+      required:
+      - eappId
+      - caseId
+      - correlationId
+      - carrier
+      - actionType
+      - policyStatus
+      - appSubmissionType
+      - policyHoldingForm
+      - consentInd
+      - appStartDate
+      - appState
+      - consentIndState
+      - consentSubmissionType
+      - replacementIndicator
+      - payload
+      - quote
+    EvidenceParty:
+      type: object
+      properties:
+        PartyTypeCode:
+          type: string
+        GovtID:
+          type: string
+        GovtIDTC:
+          type: string
+        Person:
+          $ref: '#/components/schemas/EvidencePerson'
+        Address:
+          $ref: '#/components/schemas/EvidenceAddress'
+    Violations:
+      type: array
+      items:
+        type: object
+        properties:
+          violationType:
+            type: string
+            enum:
+            - DUI
+            - SuspLicense
+            - RecklessDriving
+            description: Violation Types
+            example: DUI
+          violationDate:
+            type: string
+            format: date
+            description: Violation date
+          isApplicable:
+            type: string
+            enum:
+            - 'Yes'
+            - 'No'
+            description: Applicable flag.
+    OverrideResults:
+      type: object
+      properties:
+        decisionStatus:
+          type: string
+          enum:
+          - Risk Not Acceptable
+          description: Override decision status
+        riskClass:
+          type: string
+          enum:
+          - Elite Non-Tobacco
+          - Preferred Non-Tobacco
+          - Standard Non-Tobacco
+          - Standard Tobacco
+          - Standard Aggregate
+          - Substandard Non-Tobacco
+          - Substandard Tobacco
+          description: Risk Class Configured at LPS Engine
+          example: Elite Non-Tobacco
+        sourceSystem:
+          type: string
+          description: Static value for the source system. Should be always provided.
+          example: CarrierName_1-EAPP
+        reason:
+          type: string
+          description: Reason details for override
+          example: Due to bankcrupty filed
+    ServerErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: Failed to process request
+    ApprovedQuote:
+      type: object
+      properties:
+        quoteId:
+          type: string
+          description: Unique Id generated by the LPS system
+          example: Q332022203127424
+        acctValIntRate:
+          type: number
+          description: Account value interst rate
+          example: 3.5
+        riskClass:
+          type: string
+          enum:
+          - Elite Non-Tobacco
+          - Preferred Non-Tobacco
+          - Standard Non-Tobacco
+          - Standard Tobacco
+          - Standard Aggregate
+          - Substandard Non-Tobacco
+          - Substandard Tobacco
+          description: Risk Class Configured at LPS Engine
+          example: Elite Non-Tobacco
+        faceAmount:
+          type: number
+          description: Face Amount
+          example: 250000
+        premiumAmount:
+          type: number
+          format: double
+          description: Premium amount
+          example: 216.16
+        paymentTerm:
+          type: string
+          description: Duration of payment
+          example: '20'
+        issueAge:
+          type: string
+          description: Age at issue
+          example: '26'
+        quoteDate:
+          type: string
+          format: date-time
+          description: date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Quote date
+        cashValue:
+          type: number
+          description: Cash value as on date
+          example: 3952.941779
+        pricingVersion:
+          type: string
+          description: Internal to LPS
+          example: 2021.10.15
+        matchVersion:
+          type: string
+          description: Internal to LPS
+          example: 2021.10.15
+        matchPercent:
+          type: number
+          description: Match percent
+          example: 1
+        averageMonthlyCOI:
+          type: number
+          description: Average monthly cost of issuance
+          example: 76
+        firstMonthCOI:
+          type: number
+          description: first month cost of issuance
+          example: 17.46
+        adminFee:
+          type: number
+          description: Admin fee
+          example: 8
+        firstMonthSavings:
+          type: number
+          description: First month saving
+          example: 190.54
+        monthlySavings:
+          $ref: '#/components/schemas/MonthlySavings'
+    Documents:
+      type: object
+      properties:
+        referenceId:
+          type: string
+          description: Unique number assigned to given document
+        productCode:
+          type: string
+          description: Product code
+          example: ABC001
+        documentInformation:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentInformation'
+    MonthlySavings:
+      type: object
+      properties:
+        minSavings:
+          type: number
+          description: Minimunm Savings
+          example: 132
+        maxSavings:
+          type: number
+          description: Maximum Savings
+          example: 222
+        targetSavings:
+          type: number
+          description: Target Savings
+          example: 132
+    ApplicationData:
+      type: object
+      properties:
+        eappId:
+          type: string
+          description: Unique application Id generated by the UI. Each application would have unique identifier
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        caseId:
+          type: string
+          description: Zinnia Live case
+          example: CA0000005656
+        correlationId:
+          type: string
+          description: Unique process identifier to track the all linked processed against one single application. This is an optional
+          example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+        carrier:
+          type: string
+          example: CarrierName_1
+        customerId:
+          type: string
+          description: We get the customer Id as part of application request to support older products.
+          example: 0017b0000102A1UAAU
+        idpUserId:
+          type: string
+          description: Need to update idp user id description
+          example: abc
+        appStartDate:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application start date
+        actionType:
+          type: string
+          enum:
+          - Create
+          - Update
+          - Submit
+          description: To create the application, actionType would be - Create
+          example: Create
+        policyStatus:
+          type: string
+          enum:
+          - Applied For
+          - Approved
+          - Submitted to Underwriting
+          - Pending
+          - Declined
+          - Quoted
+          - Risk Not Acceptable
+          - Proposed
+          - Counter Offer
+          - Not Taken
+          - Issue Pending
+          - Issued
+          - Closed
+          - Active
+          - Lapsed
+          - Cancelled Not Taken
+          - Lapse Pending
+          - Cancelled FreeLook
+          - Cancelled
+          - Offer Accepted
+          - Death Claim Pending
+          - Death Claim Paid
+          - Expired
+          - Matured
+          - Surrendered
+          - Rescission
+          - Death Claim Approved
+          - Suspended Active
+          - Suspended Not Active
+          description: Status of the policy. It should be - Issued in order to issue the policy
+          example: Issued
+        appSubmissionType:
+          type: string
+          enum:
+          - Internet
+          - Electronic
+          - Handwritten
+          description: Submission method of the application
+          example: Electronic
+        policyHoldingForm:
+          type: string
+          enum:
+          - Individual
+          description: Holding Form. It should always be Individual.
+          example: Individual
+        policyHoldingStatus:
+          type: string
+          enum:
+          - Proposed
+          - Active
+          description: Holding Status
+          example: Proposed
+        consentInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Consent Indicator Value. Whether the user has provided the consent for this policy or not. This value is used by the underwriting system.
+        appState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          - GU
+          - PR
+          description: State Code
+          example: AL
+        consentIndState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+          description: Consented state value
+        consentSubmissionType:
+          type: string
+          enum:
+          - Internet
+          - Electronic
+          - Handwritten
+          description: Consented submission method of the application
+          example: Electronic
+        appFormNumber:
+          type: string
+          description: Form number if applicable. The number assigned on the application form.
+          example: ICC20 ABC 104_08-20
+        appVersionNumber:
+          type: string
+          description: Form version number if applicable
+          example: ICC20 ABC 104_08-20
+        pageLastVisitedId:
+          type: string
+          description: User Id who has accessed this page last time.
+        appLastUpdated:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application last update date.
+        appExpirationDate:
+          type: string
+          format: date-time
+          description: Date (with pattern "yyyy-MM-dd'T'HH:mm:ss'Z'"). Application expiration date
+        marketingOptInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Marketing Indicator flag used by the distributor to capture the sale scope.
+        agreeToTermsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Agreed to terms and condition or not.
+        replacementIndicator:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Flag to dertermine whether this is replacement application or not.
+        replacementLtcIndicator:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicates whether the application involves replacement of existing Long-Term Care (LTC) coverage.
+        pageId:
+          type: string
+          description: Page Identifier
+          example: 5f45f7b34a3eea021f2fef1c
+        quote:
+          $ref: '#/components/schemas/Quote'
+        payload:
+          type: object
+          properties:
+            insured:
+              $ref: '#/components/schemas/PartyAdditional'
+            childInsured:
+              type: array
+              items:
+                $ref: '#/components/schemas/PartyChild'
+            coverageDetails:
+              $ref: '#/components/schemas/CoverageDetails'
+            additional:
+              $ref: '#/components/schemas/ApplicationAdditionalInformation'
+            documents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Documents'
+          required:
+          - insured
+          - coverageDetails
+          - documents
+      required:
+      - eappId
+      - caseId
+      - correlationId
+      - customerId
+      - carrier
+      - actionType
+      - policyStatus
+      - appSubmissionType
+      - policyHoldingForm
+      - consentInd
+      - appStartDate
+      - appState
+      - consentIndState
+      - consentSubmissionType
+    AccessDeniedResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: 'User is not authorized for the carrier : CarrierName_1'
+    UnderwritingResult:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Result description
+          example: Scuba diving deeper than 130 feet
+        reasonCode:
+          type: string
+          enum:
+          - App
+          - MM
+          - LN
+          - Exam One
+          - MIB
+          - EIS
+          description: Reason code
+          example: LN
+    DocumentsList:
+      type: object
+      properties:
+        referenceId:
+          type: string
+          description: Unique number assigned to given document
+        trackingId:
+          type: string
+          description: Tracking Id
+        productCode:
+          type: string
+          enum:
+          - ABC001
+          description: Product code
+          example: ABC001
+        documentInformation:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentInformation'
+        signature:
+          type: array
+          items:
+            $ref: '#/components/schemas/Signature'
+    LifeStyleActivities:
+      type: object
+      properties:
+        bankruptcyFiledInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for bankruptcy
+        bankruptcyDischargeDate:
+          type: string
+          format: date
+          description: Discharge date of bankruptcy in YYYY-MM-DD format.
+        privatePilotLast10YrsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for flying history
+        privateFlyingDetails:
+          type: object
+          properties:
+            ifrInd:
+              type: string
+              enum:
+              - 'Yes'
+              - 'No'
+              - Unknown
+              description: Indicator flag for Instrument Flight Rating
+            noOfHoursFlown:
+              type: string
+              description: Solo flying experience in hours
+              example: '10'
+        flyExperimentalInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for flying experience
+        plantoFlyNext2YrsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for future flying plans
+        airRacingInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for air racing
+        diagnosticTestInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for diagnostic tests
+        skyDiveInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for sky diving
+        scubaDivingInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for scuba diving
+        wingSuitSoaringInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag
+        baseJumpSkiingInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for jump skiing
+        motorCrossInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag
+        hangGlidingInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag
+        noActivityPlannedInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for no activity
+        motorRacingInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for motor racing
+        freeDivingAbove50ftInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for diving
+        climbingInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          - Unknown
+          description: Indicator flag for climbing
+        highRiskPlanNext2YrsInd:
+          type: string
+          enum:
+          - 'Yes'
+          - 'No'
+          description: Indicator flag for high risk activity
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

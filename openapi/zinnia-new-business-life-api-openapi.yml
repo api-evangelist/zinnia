@@ -1,0 +1,128 @@
+openapi: 3.2.0
+info:
+  title: Zinnia New Business API. New Business Life API
+  description: Enterprise API for New Business.
+  version: 0.9.8
+  contact:
+    name: Zinnia New Business Life
+    email: hitesh.parakh@zinnia.com
+  x-changelog:
+  - date: '2025-07-14'
+    change: CMW-30141 - Added EIN Identifier and additional enums in Suffix
+  - date: '2025-07-15'
+    change: CMW-30141 - Added additional enums in entity type
+  - date: '2025-08-01'
+    change: CMW-30429 - Added new enum values in documentType(NB_STATE_REPLACEMENT, NB_CONVERSION)
+  - date: '2025-08-01'
+    change: CMW-29832 - Changed insuredHistory to policyHistory and updated the hierarchy of the policyHistory
+  - date: '2025-09-25'
+    change: CMW-29118 - Updated missing key in Beneficiary Role (birthSex)
+  - date: '2025-11-18'
+    change: CMW-32740 - Update BPM API to Support Additional File Types (JPEG, JPG, PNG)
+  - date: '2025-11-27'
+    change: CMW-32606 - Expose Health Check Endpoint Publicly Through Kong for New Business - Life
+  - date: '2025-11-29'
+    change: CMW-32446 - Expose Interim Status Update Endpoint On Kong - Life
+  - date: '2025-12-08'
+    change: CMW-33682 - Expose Case Export Endpoint On Kong - Life
+  - date: '2026-02-18'
+    change: CMW-35259 - Added replacementLtcIndicator to all Everly Workflows
+  - date: '2026-04-20'
+    change: ZNBA-209 - Introduced new enum to support Whole Life products
+servers:
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://uat.api.zinnia.io
+  description: UAT Environment
+- url: https://api.zinnia.io
+  description: PROD Environment
+tags:
+- name: New Business Life
+paths:
+  /newbusiness/actuator/health:
+    get:
+      summary: New Business Life Health Check
+      tags:
+      - New Business Life
+      description: Returns the health status of the application
+      operationId: getHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+      security:
+      - Auth0: []
+      x-kong-plugin-pre-function:
+        config:
+          access:
+          - 'local path = kong.request.get_path()
+
+            kong.service.request.set_path("/bpm" .. path)
+
+            '
+components:
+  schemas:
+    AccessDeniedResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: 'User is not authorized for the carrier : CarrierName_1'
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

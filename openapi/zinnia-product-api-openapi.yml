@@ -1,0 +1,264 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Service Product API
+  description: Product API
+  version: 0.1.0
+  contact: {}
+servers:
+- url: https://uat.api.zinnia.io
+tags:
+- name: Product
+  description: ''
+paths:
+  /product/v1/products:
+    post:
+      operationId: CreateProduct
+      summary: Create product
+      description: Create Product
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDataModel'
+      responses:
+        '400':
+          description: Bad Request – validation error or duplicate key
+        '401':
+          description: Unauthorized – missing or invalid token
+        '403':
+          description: Forbidden – insufficient permissions
+        '500':
+          description: Internal Server Error
+        default:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductModelDB'
+      tags:
+      - Product
+      security:
+      - Auth0: []
+      x-summary-source: derived
+    get:
+      operationId: QueryProduct
+      summary: Query product
+      description: Query and retrieve products with optional filtering. Always returns an array of products, even when no products match the criteria (returns empty array) or when only a single product is found.
+      parameters:
+      - name: carrier
+        required: true
+        in: query
+        description: carrier name
+        schema:
+          type: string
+      - name: carrierProductId
+        required: false
+        in: query
+        description: carrier product id
+        schema:
+          type: string
+      - name: productId
+        required: false
+        in: query
+        description: product id
+        schema:
+          type: string
+      - name: productType
+        required: false
+        in: query
+        description: product type
+        schema:
+          type: string
+      - name: offset
+        required: false
+        in: query
+        description: offset
+        schema:
+          type: number
+      - name: limit
+        required: false
+        in: query
+        description: limit
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Array of products matching the search criteria. Returns empty array if no products found, single-item array if one product found, or multiple products if many match.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductModelDB'
+        '400':
+          description: Bad Request – validation error or missing required parameter
+        '401':
+          description: Unauthorized – missing or invalid token
+        '403':
+          description: Forbidden – insufficient permissions or carrier missing
+        '500':
+          description: Internal Server Error
+      tags:
+      - Product
+      security:
+      - Auth0: []
+      x-summary-source: derived
+components:
+  schemas:
+    ProductModelDB:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: Zinnia generated unique ID generated to uniquely identify the product in our product master database
+          example: UUID
+        carrierProductId:
+          type: string
+          description: Carrier generated unique ID, which may be used to communicate across integrations.
+          example: EVGL-PROD-001
+        productMarketingName:
+          type: string
+          description: Carrier generated marketing name for the product
+          example: Everglades Term Life
+          enum:
+          - Everglades Term Life
+          - Everglades Return of Premium Term
+          - Everglades Index Universal Life
+        carrier:
+          type: string
+          description: Unique carrier key used in enterprise APIs
+          example: EVGL
+        productLine:
+          type: string
+          description: Product line category
+          example: LIFE
+          enum:
+          - LIFE
+          - ANNUITY
+        productType:
+          type: string
+          description: Product type category
+          example: TERM
+          enum:
+          - INDEX_UNIVERSAL_LIFE
+          - UNIVERSAL_LIFE
+          - TERM
+        planCode:
+          type: string
+          description: Plan code for the product (multiple can exist for a single product)
+          example: EVGUL001
+        termLength:
+          type: array
+          description: Term length in years
+          example:
+          - 10
+          - 20
+          - 30
+          items:
+            type: number
+            enum:
+            - 1
+            - 5
+            - 10
+            - 15
+            - 20
+            - 25
+            - 30
+            - 35
+            - 40
+        availableToSell:
+          type: boolean
+          description: Indicates if the product is available to sell
+          example: true
+        id:
+          type: string
+          description: Database generated unique ID
+    ProductDataModel:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: Zinnia generated unique ID generated to uniquely identify the product in our product master database
+          example: UUID
+        carrierProductId:
+          type: string
+          description: Carrier generated unique ID, which may be used to communicate across integrations.
+          example: EVGL-PROD-001
+        productMarketingName:
+          type: string
+          description: Carrier generated marketing name for the product
+          example: Everglades Term Life
+          enum:
+          - Everglades Term Life
+          - Everglades Return of Premium Term
+          - Everglades Index Universal Life
+        carrier:
+          type: string
+          description: Unique carrier key used in enterprise APIs
+          example: EVGL
+        productLine:
+          type: string
+          description: Product line category
+          example: LIFE
+          enum:
+          - LIFE
+          - ANNUITY
+        productType:
+          type: string
+          description: Product type category
+          example: TERM
+          enum:
+          - INDEX_UNIVERSAL_LIFE
+          - UNIVERSAL_LIFE
+          - TERM
+        planCode:
+          type: string
+          description: Plan code for the product (multiple can exist for a single product)
+          example: EVGUL001
+        termLength:
+          type: array
+          description: Term length in years
+          example:
+          - 10
+          - 20
+          - 30
+          items:
+            type: number
+            enum:
+            - 1
+            - 5
+            - 10
+            - 15
+            - 20
+            - 25
+            - 30
+            - 35
+            - 40
+        availableToSell:
+          type: boolean
+          description: Indicates if the product is available to sell
+          example: true
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.uat.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://uat.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://uat.api.zinnia.io
+          auth_methods:
+          - bearer
+          scopes: []
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

@@ -1,0 +1,1453 @@
+openapi: 3.2.0
+info:
+  title: Case Management Case Instance API
+  description: Maintains cases and tasks apis related to the policy lifecycle.
+  version: 1.0.0
+servers:
+- url: https://dev.api.zinnia.io/
+  description: Dev Environment
+- url: https://qa.api.zinnia.io/
+  description: QA Environment
+- url: https://uat.api.zinnia.io/
+  description: UAT Environment
+- url: https://api.zinnia.io/
+  description: PROD Environment
+tags:
+- name: Case Instance
+  description: Manages cases for all processes
+paths:
+  /case/v1/cases/{caseId}:
+    get:
+      summary: Get Case Detail
+      tags:
+      - Case Instance
+      description: Retrieve the case instance details using the system identifier (caseId).
+      operationId: getCaseInstanceById
+      parameters:
+      - name: caseId
+        in: path
+        description: Case instance id
+        example: CA0000360227
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Case details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseInstance'
+              example:
+                id: CA0000360227
+                templateId: b5664374-8724-43c8-846c-0f8fad7890fd
+                carrier: CarrierName_1
+                process: New Business
+                caseGroup: New Business
+                parentInstanceId: ''
+                correlationId: 96d5a484-78b2-4245-9588-d65e670d1c08
+                caseStatus: IN_PROGRESS
+                caseResult: ''
+                caseResultDetail: ''
+                primary: false
+                caseProcessingDetails:
+                - detailType: submissionDetails
+                  properties:
+                  - _id: submittedBy
+                    value: MANUAL
+                  - _id: submissionSource
+                    value: Orion
+                linkDetails:
+                  linkedCaseInstanceId: 0000028951
+                  linkedReason: Identified by case management
+                processSubType: ANNUITY APPLICATION
+                policyNumber: '5810000002'
+                planCode: '900'
+                productName: ''
+                documents:
+                - id: '119299808'
+                  name: NB Purchase w App
+                  documentNumber: 11251004-M-199808
+                  source: Source
+                  url: https://example.com/doc-123
+                  updatedAt: '2023-10-10T12:34:56Z'
+                  fileType: NB Fix
+                  documentUploadDate: '2023-10-10T12:34:56Z'
+                exceptions:
+                - id: '9989285'
+                  status: RESOLVED
+                  excptionRefId: NB.EM.068
+                  exceptionType: Business Exception
+                  category: ACH
+                  reason: INCORRECT ACH INFORMATION PROVIDED
+                  detailedReason: BANK NAME
+                  updatedAt: '2024-07-15T22:47:54.000Z'
+                  taskIdList:
+                  - '9989286'
+                  additionalData: {}
+                  eventRef:
+                  - 85d469a5-e5d9-40b3-b7c8-144bdf10ed0d
+                  - 33cc35a5-c5fc-44ac-95a9-c910b2096f38
+                notes: []
+                tasks:
+                - label: ''
+                  id: '9989286'
+                  assignee: ''
+                  status: COMPLETE
+                  updatedAt: '2024-07-15T22:54:22.000Z'
+                  createdAt: '2024-07-15T22:44:24.000Z'
+                  taskType: Manual Check
+                  taskName: Manual Check
+                  queue: new_business
+                  additionalData: {}
+                  eventRef:
+                  - 0da9f427-7bdd-4018-9cb4-160260a6f1c5
+                  - 7d7766cd-452a-4cbe-bd37-d5490a16415b
+                  - 99aca59e-a83f-4575-b1de-df2b35ccf83d
+                  externalTaskId: '9989286'
+                  notesIdList: []
+                - label: ''
+                  id: '9989292'
+                  assignee: ''
+                  status: COMPLETE
+                  updatedAt: '2024-07-15T22:56:19.000Z'
+                  createdAt: '2024-07-15T22:50:24.000Z'
+                  taskType: Checks Out
+                  additionalData: {}
+                  eventRef:
+                  - 9db828ce-fea4-4896-a1e2-972971b08191
+                  - bda9a2f6-b1a7-4ede-b543-660b5951d12c
+                  externalTaskId: '9989292'
+                  notesIdList: []
+                mappedTasks: []
+                mappedExceptions: []
+                mappedDocuments: []
+                mappedNotes: []
+                identifiers:
+                - identifier: documentNumber
+                  value: 20240715-MAN-389232
+                - identifier: policyNumber
+                  value: '5810000002'
+                - identifier: caseID
+                  value: '9989283'
+                - identifier: businessKey
+                  value: 20240715-MAN-389232
+                - identifier: contractNumber
+                  value: '5810000002'
+                stages:
+                - id: requestAck
+                  label: Request Acknowledgement
+                  stageStatus: IN_PROGRESS
+                  mappedNotes: []
+                  steps:
+                  - id: requestAck.nbRequestReceived
+                    label: New NB Request Received
+                    stepStatus: COMPLETED
+                    eventRef:
+                    - a24d3d9f-200e-44d6-85e4-4b6cfbcb09c4
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: requestAck.draftContractCreation
+                    label: Draft Contract Creation
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: requestAck.caseProcessing
+                    label: Case Processing
+                    stepStatus: COMPLETED
+                    eventRef:
+                    - a24d3d9f-200e-44d6-85e4-4b6cfbcb09c4
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments:
+                    - '119299808'
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:43:19.000Z'
+                - id: agentValidation
+                  label: Agent Validation
+                  stageStatus: NOT_STARTED
+                  mappedNotes: []
+                  steps:
+                  - id: agentValidation.valiatingAgentDetails
+                    label: Validating Agent Details
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: true
+                    instanceInfo:
+                      identifier: A12345
+                      label: Steve Smith
+                      object: Agent
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: agentValidation.preValidationRules
+                    label: Pre Validation Rules
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: agentValidation.agentStatusValidation
+                    label: Agent Status Validation
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:43:19.000Z'
+                - id: policyValidation
+                  label: Policy Validation
+                  stageStatus: NOT_STARTED
+                  mappedNotes: []
+                  steps:
+                  - id: policyValidation.valiatingApplicationDetails
+                    label: Validating Application Details
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: policyValidation.retrieveApplicationData
+                    label: Retrieve Application Data
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: policyValidation.agentHierarchyValidation
+                    label: Agent Hierarchy Validation
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:43:19.000Z'
+                - id: premiumProcessing
+                  label: Premium Processing
+                  stageStatus: NOT_STARTED
+                  mappedNotes: []
+                  steps:
+                  - id: premiumProcessing.premiumProcessing
+                    label: Premium Processing
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:43:19.000Z'
+                - id: requestCompletion
+                  label: Request Completion
+                  stageStatus: IN_PROGRESS
+                  mappedNotes: []
+                  steps:
+                  - id: requestCompletion.LCContractIssued
+                    label: Contract Issued
+                    stepStatus: NOT_STARTED
+                    stepResult: APPROVED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: requestCompletion.caseCompleted
+                    label: Case Processing Completed
+                    stepStatus: COMPLETED
+                    eventRef:
+                    - 46b7bb4f-1095-4dc1-af4c-ae777a06f71b
+                    updatedAt: '2024-07-15T22:59:00.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:59:00.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:59:00.000Z'
+                parties: []
+                createdAt: '2024-07-15T22:43:19.000Z'
+                updatedAt: '2024-07-15T22:59:00.000Z'
+                systemUpdatedDt: '2024-07-15'
+                deleted: false
+                techExceptionStatus: ''
+                techExceptionCount: 5
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+  /case/v2/cases/{caseId}:
+    get:
+      summary: Get Case Detail
+      tags:
+      - Case Instance
+      description: Retrieve the case instance details using the system identifier (caseId).
+      operationId: getCaseInstanceByIdV2
+      parameters:
+      - name: caseId
+        in: path
+        description: Case instance id
+        example: CA0000360227
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Case details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseInstance'
+              example:
+                id: CA0000360227
+                templateId: b5664374-8724-43c8-846c-0f8fad7890fd
+                carrier: CarrierName_1
+                process: New Business
+                caseGroup: New Business
+                parentInstanceId: ''
+                correlationId: 96d5a484-78b2-4245-9588-d65e670d1c08
+                caseStatus: IN_PROGRESS
+                caseResult: ''
+                caseResultDetail: ''
+                primary: false
+                caseProcessingDetails:
+                - detailType: submissionDetails
+                  properties:
+                  - _id: submittedBy
+                    value: MANUAL
+                  - _id: submissionSource
+                    value: Orion
+                linkDetails:
+                  linkedCaseInstanceId: 0000028951
+                  linkedReason: Identified by case management
+                processSubType: ANNUITY APPLICATION
+                policyNumber: '5810000002'
+                planCode: '900'
+                productName: ''
+                documents:
+                - id: '119299808'
+                  name: NB Purchase w App
+                  documentNumber: 11251004-M-199808
+                  source: Source
+                  url: https://example.com/doc-123
+                  updatedAt: '2023-10-10T12:34:56Z'
+                  fileType: NB Fix
+                  documentUploadDate: '2023-10-10T12:34:56Z'
+                exceptions:
+                - id: '9989285'
+                  status: RESOLVED
+                  excptionRefId: NB.EM.068
+                  exceptionType: Business Exception
+                  category: ACH
+                  reason: INCORRECT ACH INFORMATION PROVIDED
+                  detailedReason: BANK NAME
+                  updatedAt: '2024-07-15T22:47:54.000Z'
+                  taskIdList:
+                  - '9989286'
+                  additionalData: {}
+                  eventRef:
+                  - 85d469a5-e5d9-40b3-b7c8-144bdf10ed0d
+                  - 33cc35a5-c5fc-44ac-95a9-c910b2096f38
+                notes: []
+                tasks:
+                - label: ''
+                  id: '9989286'
+                  assignee: ''
+                  status: COMPLETE
+                  updatedAt: '2024-07-15T22:54:22.000Z'
+                  createdAt: '2024-07-15T22:44:24.000Z'
+                  taskType: Manual Check
+                  taskName: Manual Check
+                  queue: new_business
+                  additionalData: {}
+                  eventRef:
+                  - 0da9f427-7bdd-4018-9cb4-160260a6f1c5
+                  - 7d7766cd-452a-4cbe-bd37-d5490a16415b
+                  - 99aca59e-a83f-4575-b1de-df2b35ccf83d
+                  externalTaskId: '9989286'
+                  notesIdList: []
+                - label: ''
+                  id: '9989292'
+                  assignee: ''
+                  status: COMPLETE
+                  updatedAt: '2024-07-15T22:56:19.000Z'
+                  createdAt: '2024-07-15T22:50:24.000Z'
+                  taskType: Checks Out
+                  additionalData: {}
+                  eventRef:
+                  - 9db828ce-fea4-4896-a1e2-972971b08191
+                  - bda9a2f6-b1a7-4ede-b543-660b5951d12c
+                  externalTaskId: '9989292'
+                  notesIdList: []
+                mappedTasks: []
+                mappedExceptions: []
+                mappedDocuments: []
+                mappedNotes: []
+                identifiers:
+                - identifier: documentNumber
+                  value: 20240715-MAN-389232
+                - identifier: policyNumber
+                  value: '5810000002'
+                - identifier: caseID
+                  value: '9989283'
+                - identifier: businessKey
+                  value: 20240715-MAN-389232
+                - identifier: contractNumber
+                  value: '5810000002'
+                stages:
+                - id: requestAck
+                  label: Request Acknowledgement
+                  stageStatus: IN_PROGRESS
+                  mappedNotes: []
+                  steps:
+                  - id: requestAck.nbRequestReceived
+                    label: New NB Request Received
+                    stepStatus: COMPLETED
+                    eventRef:
+                    - a24d3d9f-200e-44d6-85e4-4b6cfbcb09c4
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: requestAck.draftContractCreation
+                    label: Draft Contract Creation
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: requestAck.caseProcessing
+                    label: Case Processing
+                    stepStatus: COMPLETED
+                    eventRef:
+                    - a24d3d9f-200e-44d6-85e4-4b6cfbcb09c4
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments:
+                    - '119299808'
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:43:19.000Z'
+                - id: agentValidation
+                  label: Agent Validation
+                  stageStatus: NOT_STARTED
+                  mappedNotes: []
+                  steps:
+                  - id: agentValidation.valiatingAgentDetails
+                    label: Validating Agent Details
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: true
+                    instanceInfo:
+                      identifier: A12345
+                      label: Steve Smith
+                      object: Agent
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: agentValidation.preValidationRules
+                    label: Pre Validation Rules
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: agentValidation.agentStatusValidation
+                    label: Agent Status Validation
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:43:19.000Z'
+                - id: policyValidation
+                  label: Policy Validation
+                  stageStatus: NOT_STARTED
+                  mappedNotes: []
+                  steps:
+                  - id: policyValidation.valiatingApplicationDetails
+                    label: Validating Application Details
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: policyValidation.retrieveApplicationData
+                    label: Retrieve Application Data
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: policyValidation.agentHierarchyValidation
+                    label: Agent Hierarchy Validation
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:43:19.000Z'
+                - id: premiumProcessing
+                  label: Premium Processing
+                  stageStatus: NOT_STARTED
+                  mappedNotes: []
+                  steps:
+                  - id: premiumProcessing.premiumProcessing
+                    label: Premium Processing
+                    stepStatus: NOT_STARTED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:43:19.000Z'
+                - id: requestCompletion
+                  label: Request Completion
+                  stageStatus: IN_PROGRESS
+                  mappedNotes: []
+                  steps:
+                  - id: requestCompletion.LCContractIssued
+                    label: Contract Issued
+                    stepStatus: NOT_STARTED
+                    stepResult: APPROVED
+                    eventRef: []
+                    updatedAt: '2024-07-15T22:43:19.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:43:19.000Z'
+                  - id: requestCompletion.caseCompleted
+                    label: Case Processing Completed
+                    stepStatus: COMPLETED
+                    eventRef:
+                    - 46b7bb4f-1095-4dc1-af4c-ae777a06f71b
+                    updatedAt: '2024-07-15T22:59:00.000Z'
+                    tasks: []
+                    mappedTasks: []
+                    mappedExceptions: []
+                    mappedDocuments: []
+                    mappedNotes: []
+                    multiInstance: false
+                    instanceInfo: {}
+                    createdAt: '2024-07-15T22:59:00.000Z'
+                  tasks: []
+                  mappedTasks: []
+                  createdAt: '2024-07-15T22:59:00.000Z'
+                parties: []
+                createdAt: '2024-07-15T22:43:19.000Z'
+                updatedAt: '2024-07-15T22:59:00.000Z'
+                systemUpdatedDt: '2024-07-15'
+                deleted: false
+                techExceptionStatus: ''
+                techExceptionCount: 5
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+  /case/v2/cases:
+    post:
+      tags:
+      - Case Instance
+      summary: Create Case
+      description: Create or Find a Case for/By specified values
+      operationId: CreateCaseV2
+      requestBody:
+        description: Case details for creation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseCreateRequestV2'
+            examples:
+              New Business:
+                value:
+                  correlationid: 218d8992-3783-42ac-b59a-66cbc36adaab
+                  source: Zinnia.OnBase
+                  carrier: CarrierName_1
+                  type: CaseCreated
+                  datacontenttype: application/json
+                  data: '[{"clientCode":"CarrierName_1","documentHandle":"206426781","documentType":"Incoming Transfer","documentNumber":"20240801-EM-426781","caseId":"156779803","caseStatus":"CP - New","contractNumber":"","caseCreatedOn":"2024-08-01T15:57:18-05:00","caseUpdatedOn":"2024-08-01T15:57:18-05:00","transactionType":"INCOMING TRANSFER","processType":"New Business","batchID":"13326094","productName":"CarrierName_1MUTUAL STABLE VOYAGE","correlationId":"e18d8992-3783-42ac-b59a-66cbc36adaab"}]'
+                  identifiers:
+                  - identifier: caseID
+                    value: '156779801'
+                  - identifier: documentNumber
+                    value: 20240801-EM-426782
+        required: true
+      responses:
+        '200':
+          description: Case Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseInstance'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+components:
+  schemas:
+    NoteInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier of Note
+        note:
+          type: string
+          description: The Text content of Note
+        author:
+          type: string
+          description: Author of note
+        internal:
+          type: boolean
+          description: Indicates whether the item is internal or not.
+        createdAt:
+          type: string
+          description: The timestamp of Note been created
+        updatedAt:
+          type: string
+          example: 09-April-2023
+          description: The timestamp of Note been updated
+        desc:
+          type: string
+          description: Description of note
+        additionalData:
+          $ref: '#/components/schemas/AdditionalDataInstance'
+        eventRef:
+          type: array
+          items:
+            type: string
+          description: List of Events associated with Note Instance
+    ValidationResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 400
+        timestamp:
+          type: string
+          format: date-time
+        errorId:
+          type: string
+          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
+        message:
+          type: string
+          example: Template validation fails with errors
+        error:
+          type: array
+          items:
+            type: string
+            example: Stage [0] Step [1] mandatory attribute label missing
+    StageInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the stage instance.
+        label:
+          type: string
+          description: Business Friendly label for the stage instance.
+        stageStatus:
+          type: string
+          description: Current status of the stage instance.
+          enum:
+          - IN_PROGRESS
+          - EXCEPTION
+          - COMPLETED
+          - NOT_STARTED
+        mappedTasks:
+          type: array
+          description: List of identifiers for tasks mapped to this stage (RESERVED FOR FUTURE SCOPE).
+          items:
+            type: string
+        mappedNotes:
+          type: array
+          description: List of identifiers for notes mapped to this stage (RESERVED FOR FUTURE SCOPE).
+          items:
+            type: string
+        steps:
+          type: array
+          description: List of step instances that make up this stage.
+          items:
+            $ref: '#/components/schemas/StepInstance'
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the stage instance was created.
+    ServerErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 500
+        timestamp:
+          type: integer
+          format: int64
+          example: 1681395423438
+        errorId:
+          type: string
+          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+        message:
+          type: string
+          example: Failed to process request
+    TaskLinkInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A Unique identifier of Task in Task Management
+        taskType:
+          type: string
+          description: Business friendly type for Task
+        label:
+          type: string
+          description: Business friendly Label for Task
+        assignee:
+          type: string
+          description: User currently assigned to the task
+        status:
+          type: string
+          description: Status of Task (STATUS DISCUSSION IN PROGRESS)
+          enum:
+          - OPEN
+          - CLOSED
+          - NEW
+          - COMPLETED
+          - COMPLETE
+        taskName:
+          type: string
+          description: task name of the task
+        queue:
+          type: string
+          description: Queue to which the task is assigned
+        createdAt:
+          type: string
+          description: Timestamp when the Task was created
+        updatedAt:
+          type: string
+          description: Timestamp when the Task was last updated
+        eventRef:
+          type: array
+          items:
+            type: string
+            description: List of Events associated with Note Instance
+        externalTaskId:
+          type: string
+          description: The identifier how an external system understand it for example used to map onbase taskId
+        notesIdList:
+          type: array
+          items:
+            type: string
+          description: List of Note identifiers associated to Task
+    CaseAdditionalDataNB:
+      type: object
+      properties:
+        policyNumber:
+          type: string
+          example: '12345678'
+        requestSubType:
+          type: string
+          example: NB Purchase w APP
+        owners:
+          type: array
+          items:
+            type: object
+            properties:
+              firstName:
+                type: string
+                example: Utkarsh
+              lastName:
+                type: string
+                example: Jain
+              middleName:
+                type: string
+                example: Kumar
+              fullName:
+                type: string
+                example: Utkarsh Kumar Jain
+              ssn:
+                type: string
+                example: 045678387
+    CaseInstance:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for the case instance.
+        templateId:
+          type: string
+          description: Identifier for the template associated with the case instance.
+        carrier:
+          type: string
+          description: Name of the carrier associated with transaction/case.
+        process:
+          type: string
+          description: Name of the process/transaction type for case.
+        caseGroup:
+          type: string
+          description: Name of the caseGroup type for case.
+        parentInstanceId:
+          type: string
+          description: Identifier for the parent case instance, if applicable.
+        correlationId:
+          type: string
+          description: Identifier used for correlating events as they received.
+        caseStatus:
+          description: Current status of the case instance.
+          type: string
+          enum:
+          - IN_PROGRESS
+          - EXCEPTION
+          - COMPLETED
+          - CANCELED
+        caseResult:
+          description: Contextual information regarding the caseStatus especially when case is marked as canceled
+          type: string
+        caseResultDetail:
+          description: Detailed contextual information regarding the caseStatus
+          type: string
+        primary:
+          type: boolean
+          description: Indicates if this is the primary case instance.
+        escalated:
+          type: boolean
+          description: Indicates if the case instance has been escalated.
+        caseProcessingDetails:
+          type: array
+          description: List of detail sections for case processing.
+          items:
+            type: object
+            properties:
+              detailType:
+                type: string
+                description: Type of the detail section (e.g., "submissionDetails", "executionDetails").
+                example: submissionDetails
+              properties:
+                type: array
+                description: List of properties for the detail section.
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: Identifier for the property (e.g., "submittedBy", "submissionSource").
+                      example: submittedBy
+                    value:
+                      type: string
+                      description: Value of the property.
+                      example: MANUAL
+        linkDetails:
+          type: object
+          description: Details about linked case instances.
+          properties:
+            linkedCaseInstanceId:
+              type: string
+              description: Identifier of the linked case instance.
+            linkedReason:
+              type: string
+              description: Reason for linking the case instances. It could be identified by case management system or by some external system
+        processSubType:
+          type: string
+          description: Subtype of the process/transaction associated with the case.
+        policyNumber:
+          type: string
+          description: Policy number/Contract No associated to the case instance.
+        planCode:
+          type: string
+          description: PlanCode associated to the case instance.
+        productName:
+          description: Name of the product associated with Contract/Policy.
+          type: string
+        documents:
+          type: array
+          description: List of document associated to the case. (DEPRECATED)
+          deprecated: true
+          items:
+            $ref: '#/components/schemas/DocumentInstance'
+        exceptions:
+          description: List of all exceptions/NIGOs associated related to the case.
+          type: array
+          items:
+            $ref: '#/components/schemas/ExceptionInstance'
+        notes:
+          type: array
+          description: List of all note associated to the case.
+          items:
+            $ref: '#/components/schemas/NoteInstance'
+        tasks:
+          type: array
+          description: List of all tasks associated to the case irrespective of different stage/steps.
+          items:
+            $ref: '#/components/schemas/TaskLinkInstance'
+        mappedTasks:
+          type: array
+          description: List of Task Identifiers which directly linked to Case (RESERVED FOR FUTURE SCOPE)
+          items:
+            type: string
+        mappedExceptions:
+          type: array
+          description: List of Exception/NIGO Identifiers which directly linked to Case (RESERVED FOR FUTURE SCOPE)
+          items:
+            type: string
+        mappedNotes:
+          type: array
+          description: List of Notes Identifiers which directly linked to Case (RESERVED FOR FUTURE SCOPE)
+          items:
+            type: string
+        mappedDocuments:
+          type: array
+          description: List of Exception/NIGO Identifiers which directly linked to Case (RESERVED FOR FUTURE SCOPE)
+          items:
+            type: string
+        parties:
+          type: array
+          description: List of individuals/parties associated with the contract/policy related to the case
+          items:
+            type: object
+            properties:
+              partyRole:
+                type: string
+                description: Role of the party in the case. (LIST TO BE SHARED BY SOR)
+                enum:
+                - Annuitant / Insured, Primary
+                - Owner, Primary
+                - Beneficiary, Primary
+                - Servicing Agent
+                - Agent
+              partyType:
+                type: string
+                description: Type of party involved in the case.
+                enum:
+                - Company
+                - Individual
+                - Other
+                - Trust
+                - UGMA
+              firstName:
+                type: string
+                description: First name of the party.
+              middleName:
+                type: string
+                description: Middle name of the party.
+              lastName:
+                type: string
+                description: Last name of the party.
+              fullName:
+                type: string
+                description: Full name of the party.
+              prefix:
+                type: string
+                description: Prefix of the party's name.
+              suffix:
+                type: string
+                description: Suffix of the party's name.
+              gender:
+                type: string
+                description: Gender of the party.
+              ssn:
+                type: string
+                description: ssn of the party.
+              percent:
+                type: string
+                description: Percentage share or involvement of the party in the policy.
+        identifiers:
+          type: array
+          description: List of identifiers received from different systems.
+          items:
+            $ref: '#/components/schemas/IdentifierInstance'
+        additionalData:
+          description: Additional data related to the case. (DEPRECATED)
+          deprecated: true
+          oneOf:
+          - $ref: '#/components/schemas/CaseAdditionalDataNB'
+          - $ref: '#/components/schemas/CaseAdditionalDataWD'
+        stages:
+          type: array
+          description: List of stages representing milestone in the journey of a case/transaction.
+          items:
+            $ref: '#/components/schemas/StageInstance'
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the case instance was created, derived from the time of the initial event.
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the case instance was last updated, derived from the time of the latest event.
+        systemUpdatedDt:
+          type: string
+          format: date
+          description: The date when the system was last updated.
+        deleted:
+          type: boolean
+          description: Indicates if the case instance has been deleted.
+        techExceptionStatus:
+          type: string
+          description: Overall status of technical exceptions on the case
+        techExceptionCount:
+          type: integer
+          format: int32
+          description: Total count of technical exceptions on the case
+    DocumentInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '12345'
+        name:
+          type: string
+          example: Identity_Document.pdf
+        documentNumber:
+          type: string
+          example: '119299808'
+        source:
+          type: string
+          example: onbase
+        url:
+          type: string
+          example: http://dev.onbase.com/document/12345
+        updatedAt:
+          type: string
+          example: 09-April-2023
+        fileType:
+          type: string
+          example: NB Fix
+        documentUploadDate:
+          type: string
+          example: '2024-10-04T13:16:45-05:00'
+        additionalData:
+          $ref: '#/components/schemas/AdditionalDataInstance'
+        eventRef:
+          type: array
+          items:
+            type: string
+            example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+    ExceptionInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique Identifier for Exception Instance
+        status:
+          type: string
+          enum:
+          - NEW
+          - RESOLVED
+          description: Status of Exception Instance
+        exceptionRefId:
+          type: string
+          description: The exceptionRefId of the exception.
+          example: NB.EM.068
+        exceptionType:
+          type: string
+          description: The exceptionType of the exception.
+          example: Business Exception
+        category:
+          type: string
+          description: Category of Exception
+        reason:
+          type: string
+          description: Short description of Exception
+        detailedReason:
+          type: string
+          description: Detailed description of Exception
+        updatedAt:
+          type: string
+          description: Last updated timestamp of Exception
+        taskIdList:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          description: List of Task Identifier associated with Exception Instance
+        additionalData:
+          $ref: '#/components/schemas/AdditionalDataInstance'
+        exceptionAdditionalData:
+          type: array
+          description: Exception Additional Data
+          items:
+            $ref: '#/components/schemas/ExceptionAdditionalData'
+        eventRef:
+          type: array
+          items:
+            type: string
+          description: List of Events associated with Exception Instance
+    StepInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the step instance.
+        label:
+          type: string
+          description: Business Friendly label for the step instance.
+        stepStatus:
+          type: string
+          description: Current status of the step instance.
+          enum:
+          - IN_PROGRESS
+          - EXCEPTION
+          - COMPLETED
+          - NOT_STARTED
+        stepResult:
+          type: string
+          description: Step level decision outcome
+        eventRef:
+          type: array
+          description: List of event references associated with this step.
+          items:
+            type: string
+        mappedTasks:
+          type: array
+          description: List of identifiers for tasks mapped to this step.
+          items:
+            type: string
+        mappedExceptions:
+          type: array
+          description: List of exception mapped to this step.
+          items:
+            type: string
+        mappedDocuments:
+          type: array
+          description: List of document id mapped to this step.
+          items:
+            type: string
+        mappedCases:
+          type: array
+          description: List of Case id mapped to this step.
+          items:
+            type: string
+        mappedNotes:
+          type: array
+          description: List of identifiers for notes mapped to this step (RESERVED FOR FUTURE SCOPE).
+          items:
+            type: string
+        multiInstance:
+          type: boolean
+          description: Indicates whether step is multiple instance or not.
+          default: false
+        instanceInfo:
+          type: object
+          description: Contains information about the multi instance step
+          properties:
+            identifier:
+              type: string
+              description: A unique identifier for the multi instance step.
+            label:
+              type: string
+              description: The label of the multi instance step.
+            object:
+              type: string
+              description: The object of the multi instance step.
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the step instance was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the step instance was last updated.
+    AccessDeniedResponse:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int64
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+      example:
+        timestamp: 1681395423438
+        status: 403
+        error: Access Denied
+        message: 'User is not authorized for the carrier : CarrierName_2'
+        path: API Path
+    AdditionalDataInstance:
+      type: object
+      additionalProperties:
+        type: string
+    CaseAdditionalDataWD:
+      type: object
+      properties:
+        policyNumber:
+          type: string
+          example: '12345678'
+        ownerName:
+          type: string
+          example: John
+        ssn:
+          type: string
+          example: xxxx-xxx-1245
+    CaseCreateRequestV2:
+      type: object
+      properties:
+        correlationid:
+          type: string
+          description: The correlationId associated with the case.
+          example: 218d8992-3783-42ac-b59a-66cbc36adaab
+        source:
+          type: string
+          description: The source associated with the case.
+          example: Zinnia.OnBase
+        carrier:
+          type: string
+          description: The carrier associated with the case.
+          example: CarrierName_1
+        specversion:
+          type: string
+          description: The specversion associated with the case.
+          example: V1
+        type:
+          type: string
+          description: The type associated with the case.
+          example: CaseCreated
+        datacontenttype:
+          type: string
+          description: The datacontenttype associated with the case.
+          example: application/json
+        dataschema:
+          type: string
+          description: The dataschema associated with the case.
+          example: jsondata
+        subject:
+          type: string
+          description: The subject associated with the case.
+          example: subject
+        sourcelocator:
+          type: string
+          description: The sourcelocator associated with the case.
+          example: sourcelocator
+        data:
+          type: string
+          description: The data associated with the case.
+          example: '[{"clientCode":"CarrierName_1","documentHandle":"206426781","documentType":"Incoming Transfer","documentNumber":"20240801-EM-426781","caseId":"156779803","caseStatus":"CP - New","contractNumber":"","caseCreatedOn":"2024-08-01T15:57:18-05:00","caseUpdatedOn":"2024-08-01T15:57:18-05:00","transactionType":"INCOMING TRANSFER","processType":"New Business","batchID":"13326094","productName":"CarrierName_1MUTUAL STABLE VOYAGE","correlationId":"e18d8992-3783-42ac-b59a-66cbc36adaab"}]'
+        dataBase64:
+          type: string
+          description: The dataBase64 associated with the case.
+          example: jsondata
+        identifiers:
+          type: array
+          description: A list of identifiers associated with the case.
+          items:
+            $ref: '#/components/schemas/IdentifierInstance'
+    ExceptionAdditionalData:
+      type: object
+      description: Additional data related to the Exception.
+      properties:
+        id:
+          type: string
+          description: A identifier of Exception Addtional Attribute.
+          example: severity
+        label:
+          type: string
+          description: The label for Exception Addtional Attribute.
+          example: SEVERITY
+        value:
+          type: string
+          description: The value of Exception Addtional Attribute.
+          example: Medium
+        dataType:
+          type: string
+          description: The data type of Exception Addtional Attribute.
+          example: STRING
+        entityType:
+          type: string
+          description: The Entity Type of Exception Addtional Attribute.
+          example: INCIDENT_ENTITY
+        source:
+          type: string
+          description: The Source of Exception Addtional Attribute.
+          example: Zinnia.BPMTransactions
+    IdentifierInstance:
+      type: object
+      description: An object representing an identifier and its corresponding value.
+      properties:
+        identifier:
+          type: string
+          description: The type of identifier.
+        value:
+          type: string
+          description: The value of the identifier.

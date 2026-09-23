@@ -1,0 +1,722 @@
+openapi: 3.2.0
+info:
+  title: Market Connect Order Entry Product Pricing API
+  description: '**The Market Connect – Order Entry API** enables external distribution platforms and partner systems to electronically initiate, manage, and submit life insurance and annuity applications through a unified digital workflow.'
+  termsOfService: https://zinnia.com/terms
+  contact:
+    name: API Support
+    email: orderentrysupport@zinnia.com
+  license:
+    name: Proprietary
+    url: https://zinnia.com/terms
+  version: 1.0.3
+servers:
+- url: https://dev.api.zinnia.io
+- url: https://qa.api.zinnia.io
+- url: https://uat.api.zinnia.io
+security:
+- openIdConnect: []
+tags:
+- name: Product Pricing
+  description: Product pricing retrieval for a transaction
+paths:
+  /market-connect/order-entry/v1/productpricing/{transactionId}:
+    get:
+      tags:
+      - Product Pricing
+      summary: Retrieves the product pricing payload for a transaction
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```NOT_FOUND``` - No pricing was found for the specified transaction.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: getProductPricing
+      parameters:
+      - name: transactionId
+        in: path
+        description: Unique identifier assigned when the Order Entry transaction is created. Resolves to the internal transaction; caller must be authorized for this transaction.
+        required: true
+        schema:
+          type: string
+        example: '1064752'
+      responses:
+        '200':
+          description: Returns the product pricing payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPricingResponse'
+              examples:
+                success:
+                  summary: Pricing retrieved
+                  description: isSuccess = true with productFees, featureFees, fundFees, surrenderCharges, and netManagementFees in data.
+                  value:
+                    caseId: OE-CASE-10001
+                    transactionId: '1064752'
+                    data:
+                      isApplicationTransaction: true
+                      isVariableAnnuity: true
+                      showMarketValueAdjustment: false
+                      showNetManagementFee: true
+                      productFees:
+                      - feeTypeLabel: 'Base M&E charges:'
+                        feeName: M&E
+                        feeValue: 0.90%
+                        isDefaultType: false
+                      - feeTypeLabel: 'Annual Contract Amount:'
+                        feeName: Contract fee
+                        feeValue: $120.00
+                        isDefaultType: false
+                      featureFees:
+                      - featureName: Lifetime income rider
+                        feeValues:
+                        - 0.35%
+                        - $25 annual
+                        riderModifiedChargeSchedule:
+                        - year: '1'
+                          charge: 2.00%
+                        - year: '2'
+                          charge: 1.50%
+                      fundFees:
+                      - fundName: Sample Index Fund
+                        percentageDisplay: 0.85%
+                        minPct: 0.50%
+                        maxPct: 1.25%
+                        amountDisplay: ''
+                        minAmt: ''
+                        maxAmt: ''
+                        isValueAdjusted: false
+                      surrenderCharges:
+                      - year: '1'
+                        charge: 8%
+                      - year: '2'
+                        charge: 7%
+                      - year: '3'
+                        charge: 6%
+                      netManagementFees:
+                      - fundName: Sample Index Fund
+                        totalFeePercentage: 1.10%
+                    isSuccess: true
+                    message: Success
+                    status: Success
+                business-failure:
+                  summary: Upstream business failure
+                  description: isSuccess = false with status Failure; data is an empty pricing object.
+                  value:
+                    caseId: null
+                    transactionId: '1064752'
+                    data:
+                      isApplicationTransaction: false
+                      isVariableAnnuity: false
+                      showMarketValueAdjustment: false
+                      showNetManagementFee: false
+                      productFees: []
+                      featureFees: []
+                      fundFees: []
+                      surrenderCharges: []
+                      netManagementFees: []
+                    isSuccess: false
+                    message: Product pricing is not available for this transaction.
+                    status: Failure
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: abc
+                errors:
+                - code: INVALID_TRANSACTION_ID
+                  description: Invalid transaction ID provided
+                  details: Transaction ID abc is not valid
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1064752'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: Product pricing not found for transaction 1064752
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '1064752'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Product pricing service error
+                  details: Failed to get product pricing
+                  timestamp: '2026-05-18T14:30:00.0000000Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+components:
+  schemas:
+    ProductPricingFundFee:
+      type: object
+      properties:
+        fundName:
+          type:
+          - string
+          - 'null'
+        percentageDisplay:
+          type:
+          - string
+          - 'null'
+        minPct:
+          type:
+          - string
+          - 'null'
+        maxPct:
+          type:
+          - string
+          - 'null'
+        amountDisplay:
+          type:
+          - string
+          - 'null'
+        minAmt:
+          type:
+          - string
+          - 'null'
+        maxAmt:
+          type:
+          - string
+          - 'null'
+        isValueAdjusted:
+          type: boolean
+      additionalProperties: false
+    ProductPricingNetManagementFee:
+      type: object
+      properties:
+        fundName:
+          type:
+          - string
+          - 'null'
+        totalFeePercentage:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
+    ProductPricingFee:
+      type: object
+      properties:
+        feeTypeLabel:
+          type:
+          - string
+          - 'null'
+        feeName:
+          type:
+          - string
+          - 'null'
+        feeValue:
+          type:
+          - string
+          - 'null'
+        isDefaultType:
+          type: boolean
+      additionalProperties: false
+      example:
+        feeTypeLabel: 'Base M&E charges:'
+        feeName: M&E
+        feeValue: 0.90%
+        isDefaultType: false
+    ProductPricingResponse:
+      required:
+      - transactionId
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction when pricing is found.
+        transactionId:
+          minLength: 1
+          type: string
+          description: Unique identifier for the Order Entry transaction.
+        data:
+          allOf:
+          - $ref: '#/components/schemas/ProductPricingData'
+          description: Fee schedules and product pricing detail; null when isSuccess is false.
+          example:
+            isApplicationTransaction: true
+            isVariableAnnuity: true
+            showMarketValueAdjustment: false
+            showNetManagementFee: true
+            productFees:
+            - feeTypeLabel: 'Base M&E charges:'
+              feeName: M&E
+              feeValue: 0.90%
+              isDefaultType: false
+            - feeTypeLabel: 'Annual Contract Amount:'
+              feeName: Contract fee
+              feeValue: $120.00
+              isDefaultType: false
+            featureFees:
+            - featureName: Lifetime income rider
+              feeValues:
+              - 0.35%
+              - $25 annual
+              riderModifiedChargeSchedule:
+              - year: '1'
+                charge: 2.00%
+              - year: '2'
+                charge: 1.50%
+            fundFees:
+            - fundName: Sample Index Fund
+              percentageDisplay: 0.85%
+              minPct: 0.50%
+              maxPct: 1.25%
+              amountDisplay: ''
+              minAmt: ''
+              maxAmt: ''
+              isValueAdjusted: false
+            surrenderCharges:
+            - year: '1'
+              charge: 8%
+            - year: '2'
+              charge: 7%
+            - year: '3'
+              charge: 6%
+            netManagementFees:
+            - fundName: Sample Index Fund
+              totalFeePercentage: 1.10%
+        isSuccess:
+          type: boolean
+          description: Whether the upstream product pricing call succeeded.
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable status message from the product pricing service.
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status label (for example Success or Failure).
+      additionalProperties: false
+      example:
+        caseId: OE-CASE-10001
+        transactionId: '1064752'
+        data:
+          isApplicationTransaction: true
+          isVariableAnnuity: true
+          showMarketValueAdjustment: false
+          showNetManagementFee: true
+          productFees:
+          - feeTypeLabel: 'Base M&E charges:'
+            feeName: M&E
+            feeValue: 0.90%
+            isDefaultType: false
+          - feeTypeLabel: 'Annual Contract Amount:'
+            feeName: Contract fee
+            feeValue: $120.00
+            isDefaultType: false
+          featureFees:
+          - featureName: Lifetime income rider
+            feeValues:
+            - 0.35%
+            - $25 annual
+            riderModifiedChargeSchedule:
+            - year: '1'
+              charge: 2.00%
+            - year: '2'
+              charge: 1.50%
+          fundFees:
+          - fundName: Sample Index Fund
+            percentageDisplay: 0.85%
+            minPct: 0.50%
+            maxPct: 1.25%
+            amountDisplay: ''
+            minAmt: ''
+            maxAmt: ''
+            isValueAdjusted: false
+          surrenderCharges:
+          - year: '1'
+            charge: 8%
+          - year: '2'
+            charge: 7%
+          - year: '3'
+            charge: 6%
+          netManagementFees:
+          - fundName: Sample Index Fund
+            totalFeePercentage: 1.10%
+        isSuccess: true
+        message: Success
+        status: Success
+    ProductPricingData:
+      type: object
+      properties:
+        isApplicationTransaction:
+          type: boolean
+          description: True when the transaction is an application transaction.
+        isVariableAnnuity:
+          type: boolean
+          description: True when the selected product is a variable annuity.
+        showMarketValueAdjustment:
+          type: boolean
+          description: Whether the UI should show market value adjustment.
+        showNetManagementFee:
+          type: boolean
+          description: Whether the UI should show the net management fee section.
+        productFees:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingFee'
+          description: Base and contract-level product fees.
+        featureFees:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingFeatureFee'
+          description: Rider and feature-level fees with optional modified charge schedules.
+        fundFees:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingFundFee'
+          description: Fund-level fee displays with optional min/max ranges.
+        surrenderCharges:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingYearCharge'
+          description: Surrender charge schedule by contract year.
+        netManagementFees:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingNetManagementFee'
+          description: Net management fee summary by fund.
+      additionalProperties: false
+      example:
+        isApplicationTransaction: true
+        isVariableAnnuity: true
+        showMarketValueAdjustment: false
+        showNetManagementFee: true
+        productFees:
+        - feeTypeLabel: 'Base M&E charges:'
+          feeName: M&E
+          feeValue: 0.90%
+          isDefaultType: false
+        - feeTypeLabel: 'Annual Contract Amount:'
+          feeName: Contract fee
+          feeValue: $120.00
+          isDefaultType: false
+        featureFees:
+        - featureName: Lifetime income rider
+          feeValues:
+          - 0.35%
+          - $25 annual
+          riderModifiedChargeSchedule:
+          - year: '1'
+            charge: 2.00%
+          - year: '2'
+            charge: 1.50%
+        fundFees:
+        - fundName: Sample Index Fund
+          percentageDisplay: 0.85%
+          minPct: 0.50%
+          maxPct: 1.25%
+          amountDisplay: ''
+          minAmt: ''
+          maxAmt: ''
+          isValueAdjusted: false
+        surrenderCharges:
+        - year: '1'
+          charge: 8%
+        - year: '2'
+          charge: 7%
+        - year: '3'
+          charge: 6%
+        netManagementFees:
+        - fundName: Sample Index Fund
+          totalFeePercentage: 1.10%
+    ProductPricingFeatureFee:
+      type: object
+      properties:
+        featureName:
+          type:
+          - string
+          - 'null'
+        feeValues:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        riderModifiedChargeSchedule:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingYearCharge'
+      additionalProperties: false
+    ProductPricingYearCharge:
+      type: object
+      properties:
+        year:
+          type:
+          - string
+          - 'null'
+        charge:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+  securitySchemes:
+    openIdConnect:
+      type: openIdConnect
+      description: 'OpenID Connect via Auth0. Clients present a JWT bearer token issued by the tenant in the `Authorization: Bearer <token>` header.'
+      openIdConnectUrl: https://login.qa.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          auth_methods:
+          - bearer
+          verify_signature: true
+          ignore_signature: []
+          consumer_claim:
+          - sub
+          consumer_optional: true

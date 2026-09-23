@@ -1,0 +1,407 @@
+openapi: 3.2.0
+info:
+  title: Enterprise Documents TaxForms V3 API
+  description: 'The Enterprise Document Service (EDS) API is the system of record for documents
+
+    across the Zinnia life insurance and annuity platform.'
+  version: 3.0.0
+servers:
+- url: https://dev.api.zinnia.io
+  description: Dev Environment
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+- url: https://uat.api.zinnia.io
+  description: UAT Environment
+- url: https://api.zinnia.io
+  description: PROD Environment
+tags:
+- name: TaxForms V3
+  description: ''
+paths:
+  /document/v3/tax-forms:
+    get:
+      security:
+      - Auth0: []
+      tags:
+      - TaxForms V3
+      summary: Retrieves tax forms
+      description: Fetches tax forms based on client and year filters
+      operationId: getTaxForms-v3
+      x-parameter-dependencies:
+        anyOf:
+        - description: Filter by policy
+          allOf:
+          - policyNumber
+          - planCode
+        - description: Filter by date range
+          allOf:
+          - fromDate
+          - toDate
+        yearFilter:
+          anyOf:
+          - taxYear
+          - numYears
+      parameters:
+      - name: Authorization
+        required: true
+        in: header
+        example: Bearer <token>
+        description: Authorization token
+        schema:
+          type: string
+      - name: x-correlation-id
+        in: header
+        required: false
+        description: UUID for the request
+        example: 1760f822-dcbf-49fc-a623-a1998383f4b9
+        schema:
+          type: string
+      - name: policyNumber
+        in: query
+        required: false
+        description: 'Policy/Contract number related to the tax form. **Dependency**: Must be used together with ''planCode''. Either (policyNumber + planCode) OR (fromDate + toDate) must be provided.'
+        example: '7720001823'
+        schema:
+          type: string
+      - name: planCode
+        in: query
+        required: false
+        example: 132007A04
+        description: 'Plan Code. **Dependency**: Must be used together with ''policyNumber''. Either (policyNumber + planCode) OR (fromDate + toDate) must be provided.'
+        schema:
+          type: string
+      - name: taxYear
+        in: query
+        required: false
+        description: 'Tax year for the form. **Dependency**: Use either ''taxYear'' OR ''numYears'', not both.'
+        example: 2022
+        schema:
+          type: integer
+          format: int32
+      - name: numYears
+        in: query
+        required: false
+        example: 1
+        description: 'Number of years of forms to query in reverse chronological order from taxyear (incl). Min=1 and Max=5. **Dependency**: Use either ''numYears'' OR ''taxYear'', not both.'
+        schema:
+          minimum: 1
+          maximum: 5
+          default: 1
+          type: integer
+          format: int32
+      - name: fromDate
+        in: query
+        required: false
+        description: 'Start date for filtering tax forms. Format: yyyy-MM-dd''T''HH:mm:ss.SSS''Z'', Timezone: UTC. **Dependency**: Must be used together with ''toDate''. Either (fromDate + toDate) OR (policyNumber + planCode) must be provided.'
+        example: '2025-08-13T15:01:17.542Z'
+        schema:
+          type: string
+          format: date-time
+      - name: toDate
+        in: query
+        required: false
+        description: 'End date for filtering tax forms. Format: yyyy-MM-dd''T''HH:mm:ss.SSS''Z'', Timezone: UTC. **Dependency**: Must be used together with ''fromDate''. Either (fromDate + toDate) OR (policyNumber + planCode) must be provided.'
+        example: '2025-08-13T15:01:17.542Z'
+        schema:
+          type: string
+          format: date-time
+      - name: limit
+        in: query
+        required: false
+        description: Maximum number of records to return
+        example: 10
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: offset
+        in: query
+        required: false
+        description: Number of records to skip for pagination
+        example: 0
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxformResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid request. Please provide either SSN or Contract Number
+                  statusCode:
+                    type: integer
+                    example: 400
+                  correlationId:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                  success:
+                    type: string
+                    example: 'false'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Access Denied to get tax form
+                  statusCode:
+                    type: integer
+                    example: 403
+                  correlationId:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                  success:
+                    type: string
+                    example: 'false'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error occurred while fetching taxforms
+                  statusCode:
+                    type: integer
+                    example: 500
+                  correlationId:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                  success:
+                    type: string
+                    example: 'false'
+  /document/v3/tax-forms/{id}/download:
+    get:
+      security:
+      - Auth0: []
+      tags:
+      - TaxForms V3
+      summary: Downloads a tax form
+      description: Retrieves a tax form by its unique ID
+      operationId: downloadTaxForm-v3
+      parameters:
+      - name: Authorization
+        required: true
+        in: header
+        example: Bearer <token>
+        description: Authorization token
+        schema:
+          type: string
+      - name: x-correlation-id
+        in: header
+        required: false
+        description: UUID for the request
+        example: 1760f822-dcbf-49fc-a623-a1998383f4b9
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Form identifier for the taxform, either formId or documentId is mandatory
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxformDownloadResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid request. Please provide either alias or tax year
+                  statusCode:
+                    type: integer
+                    example: 400
+                  correlationId:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                  success:
+                    type: string
+                    example: 'false'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Access Denied to download tax form
+                  statusCode:
+                    type: integer
+                    example: 403
+                  correlationId:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                  success:
+                    type: string
+                    example: 'false'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Document not found
+                  statusCode:
+                    type: integer
+                    example: 404
+                  correlationId:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                  success:
+                    type: string
+                    example: 'false'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error occurred while downloading metadata
+                  statusCode:
+                    type: integer
+                    example: 500
+                  correlationId:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                  success:
+                    type: string
+                    example: 'false'
+components:
+  schemas:
+    TaxformDownloadResponse:
+      type: object
+      properties:
+        fileExtension:
+          type: string
+          description: File extension of the document
+          example: pdf
+        binaryData:
+          type: string
+          description: Binary data of the document
+          example: wdvb2ekllkk189w0enjansle..
+        correlationId:
+          type: string
+          description: Unique ID for correlating requests
+          example: 1760f822-dcbf-49fc-a623-a1998383f4b9
+    TaxformResponse:
+      type: object
+      properties:
+        policyNumber:
+          type: string
+          description: policy number of document/tax-form
+          example: '633033992'
+        name:
+          type: string
+          description: Name of the form
+          example: 1099-R
+        formId:
+          type: string
+          description: Unique id of Form
+          example: '105'
+        taxYear:
+          type: string
+          description: Tax year of the form
+          example: '2022'
+        fchar:
+          description: Unique string character associated with the tax-form name
+          type: string
+          example: R
+        planCode:
+          type: string
+          description: Plan code associated with the document
+          example: '633033992'
+        documentId:
+          type: string
+          description: Unique Document Id (ObjectId)
+          example: 68a6adf406e31b19bfcea183
+        createdDate:
+          type: string
+          description: Created Date in UTC time zone
+          format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+          example: '2025-08-13T15:01:17.542Z'
+        updatedDate:
+          type: string
+          description: Updated Date in UTC time zone
+          format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+          example: '2025-08-13T15:01:17.542Z'
+        status:
+          type: string
+          description: Status intigating whether tax form is active or inactive
+          example: active
+    TaxformResponseList:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of tax forms found
+          format: int32
+          example: 10
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxformResponse'
+        correlationId:
+          type: string
+          description: Unique ID for correlating requests
+          example: 1760f822-dcbf-49fc-a623-a1998383f4b9
+  securitySchemes:
+    basic:
+      type: http
+      scheme: basic
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://api.zinnia.io
+          client_id:
+          - bGOIRPRq2ZnjCujDXC7ikwR5ez7VH5GZ
+          auth_methods:
+          - bearer
+          scopes: []
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

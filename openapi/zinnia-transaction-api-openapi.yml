@@ -1,0 +1,3568 @@
+openapi: 3.2.0
+info:
+  title: Market Connect Order Entry Transaction API
+  description: '**The Market Connect – Order Entry API** enables external distribution platforms and partner systems to electronically initiate, manage, and submit life insurance and annuity applications through a unified digital workflow.'
+  termsOfService: https://zinnia.com/terms
+  contact:
+    name: API Support
+    email: orderentrysupport@zinnia.com
+  license:
+    name: Proprietary
+    url: https://zinnia.com/terms
+  version: 1.0.3
+servers:
+- url: https://dev.api.zinnia.io
+- url: https://qa.api.zinnia.io
+- url: https://uat.api.zinnia.io
+security:
+- openIdConnect: []
+tags:
+- name: Transaction
+  description: Transaction management operations
+paths:
+  /market-connect/order-entry/v1/transaction:
+    post:
+      tags:
+      - Transaction
+      summary: Create the Order Entry transaction. Routes to appropriate service based on CUSIP
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - Input validation failed (ModelState errors).
+
+        - ```INVALID``` - Invalid input parameters.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or token is invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - User does not have permission to create transactions.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```TRANSACTION_CREATION_FAILED``` - Transaction creation failed at service level.
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - Service did not return a transaction ID.
+
+        - ```FIRST_STEP_SETUP_FAILED``` - First step initialization failed (breadcrumb, payload creation, or save).
+
+        - ```JSON_PARSE_ERROR``` - Failed to parse service response.
+
+        - ```BUILD_BLUEPRINT_ERROR``` - Error building blueprint after creation.
+
+        - ```UNEXPECTED_ERROR``` - Unexpected system error.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.
+
+
+        #### Success Response
+
+
+        On success, returns a TransactionResponse with:
+
+
+        - **TransactionId**: The newly created transaction ID
+
+        - **CaseId**: The case identifier returned by the upstream product service (may be null until the case is fully created)
+
+        - **Data**: Initial transaction field data keyed by question ID
+
+        - **Blueprint**: Complete section and field definitions for the new transaction
+
+        - **Subscribers**: Reactive subscriber definitions consumed by the UI to drive dependent dataset lookups
+
+        - **Errors**: Empty array on success (or absent)
+
+        #### Input Validation
+
+
+        The following fields are validated:
+
+
+        - **State**: Required two-letter uppercase code from the documented US state, territory, and military mail code enum
+
+        - **CUSIP**: Required configured product identifier containing exactly nine uppercase alphanumeric characters; pattern ```^[0-9A-Z]{9}$```
+
+        - **OpportunityId**: Optional UUID used to associate the transaction with a sales opportunity
+
+        #### Service Routing
+
+
+        The API automatically routes to the appropriate service based on CUSIP:
+
+
+        - **Annuity Service**: Configured Annuity CUSIPs
+
+        - **Life Service**: Configured Life CUSIPs
+
+        #### Transaction Creation Flow
+
+
+        The transaction creation process includes:
+
+
+        - Validate input parameters
+
+        - Determine service routing based on CUSIP
+
+        - Create transaction via appropriate service (Life or Annuity)
+
+        - Get breadcrumb to determine first step
+
+        - Retrieve order entry values for first step
+
+        - Create and save first step payload
+
+        - Build complete blueprint for the transaction
+
+        #### First Step Setup Failures
+
+
+        The ```FIRST_STEP_SETUP_FAILED``` error can occur when:
+
+
+        - No breadcrumb steps are found
+
+        - First step name is null or empty
+
+        - Order entry values are null or empty
+
+        - First step payload creation fails
+
+        - First step data save operation fails
+
+        - First step save response indicates failure'
+      operationId: createTransaction
+      requestBody:
+        description: The input data for creating a new transaction
+        content:
+          application/json:
+            schema:
+              required:
+              - state
+              - cusip
+              allOf:
+              - $ref: '#/components/schemas/CreateTransactionRequest'
+            examples:
+              minimal:
+                summary: Minimal — state and cusip only
+                value:
+                  state: NC
+                  cusip: 90353U115
+              withOpportunity:
+                summary: With opportunity ID
+                value:
+                  state: NC
+                  cusip: 90353U115
+                  opportunityId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+              withIllustrationAndAccount:
+                summary: With illustration ID, account number, and external transaction ID
+                value:
+                  state: NC
+                  cusip: 90353U115
+                  illustrationId: ILL-2024-00001
+                  accountNumber: BR-9876543210
+                  externalTransactionId: TXN-2024-00001
+              withPrefill:
+                summary: With prefill — owner, annuitant, beneficiary, agent, policy, plan, and product pre-populated
+                value:
+                  state: TX
+                  cusip: 90353U115
+                  opportunityId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                  prefill:
+                    messageInformation:
+                      businessPurposeTypeCode: '329'
+                      sender: AnnuityNet
+                      receiver: DIST-PARTNER-001
+                      trackingNumber: 550e8400-e29b-41d4-a716-446655440000
+                      effectiveDate: '2024-01-15T00:00:00+00:00'
+                      reference:
+                      - id: TXN-2024-00001
+                        source: AnnuityNet
+                        description: Zinnia system transaction ID
+                      eSignature: 'yes'
+                      transactionNumber: TXN-2024-00001
+                    owner:
+                      party:
+                        legalEntityTypeCode: individual
+                        nameBase:
+                          givenName: Jane
+                          surname: Smith
+                        person:
+                          birthDate: '1975-04-22'
+                          genderCode: F
+                          maritalStatusCode: Married
+                          citizenshipCode: US
+                          residencyStatusCode: resident
+                        address:
+                        - typeCode: Home
+                          addressBase:
+                            line1: 123 Main St
+                            city: Austin
+                            stateOrProvinceCode: TX
+                            postalCode: '78701'
+                            countryCode: US
+                        communication:
+                          emailAddress: jane.smith@example.com
+                          phone:
+                          - phoneTypeCode: Home
+                            phoneNumber: '5125550100'
+                          - phoneTypeCode: Mobile
+                            phoneNumber: '5125550101'
+                        partyIdentity:
+                        - typeCode: SSN
+                          typeId: '***-**-1234'
+                        partyRole:
+                        - roleCode: owner
+                      questionAnswer:
+                      - questionCode: mfapEligible
+                        answerCode: 'TRUE'
+                    annuitant:
+                      party:
+                        legalEntityTypeCode: individual
+                        nameBase:
+                          givenName: Jane
+                          surname: Smith
+                        person:
+                          birthDate: '1975-04-22'
+                          genderCode: F
+                    beneficiary:
+                    - legalEntityTypeCode: individual
+                      allocation:
+                        percent: 100
+                        typeCode: Primary
+                      relationship:
+                        relationshipToCode: spouse
+                      party:
+                        nameBase:
+                          givenName: John
+                          surname: Smith
+                        person:
+                          birthDate: '1973-11-08'
+                          genderCode: M
+                    agent:
+                    - party:
+                        legalEntityTypeCode: individual
+                        nameBase:
+                          givenName: Robert
+                          surname: Jones
+                        communication:
+                          emailAddress: rjones@firmname.com
+                          phone:
+                          - phoneTypeCode: Work
+                            phoneNumber: '2125550199'
+                      partyIdentity:
+                      - typeCode: NPN
+                        NPN: '12345678'
+                        license:
+                          jurisdiction: TX
+                          effectiveDate: '2020-01-01'
+                          expirationDate: '2026-12-31'
+                      user:
+                        username: rjones
+                      questionAnswer:
+                      - questionCode: businessUnitCode
+                        answerCode: Primary
+                    plan:
+                      accountDesignationCode: IRA
+                      typeCode: qualified
+                      planOption:
+                        qualifiedPlanTypeCode: IRA
+                        qualifiedPlanSubType: traditional
+                    policy:
+                      effectiveDate: '2024-01-15'
+                      questionAnswer:
+                      - questionCode: qualifiedRolloverFunded
+                        answerCode: 'FALSE'
+                      - questionCode: replacementIndicator
+                        answerCode: 'FALSE'
+                    product:
+                      carrierCode: AIG
+                      cusip: 90353U115
+                      questionAnswer:
+                      - questionCode: surrenderChargeWaiver
+                        answerCode: 'TRUE'
+                    client:
+                      accountNumber: BR-9876543210
+                      questionAnswer:
+                      - questionCode: fundsAllowed
+                        answerCode: 'TRUE'
+        required: true
+      responses:
+        '201':
+          description: Returns the Order Entry blueprint for the created transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Validation failed for field '$.unknownField'
+                  details: The request contains an unrecognized property. Only documented fields are allowed.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: The requested resource could not be found
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Upstream service error
+                  details: An upstream dependency returned an invalid or unsuccessful response.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/transaction/{transactionId}:
+    get:
+      tags:
+      - Transaction
+      summary: Retrieves the order entry blueprint and its associated responses for a created…
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request failed input validation.
+
+        - ```INVALID_TRANSACTION_ID``` - The supplied transaction ID is invalid (less than or equal to zero).
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access the requested transaction.
+
+
+        - **404 Not Found**
+
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+        - ```NOT_FOUND``` - The requested transaction or blueprint step could not be found.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```BUILD_BLUEPRINT_ERROR``` - An error occurred while generating the order entry blueprint.
+
+        - ```JSON_PARSE_ERROR``` - The system encountered an error while parsing the transaction response.
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.
+
+
+        #### Success Response
+
+
+        On success, the API returns a ```TransactionResponse``` containing:
+
+
+        - **transactionId** - The unique identifier for the transaction.
+
+        - **caseId** - The identifier for the case created by the upstream product service. This value may be null until the case has been created successfully.
+
+        - **data** - The current transaction data, with field values keyed by their corresponding question identifiers.
+
+        - **blueprint** - The complete transaction blueprint, including the sections, fields, validations, conditional behavior, and metadata required to render the application.
+
+        - **subscribers** - Reactive subscriber definitions used by the client to drive dynamic field behavior, dependent lookups, and dataset updates.
+
+        - **errors** - Empty or omitted when the request completes successfully. For partial success or recoverable business warnings, this array contains the applicable application-level messages.'
+      operationId: getTransaction
+      parameters:
+      - name: transactionId
+        in: path
+        description: Unique identifier assigned when an order entry transaction is created
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Returns a product's order entry blueprint with associated answer data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Validation failed for field '$.unknownField'
+                  details: The request contains an unrecognized property. Only documented fields are allowed.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: The requested resource could not be found
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Upstream service error
+                  details: An upstream dependency returned an invalid or unsuccessful response.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+    put:
+      tags:
+      - Transaction
+      summary: Update the Order Entry transaction data for enhanced blueprint…
+      description: 'Used for enhanced blueprint (single-blueprint) transactions where no step name is required. The step is automatically resolved from the product type.
+
+
+        #### Error Responses
+
+
+        - **400 Bad Request**
+
+        - ```VALIDATION_ERROR``` - Input validation failed (ModelState errors).
+
+        - ```INVALID_TRANSACTION_ID``` - Invalid transaction ID provided.
+
+
+        - **401 Unauthorized**
+
+        - ```UNAUTHORIZED``` - Authentication failed or token is invalid.
+
+
+        - **403 Forbidden**
+
+        - ```FORBIDDEN``` - User does not have permission to update this transaction.
+
+
+        - **404 Not Found**
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+        - ```NOT_FOUND``` - The requested transaction could not be found.
+
+
+        - **422 Unprocessable Entity**
+
+        - Upstream business validation failed after save â€” response includes ```validationErrors``` and a ```validation-messages``` blueprint section.
+
+
+        - **429 Too Many Requests**
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+        - ```SAVE_TRANSACTION_ERROR``` - Save operation failed at service level.
+
+        - ```SAVE_TRANSACTION_FAILED``` - Save operation not successful.
+
+        - ```INVALID_RESPONSE_FORMAT``` - Invalid response format from service.
+
+        - ```EMPTY_BLUEPRINT``` - Empty blueprint returned after save.
+
+        - ```BUILD_BLUEPRINT_ERROR``` - Error building blueprint for next step.
+
+        - ```UNEXPECTED_ERROR``` - Unexpected system error.
+
+
+        - **502 Bad Gateway**
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: updateTransactionEnhancedBlueprint
+      parameters:
+      - name: transactionId
+        in: path
+        description: The unique identifier for the transaction
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The input data for updating the transaction (data object matching GET/Create response shape)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionDataQuestionRowsMap'
+            examples:
+              simple-fields:
+                summary: Simple field update
+                description: Plain scalar fields (dropdown, phone) keyed by question ID.
+                value:
+                  '259726':
+                  - id: '259726'
+                    type: dropdown
+                    questionText: Account designation
+                    questionSubText: Account designation
+                    displayValue: Owner
+                    value: Owner
+                    index: 0
+                    prefilled: true
+              collection-fields:
+                summary: Collection field update
+                description: Repeatable collection field carrying nested per-item data.
+                value:
+                  489445_Line1:
+                  - id: 489445_Line1
+                    type: input
+                    questionText: Address Line 1
+                    questionSubText: ''
+                    displayValue: 12108 Jefferson CT
+                    value: 12108 Jefferson CT
+                    index: 0
+                  489445_City:
+                  - id: 489445_City
+                    type: input
+                    questionText: City
+                    questionSubText: ''
+                    displayValue: Alpharetta
+                    value: Alpharetta
+                    index: 0
+                  489445_State:
+                  - id: 489445_State
+                    type: dropdown
+                    questionText: State
+                    questionSubText: ''
+                    displayValue: Georgia
+                    value: GA
+                    index: 0
+              mixed-fields:
+                summary: Mixed field types
+                description: Combination of radio, date (ISO 8601), collection, and email inputs.
+                value:
+                  '486959':
+                  - id: '486959'
+                    type: date
+                    questionText: Date of birth
+                    questionSubText: ''
+                    displayValue: '1989-10-13'
+                    value: '1989-10-13'
+                    index: 0
+                  '488044':
+                  - id: '488044'
+                    type: radio
+                    questionText: Gender
+                    questionSubText: ''
+                    displayValue: Male
+                    value: Male
+                    index: 0
+                  '503972':
+                  - id: '503972'
+                    type: input
+                    questionText: Email address
+                    questionSubText: ''
+                    displayValue: john.doe@example.com
+                    value: john.doe@example.com
+                    index: 0
+                  489364_FirstName_Mixed:
+                  - id: 489364_FirstName_Mixed
+                    type: input
+                    questionText: First Name
+                    questionSubText: ''
+                    displayValue: John
+                    value: John
+                    index: 0
+              checkboxgroup-fields:
+                summary: Checkbox group
+                description: Checkbox group where value is an array of selected option codes.
+                value:
+                  '521349':
+                  - id: '521349'
+                    type: checkboxgroup
+                    questionText: What are your planning needs?
+                    questionSubText: Select all that apply
+                    displayValue: Income Replacement, Retirement Income
+                    value:
+                    - Income_Replacement
+                    - Retirement_Income
+                    index: 0
+        required: true
+      responses:
+        '200':
+          description: Returns the updated Order Entry blueprint or success status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Validation failed for field '$.unknownField'
+                  details: The request contains an unrecognized property. Only documented fields are allowed.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: The requested resource could not be found
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '422':
+          description: If upstream business validation fails after save
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/TransactionResponse'
+                example:
+                  transactionId: '1064459'
+                  caseId: null
+                  data: {}
+                  blueprint:
+                    sectionBlueprints: []
+                    sectionGroupBlueprints: {}
+                  subscribers: []
+                  errors: []
+                  validationErrors:
+                  - fieldId: '259726'
+                    answerNodeId: Transaction.OwnerType
+                    message: Owner type is required.
+                    sectionName: EntityOwners
+                  - answerNodeId: Transaction.PrimaryOwner.PersonName
+                    message: Owner's name is required.
+                    sectionName: EntityOwners
+                  - answerNodeId: ''
+                    message: Please re-visit the contract feature screen.
+                    sectionName: OwnerBenefits
+              examples:
+                validation_error:
+                  summary: Validation Error (Transaction Validation)
+                  description: Transaction validation failed with field-level errors after a successful save. Returns validationErrors (message required; fieldId is optional—echo of ControlID as string, omitted when missing or 0; answerNodeId and sectionName optional when empty).
+                  value:
+                    transactionId: '1064459'
+                    caseId: null
+                    data: {}
+                    blueprint:
+                      sectionBlueprints: []
+                      sectionGroupBlueprints: {}
+                    subscribers: []
+                    errors: []
+                    validationErrors:
+                    - fieldId: '259726'
+                      answerNodeId: Transaction.OwnerType
+                      message: Owner type is required.
+                      sectionName: EntityOwners
+                    - answerNodeId: Transaction.PrimaryOwner.PersonName
+                      message: Owner's name is required.
+                      sectionName: EntityOwners
+                    - answerNodeId: ''
+                      message: Please re-visit the contract feature screen.
+                      sectionName: OwnerBenefits
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Upstream service error
+                  details: An upstream dependency returned an invalid or unsuccessful response.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/transaction/{transactionId}/submit:
+    post:
+      tags:
+      - Transaction
+      summary: Submit an order entry transaction for processing
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - Request body is not allowed (endpoint does not accept a body, including empty ```{}```).
+
+        - ```INVALID_TRANSACTION_ID``` - The supplied transaction ID is invalid.
+
+        - ```VALIDATION_ERROR``` - The upstream order entry service rejected the submission due to validation failures.
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to submit this transaction.
+
+
+        - **404 Not Found**
+
+
+        - ```TRANSACTION_ID_NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while submitting the transaction.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - The upstream product service returned an error while processing the submit request.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: submitTransaction
+      parameters:
+      - name: transactionId
+        in: path
+        description: The unique identifier for the transaction
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Transaction submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitTransactionResponse'
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Validation failed for field '$.unknownField'
+                  details: The request contains an unrecognized property. Only documented fields are allowed.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: The requested resource could not be found
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Upstream service error
+                  details: An upstream dependency returned an invalid or unsuccessful response.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+components:
+  schemas:
+    PrefillProduct:
+      type: object
+      properties:
+        address:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillAddress'
+        carrierCode:
+          type:
+          - string
+          - 'null'
+        cusip:
+          type:
+          - string
+          - 'null'
+        marketingName:
+          type:
+          - string
+          - 'null'
+        productCode:
+          type:
+          - string
+          - 'null'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+      additionalProperties: false
+    FieldValidationRule:
+      required:
+      - conditions
+      - message
+      type: object
+      properties:
+        message:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: Localized message displayed to the user when validation fails
+        conditions:
+          allOf:
+          - $ref: '#/components/schemas/ValidationConditionGroup'
+          description: The validation conditions wrapper containing an optional booleanOperator and an array of individual conditions
+          example:
+            booleanOperator: and
+            conditions:
+            - type: numberComparisonCondition
+              targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
+              value: 9999999999
+              operator: lessThanOrEqual
+            - type: numberComparisonCondition
+              targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
+              value: 1
+              operator: greaterThanOrEqual
+      additionalProperties: false
+      example:
+        message:
+          en: Please enter valid email address
+        conditions:
+          conditions:
+          - type: matchesRegexCondition
+            targetNodeId: Transaction.Beneficiaries[0].EmailAddresses["Home"].Address
+            regex: ^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$
+    PrefillNameBase:
+      type: object
+      properties:
+        prefix:
+          type:
+          - string
+          - 'null'
+        fullName:
+          type:
+          - string
+          - 'null'
+        givenName:
+          type:
+          - string
+          - 'null'
+        otherGivenName:
+          type:
+          - string
+          - 'null'
+        suffix:
+          type:
+          - string
+          - 'null'
+        surname:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillMessageInformation:
+      type: object
+      properties:
+        businessPurposeTypeCode:
+          type:
+          - string
+          - 'null'
+        businessPurposeSubTypeCode:
+          type:
+          - string
+          - 'null'
+        sender:
+          type:
+          - string
+          - 'null'
+        receiver:
+          type:
+          - string
+          - 'null'
+        associatedFirmId:
+          type:
+          - string
+          - 'null'
+        trackingNumber:
+          type:
+          - string
+          - 'null'
+        effectiveDate:
+          type:
+          - string
+          - 'null'
+        reference:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillReference'
+        eSignature:
+          type:
+          - string
+          - 'null'
+        transactionNumber:
+          type:
+          - string
+          - 'null'
+        TransExternalTransactionId:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillOrganization:
+      type: object
+      properties:
+        foundationDate:
+          type:
+          - string
+          - 'null'
+        irrevocableIndicator:
+          type:
+          - boolean
+          - 'null'
+        memberCount:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        organizationTypeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    TransactionDataQuestionRowsMap:
+      title: TransactionDataQuestionRowsMap
+      type: object
+      properties:
+        '259726':
+          $ref: '#/components/schemas/QuestionDataRows'
+      additionalProperties:
+        $ref: '#/components/schemas/QuestionDataRows'
+      description: Answers keyed by blueprint question id or composite collection field id. Named properties below are representative examples (same keys as the default example); any other field id is valid and uses the same value shape (see additionalProperties → QuestionDataRows → QuestionData). Each array entry is one row; use index for repeatable collection instances.
+      example:
+        '259726':
+        - id: '259726'
+          type: dropdown
+          questionText: Account designation
+          questionSubText: Account designation
+          displayValue: Owner
+          value: Owner
+          index: 0
+    PrefillPerson:
+      type: object
+      properties:
+        birthDate:
+          type:
+          - string
+          - 'null'
+        citizenship:
+          type:
+          - string
+          - 'null'
+        citizenshipCode:
+          type:
+          - string
+          - 'null'
+        dependentCount:
+          type:
+          - number
+          - 'null'
+          format: double
+        gender:
+          type:
+          - string
+          - 'null'
+        genderCode:
+          type:
+          - string
+          - 'null'
+        maritalstatus:
+          type:
+          - string
+          - 'null'
+        maritalStatusCode:
+          type:
+          - string
+          - 'null'
+        militaryStatusCode:
+          type:
+          - string
+          - 'null'
+        militarystatus:
+          type:
+          - string
+          - 'null'
+        residencyStatusCode:
+          type:
+          - string
+          - 'null'
+        residencystatus:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    SectionGroupBlueprint:
+      required:
+      - id
+      - title
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: The unique identifier for the section group
+        title:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The section group title in multiple languages. Supports localization through language codes (e.g., en, fr)
+        partName:
+          type:
+          - string
+          - 'null'
+          description: An identifier (partName) for the section group
+      additionalProperties: false
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+    PrefillPartyRole:
+      type: object
+      properties:
+        roleCode:
+          type:
+          - string
+          - 'null'
+        roleCodes:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+      additionalProperties: false
+    SubscriberAction:
+      type: object
+      properties:
+        type:
+          type:
+          - string
+          - 'null'
+          description: The action transport. Currently always "http".
+        verb:
+          type:
+          - string
+          - 'null'
+          description: HTTP verb to use (e.g., "get", "post").
+        url:
+          type:
+          - string
+          - 'null'
+          description: 'Relative URL of the OE endpoint to call when the trigger fires. Three shapes are emitted: ''/market-connect/order-entry/v1/dataset'' (dataset refresh); ''/market-connect/order-entry/v1/transaction/{transactionId}/{stepName}'' (multi-step blueprint refresh); ''/market-connect/order-entry/v1/transaction/{transactionId}'' (single/enhanced blueprint refresh).'
+        token:
+          type:
+          - string
+          - 'null'
+          description: Bearer-token alias forwarded by the UI on the call. Always "OEToken" today.
+        payload:
+          allOf:
+          - $ref: '#/components/schemas/SubscriberActionPayload'
+          description: Request payload envelope. Use type "none" when no body is required.
+          example:
+            type: basic
+            payload:
+              transactionId: '1125715'
+              stepName: MCDPS
+              fieldId: '531783'
+        responseHandlers:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SubscriberResponseHandler'
+          description: One or more handlers that apply the upstream response back to the form.
+      additionalProperties: false
+      example:
+        type: http
+        verb: get
+        url: /market-connect/order-entry/v1/transaction/1064727
+        token: OEToken
+        payload:
+          type: none
+        responseHandlers:
+        - type: blueprint-modification
+          action: replace-whole
+          value:
+            type: response-query
+            kind: json-path
+            value: $.data
+    Blueprint:
+      required:
+      - sectionBlueprints
+      - sectionGroupBlueprints
+      type: object
+      properties:
+        sectionBlueprints:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectionBlueprint'
+          description: An array of sections representing the hierarchical structure of an order entry blueprint, nested from sections to subsections, field groups, and individual fields
+        sectionGroupBlueprints:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SectionGroupBlueprint'
+          description: Map of section groups keyed by group identifier. Each value assigns sections to their corresponding group.
+      additionalProperties: false
+    ValidationErrors:
+      type: object
+      properties:
+        fieldId:
+          type:
+          - string
+          - 'null'
+          description: ControlID as a string (numeric ids appear quoted). Omitted when fieldId is 0.
+        answerNodeId:
+          type:
+          - string
+          - 'null'
+          description: Answer node path from annuity NamedItem; matches FieldBlueprint.AnswerNodeId.
+        message:
+          type:
+          - string
+          - 'null'
+          description: The validation error message
+        sectionName:
+          type:
+          - string
+          - 'null'
+          description: The section/step name where the error occurred
+      additionalProperties: false
+      description: One validation message in API shape. Optional properties are omitted in JSON when null (e.g. fieldId is missing or 0).
+      example:
+        fieldId: BeneficiaryAddress
+        answerNodeId: Transaction.PrimaryOwner.PersonName.Prefix
+        message: First name is required
+        sectionName: EntityOwners
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
+    TransactionResponse:
+      required:
+      - blueprint
+      - data
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+          description: The unique identifier for the created transaction
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: The case identifier returned by the product service
+        data:
+          $ref: '#/components/schemas/TransactionDataQuestionRowsMap'
+        blueprint:
+          $ref: '#/components/schemas/Blueprint'
+        subscribers:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/Subscriber'
+          description: 'Reactive subscriber definitions consumed by the UI. Each subscriber declares trigger fields, an HTTP action to run on change, and a response handler. Two flavors are emitted: dataset-dependency (context-modification) and blueprint-modification (replace-whole).'
+        errors:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+          description: Collection of errors if the operation failed
+        validationErrors:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ValidationErrors'
+          description: Collection of validation errors when transaction validation fails. Includes transaction ID, field ID, and error messages.
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        caseId: CASE-12345
+        data:
+          '259726':
+          - type: dropdown
+            displayValue: Owner
+            id: '259726'
+            value: Owner
+            index: 0
+          489444_Line1:
+          - type: input
+            displayValue: 12108 Jefferson CT
+            id: 489444_Line1
+            value: 12108 Jefferson CT
+            index: 0
+          489444_City:
+          - type: input
+            displayValue: Alpharetta
+            id: 489444_City
+            value: Alpharetta
+            index: 0
+        blueprint:
+          sectionBlueprints:
+          - id: section1
+            partName: PersonalInformation
+            title:
+              en: Personal Information
+            modules:
+            - personal
+            isCustom: false
+            subsections:
+            - id: 489363-SubSection
+              partName: partName-489363
+              text:
+                en: ''
+              title:
+                en: ''
+              isCustom: true
+              fieldGroups:
+              - id: '489363'
+                partName: partName-489363
+                text:
+                  en: ''
+                title:
+                  en: Name
+                isCustom: true
+                fields:
+                - fieldType: dropdown
+                  text:
+                    en: ''
+                  title:
+                    en: Prefix
+                  answerNodeId: Transaction.PrimaryOwner.PersonName.Prefix
+                  renderOn: []
+                  platforms: []
+                  copyable: none
+                  triggerStepNavigation: false
+                  layout:
+                    size: 12
+                  displayInCardPreview: false
+                  applicationModes:
+                  - digital
+                  - paper
+                  placeholder:
+                    en: ''
+                  id: 489363_Prefix
+                  partName: partName-489363_Prefix
+                  validateAs: string
+                  selectOptions:
+                  - text:
+                      en: Mr
+                    value: '1'
+                  - text:
+                      en: Mrs
+                    value: '2'
+                  - text:
+                      en: Ms
+                    value: '3'
+                  - text:
+                      en: Dr
+                    value: '4'
+                  - text:
+                      en: Atty
+                    value: '5'
+                  - text:
+                      en: Rev
+                    value: '6'
+                  - text:
+                      en: Miss
+                    value: '7'
+                  visible: null
+                  optional: false
+                repeatable:
+                  repeatableAnswerNodeId: '489363'
+                  minRepeatable: 1
+                  maxRepeatable: 15
+                  addButtonText:
+                    en: Add
+                  removeButtonText:
+                    en: Remove
+              repeatable:
+                repeatableAnswerNodeId: 489363-SubSection
+                minRepeatable: 1
+                maxRepeatable: 15
+                addButtonText:
+                  en: Add
+                removeButtonText:
+                  en: Remove
+            copyable: ''
+            renderOn: []
+            pdfDocuments: []
+            platforms: []
+          sectionGroupBlueprints:
+            insuredPeople:
+              id: insuredPeople
+              title:
+                en: ''
+              partName: ''
+        subscribers:
+        - triggers:
+          - Transaction.SolicitationState
+          actions:
+          - type: http
+            verb: post
+            url: /market-connect/order-entry/v1/dataset
+            token: OEToken
+            payload:
+              type: basic
+              payload:
+                transactionId: '1064187'
+                stepName: CarrierProductSelection
+                fieldId: '504436'
+                Transaction.Parameters["CarrierID"].Value: blueprint-id:504435
+                Transaction.SolicitationState: blueprint-id:504440
+            responseHandlers:
+            - type: context-modification
+              action: update-namespace
+              namespace: '504436'
+              value:
+                type: response-query
+                kind: json-path
+                value: $.data
+        errors: []
+    SelectOption:
+      required:
+      - text
+      - value
+      type: object
+      properties:
+        text:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
+        value:
+          minLength: 1
+          type: string
+          description: The value representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
+      additionalProperties: false
+    PrefillOwner:
+      type: object
+      properties:
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        partyIdentity:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPartyIdentity'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+        relationship:
+          $ref: '#/components/schemas/PrefillRelationship'
+      additionalProperties: false
+    SubscriberActionPayload:
+      type: object
+      properties:
+        type:
+          type:
+          - string
+          - 'null'
+          description: Payload kind. "basic" includes a key/value map in the "payload" field; "none" omits the body.
+        payload:
+          type:
+          - object
+          - 'null'
+          additionalProperties:
+            type: string
+          description: Inner payload key/value map. Omitted from the JSON envelope when type is "none".
+      additionalProperties: false
+      example:
+        type: basic
+        payload:
+          transactionId: '1125715'
+          stepName: MCDPS
+          fieldId: '531783'
+    PrefillPolicyholder:
+      type: object
+      properties:
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+        relationship:
+          $ref: '#/components/schemas/PrefillRelationship'
+      additionalProperties: false
+    ValidationConditionGroup:
+      type: object
+      properties:
+        booleanOperator:
+          type:
+          - string
+          - 'null'
+          description: The boolean operator used to combine multiple conditions (e.g., "and"). Omitted when there is only one condition.
+        conditions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ValidationCondition'
+          description: Array of validation conditions with varying structures per condition type
+      additionalProperties: false
+      example:
+        booleanOperator: and
+        conditions:
+        - type: numberComparisonCondition
+          targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
+          value: 9999999999
+          operator: lessThanOrEqual
+        - type: numberComparisonCondition
+          targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
+          value: 1
+          operator: greaterThanOrEqual
+    FieldGroupBlueprint:
+      required:
+      - id
+      - partName
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: The unique identifier for the field group
+        partName:
+          minLength: 1
+          type: string
+          description: An identifier (partName) for the field group
+        text:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The text associated with a field group, such as descriptions or related notes. Supports localization through language codes (e.g., en, fr).
+        title:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The title of the field group in multiple languages. Supports localization through language codes (e.g., en, fr).
+        isCustom:
+          type: boolean
+          description: Indicates whether this is a custom field group
+        fields:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/FieldBlueprint'
+          description: Array of fields (questions) within this field group
+        displayAsCard:
+          type: boolean
+          description: Indicates if this field group should be displayed as a card
+        copyable:
+          type:
+          - string
+          - 'null'
+          description: Role identifier controlling copy behavior. Use 'none' to disable copying, or a role name (e.g., 'owner', 'annuitant', 'insured', 'payor'). Multiple roles may be comma-separated.
+        repeatable:
+          allOf:
+          - $ref: '#/components/schemas/RepeatableBlueprint'
+          description: Repeat-instance metadata when the wizard field element or custom control declares IsRepeated.
+      additionalProperties: false
+    SectionBlueprint:
+      required:
+      - id
+      - partName
+      - title
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: The unique identifier for the section
+        sectionGroupKey:
+          type:
+          - string
+          - 'null'
+          description: A key used to group related sections within the blueprint
+        partName:
+          minLength: 1
+          type: string
+          description: An identifier (partName) for the section
+        title:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The section title in multiple languages. Supports localization through language codes (e.g., en, fr)
+        modules:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of module names associated with this section
+        isCustom:
+          type: boolean
+          description: Indicates whether this section is custom
+        subsections:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SubsectionBlueprint'
+          description: Array of subsections within this section
+        copyable:
+          type:
+          - string
+          - 'null'
+          description: Role identifier controlling copy behavior. Use 'none' to disable copying, or a role name (e.g., 'owner', 'annuitant', 'insured', 'payor'). Multiple roles may be comma-separated.
+        renderOn:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of conditions that determine when a section is rendered
+        pdfDocuments:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of PDF document identifiers where this section appears
+        platforms:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of platforms where this section is available (e.g., D2C-only versus advisor-driven experiences)
+        visible:
+          allOf:
+          - $ref: '#/components/schemas/VisibilitySettings'
+          description: 'Visibility conditions for the section. When present, the section is only visible when all conditions are met. Example: { "booleanOperator": "AND", "conditions": [ { "type": "equality", "isEqual": true, "value": "NY", "targetNodeId": "SolicitationStateCode" } ] }'
+          example:
+            booleanOperator: AND
+            conditions:
+            - type: equality
+              isEqual: true
+              value: 'Yes'
+              targetNodeId: Transaction.SolicitationState
+        repeatable:
+          allOf:
+          - $ref: '#/components/schemas/RepeatableBlueprint'
+          description: Repeat-instance metadata when the wizard section declares IsRepeated.
+      additionalProperties: false
+    SelectOptionsApplicationContext:
+      type: object
+      properties:
+        tag:
+          type:
+          - string
+          - 'null'
+          description: Tag used to associate dataset values with a field
+        labelKey:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: Localized label key for dataset items
+        valuePath:
+          type:
+          - string
+          - 'null'
+          description: Dataset value path
+      additionalProperties: false
+      example:
+        tag: '507602'
+        labelKey:
+          en: Name
+        valuePath: Value
+    QuestionData:
+      required:
+      - id
+      - type
+      - value
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: Must match the field key under `data` for this row (case-insensitive); inside collection rows, must match the leaf key in the item's `data` map.
+        type:
+          minLength: 1
+          enum:
+          - input
+          - dropdown
+          - radio
+          - checkbox
+          - checkboxgroup
+          - date
+          - phone
+          - email
+          - money
+          - number
+          - label
+          - information
+          - collection
+          - Person
+          - Address
+          - Hidden
+          type: string
+          description: 'Data-storage type for the question row. Must match the corresponding blueprint field type and be one of: input, dropdown, radio, checkbox, checkboxgroup, date, phone, email, money, number, label, information, collection, Person, Address, Hidden. Values are case-sensitive.'
+          example: input
+        questionText:
+          type:
+          - string
+          - 'null'
+          description: The title of the question shown to the user. This value should be kept in sync with the title property of the associated field
+        questionSubText:
+          type:
+          - string
+          - 'null'
+          description: The subtext shown to the user below the question title. This value should be kept in sync with the text property of the associated field
+        displayValue:
+          type:
+          - string
+          - 'null'
+          description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
+        value:
+          anyOf:
+          - type: string
+            description: String value for simple fields
+            example: PrimaryBeneficiary
+          - type: integer
+            description: Integer value for numeric fields
+            example: 123
+          - type: number
+            description: Float value for decimal fields
+            format: float
+            example: 123.45
+          - type: string
+            description: Date value for date fields (YYYY-MM-DD format)
+            format: date
+            example: '2024-01-15'
+          - type: string
+            description: DateTime value for date-time fields (ISO 8601 format)
+            format: date-time
+            example: '2024-01-15T10:30:00Z'
+          - type: boolean
+            description: Boolean value for true/false fields
+            example: true
+          - type: array
+            items:
+              type: string
+              example: Income_Replacement
+            description: Array of selected option codes for checkboxgroup fields
+          - type: array
+            items:
+              required:
+              - surrogateId
+              - type
+              - data
+              type: object
+              properties:
+                surrogateId:
+                  type: string
+                  description: 'The surrogate identifier for each set of answers in a collection. Example: a repeatable beneficiary collection with two beneficiaries will have two surrogate IDs.'
+                  example: 504490-1
+                type:
+                  enum:
+                  - collectionItem
+                  type: string
+                  description: Must be `collectionItem` for each element of a collection value array.
+                  example: collectionItem
+                data:
+                  type: object
+                  additionalProperties:
+                    required:
+                    - id
+                    - type
+                    - value
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Must match the leaf property name under this collection item's `data` object (case-insensitive).
+                        example: 504490_FirstName
+                      type:
+                        enum:
+                        - input
+                        - dropdown
+                        - radio
+                        - checkbox
+                        - checkboxgroup
+                        - date
+                        - phone
+                        - email
+                        - money
+                        - number
+                        - label
+                        - information
+                        - collection
+                        - Person
+                        - Address
+                        - Hidden
+                        type: string
+                        description: 'Data-storage type for the question row. Must match the corresponding blueprint field type and be one of: input, dropdown, radio, checkbox, checkboxgroup, date, phone, email, money, number, label, information, collection, Person, Address, Hidden. Values are case-sensitive.'
+                        example: input
+                      questionText:
+                        type: string
+                        description: The title of the question shown to the user. This value should be kept in sync with the title property of the associated field
+                        example: First Name
+                      questionSubText:
+                        type: string
+                        description: The subtext shown to the user below the question title. This value should be kept in sync with the text property of the associated field
+                        example: ''
+                      displayValue:
+                        type: string
+                        description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
+                        example: ''
+                      value:
+                        anyOf:
+                        - type: string
+                          description: String value for simple fields
+                          example: ''
+                        - type: integer
+                          description: Integer value for numeric fields
+                          example: 123
+                        - type: number
+                          description: Float value for decimal fields
+                          example: 123.45
+                        - type: string
+                          description: Date value for date fields (YYYY-MM-DD format)
+                          format: date
+                          example: '2024-01-15'
+                        - type: string
+                          description: DateTime value for date-time fields (ISO 8601 format)
+                          format: date-time
+                          example: '2024-01-15T10:30:00.000Z'
+                        - type: boolean
+                          description: Boolean value for true/false fields
+                          example: true
+                        description: The actual value of the question (required on each nested question row; JSON null allowed when applicable).
+                  description: Dictionary containing question data for this collection item
+            description: Array of CollectionItem for collection type fields
+          description: The actual value of the question (required on each QuestionData row in `data`; JSON null is allowed for an empty optional answer). Can be a string, integer, number, float, date, date-time, boolean, or array of CollectionItem objects depending on the field type.
+        index:
+          type: integer
+          description: Zero-based row index for repeatable collection rows in transaction data lists; 0 for single-value fields.
+          format: int32
+        prefilled:
+          type: boolean
+          description: True when value is a prefill; omitted in JSON when false.
+      additionalProperties: false
+      description: One row of captured or echoed answer data. Must include id, type, and value (the JSON property `value` must be present on each row; use JSON null for an empty optional answer when applicable). On PUT, `id` must match the enclosing `data` field key (or the leaf key inside a collection item's `data`). `type` must be a QuestionData storage type (see QuestionDataStorageTypes); collection value rows use `collectionItem` on each CollectionItem.
+    PrefillParty:
+      type: object
+      properties:
+        address:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillAddress'
+        allocation:
+          $ref: '#/components/schemas/PrefillAllocation'
+        communication:
+          $ref: '#/components/schemas/PrefillCommunication'
+        communicationPreferenceCode:
+          type:
+          - string
+          - 'null'
+        languageCode:
+          type:
+          - string
+          - 'null'
+        legalEntityTypeCode:
+          type:
+          - string
+          - 'null'
+        nameBase:
+          $ref: '#/components/schemas/PrefillNameBase'
+        organization:
+          $ref: '#/components/schemas/PrefillOrganization'
+        partyIdentity:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPartyIdentity'
+        partyRole:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPartyRole'
+        person:
+          $ref: '#/components/schemas/PrefillPerson'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+        relationship:
+          $ref: '#/components/schemas/PrefillRelationship'
+        suffix:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillUser:
+      type: object
+      properties:
+        username:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    LocalizedText:
+      type: object
+      properties:
+        en:
+          type:
+          - string
+          - 'null'
+          description: English text content
+      additionalProperties: false
+    RepeatableBlueprint:
+      type: object
+      properties:
+        repeatableAnswerNodeId:
+          type:
+          - string
+          - 'null'
+          description: Blueprint id this repeat block is bound to (matches SubsectionBlueprint.id or FieldGroupBlueprint.id).
+        addButtonText:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: Localized label for the control that adds another row.
+        removeButtonText:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: Localized label for removing a row.
+        minRepeatable:
+          type: integer
+          description: Minimum number of instances.
+          format: int32
+        maxRepeatable:
+          type: integer
+          description: Maximum number of instances.
+          format: int32
+        outputPath:
+          type:
+          - string
+          - 'null'
+          description: Optional binding path for persisted repeat instances.
+      additionalProperties: false
+    FieldBlueprint:
+      required:
+      - fieldType
+      - id
+      - partName
+      - text
+      - title
+      type: object
+      properties:
+        fieldType:
+          enum:
+          - money
+          - date
+          - information
+          - radio
+          - input
+          - email
+          - dropdown
+          - phone
+          - checkboxgroup
+          - number
+          - checkbox
+          type: string
+          description: 'The type of field displayed for collecting response values:
+
+            money - Currency input field
+
+            date - Date selection input field
+
+            information - Read-only informational text display field
+
+            radio - Single-selection radio button field
+
+            input - Free-form text input field
+
+            email - Email address input field
+
+            dropdown - Selection field with predefined options
+
+            phone - Phone number input field
+
+            checkboxgroup - Checkbox group field for multiple selections
+
+            number - Number input field for numeric values
+
+            checkbox - Checkbox field for single selection (value is string)'
+        text:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The text associated with a field title, such as descriptions or related notes. Supports localization through language codes (e.g., en, fr)
+        title:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The field title in multiple languages. Supports localization through language codes (e.g., en, fr)
+        answerNodeId:
+          type:
+          - string
+          - 'null'
+          description: A unique identifier used to store and infer a field's answer, and to build validation and visibility conditions across the order entry blueprint
+        renderOn:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/RenderCondition'
+          description: An array of conditions that determine when a field is rendered
+        platforms:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of platforms where this field is available (e.g., D2C-only versus advisor-driven experiences)
+        copyable:
+          type:
+          - string
+          - 'null'
+          description: A comma-separated list of roles (e.g., annuitant, insured, owner, payor) that are allowed to copy this field.
+        triggerStepNavigation:
+          type: boolean
+          description: Indicates whether the field triggers step navigation
+        layout:
+          allOf:
+          - $ref: '#/components/schemas/LayoutSettings'
+          description: Layout options for the field. Used to define the field's rendered width in the 12-column grid.
+        displayInCardPreview:
+          type: boolean
+          description: Indicates whether this field should be displayed in card preview mode
+        applicationModes:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: Array of application modes where this field is available. Helper for filtering what is shown in different modes or channels
+        placeholder:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: List of localized default text values for the field. When rendered, the appropriate localized text is displayed as the field's initial answer until modified.
+        id:
+          minLength: 1
+          type: string
+          description: The unique identifier for the field
+        partName:
+          minLength: 1
+          type: string
+          description: An identifier (partName) for the field.
+        validateAs:
+          type:
+          - string
+          - 'null'
+          description: Validation type applied to fields such as phone numbers, where the value must contain digits only. These validations exist and are managed through Zinnia UI
+        selectOptions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SelectOption'
+          description: Array of options (answers) that can be selected for dropdown, radio, checkbox, or checkboxgroup fields
+        selectOptionsApplicationContext:
+          allOf:
+          - $ref: '#/components/schemas/SelectOptionsApplicationContext'
+          description: Application context for select options sourced from subscriber dataset
+          example:
+            tag: '507602'
+            labelKey:
+              en: Name
+            valuePath: Value
+        visible:
+          allOf:
+          - $ref: '#/components/schemas/VisibilitySettings'
+          description: Visibility settings containing a boolean operator and an array of conditions that determine when the field is visible.
+          example:
+            booleanOperator: AND
+            conditions:
+            - type: equality
+              isEqual: true
+              value: 'Yes'
+              targetNodeId: Transaction.SolicitationState
+        valid:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/FieldValidationRule'
+          description: An array of validation rules applied to the field (e.g., regex, number range, character count)
+          example:
+          - message:
+              en: Please enter valid email address
+            conditions:
+              conditions:
+              - type: matchesRegexCondition
+                targetNodeId: Transaction.Beneficiaries[0].EmailAddresses["Home"].Address
+                regex: ^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$
+          - message:
+              en: Please enter value greater than or equal to 1 and less than or equal to 9999999999
+            conditions:
+              booleanOperator: and
+              conditions:
+              - type: numberComparisonCondition
+                targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
+                value: 9999999999
+                operator: lessThanOrEqual
+              - type: numberComparisonCondition
+                targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
+                value: 1
+                operator: greaterThanOrEqual
+          - message:
+              en: Please enter no more than 128 characters
+            conditions:
+              conditions:
+              - type: characterCountInBetween
+                targetNodeId: PhysicalAddress.Line1
+                value:
+                  minLength: 0
+                  maxLength: 128
+        optional:
+          type: boolean
+          description: Indicates if this field is optional (not required)
+        disabled:
+          type:
+          - boolean
+          - 'null'
+          description: 'Indicates whether the field is rendered as disabled (read-only) in the form. Emitted when the upstream control carries ReadOnly: 1 / ReadOnly: true. Omitted when the field is not disabled.'
+          example: true
+        hidden:
+          type:
+          - boolean
+          - 'null'
+          description: Indicates the field is not displayed in the UI but is still present in the blueprint and data. Emitted as true when upstream BaseControlType is 15 (Hidden). Omitted for all other field types.
+      additionalProperties: false
+    StateCode:
+      pattern: ^[A-Z]{2}$
+      enum:
+      - AL
+      - AK
+      - AZ
+      - AR
+      - AA
+      - AE
+      - AP
+      - CA
+      - CO
+      - CT
+      - DE
+      - DC
+      - FL
+      - GA
+      - GU
+      - HI
+      - ID
+      - IL
+      - IN
+      - IA
+      - KS
+      - KY
+      - LA
+      - ME
+      - MD
+      - MA
+      - MI
+      - MN
+      - MS
+      - MO
+      - MT
+      - NE
+      - NV
+      - NH
+      - NJ
+      - NM
+      - NY
+      - NC
+      - ND
+      - OH
+      - OK
+      - OR
+      - PA
+      - PR
+      - RI
+      - SC
+      - SD
+      - TN
+      - TX
+      - UT
+      - VT
+      - VI
+      - VA
+      - WA
+      - WV
+      - WI
+      - WY
+      type: string
+      description: US state, territory, or military mail code (2 characters). Uppercase letters only.
+      example: NC
+    ValidationCondition:
+      required:
+      - type
+      - targetNodeId
+      type: object
+      properties:
+        type:
+          enum:
+          - matchesRegexCondition
+          - numberComparisonCondition
+          - characterCountInBetween
+          type: string
+          description: The kind of validation this condition performs.
+          example: matchesRegexCondition
+        targetNodeId:
+          type: string
+          description: The answer node identifier this condition evaluates.
+          example: Transaction.Beneficiaries[0].EmailAddresses["Home"].Address
+        regex:
+          type:
+          - string
+          - 'null'
+          description: Regex pattern. Only used when `type` is `matchesRegexCondition`.
+          example: ^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$
+        operator:
+          enum:
+          - lessThan
+          - lessThanOrEqual
+          - greaterThan
+          - greaterThanOrEqual
+          - equal
+          - notEqual
+          type:
+          - string
+          - 'null'
+          description: Comparison operator. Only used when `type` is `numberComparisonCondition`.
+          example: lessThanOrEqual
+        value:
+          anyOf:
+          - type: number
+            example: 9999999999
+          - type: integer
+            example: 1
+          - type: object
+            properties:
+              minLength:
+                type: integer
+                example: 0
+              maxLength:
+                type: integer
+                example: 128
+          description: Condition-specific value. Number for `numberComparisonCondition`; object `{ minLength, maxLength }` for `characterCountInBetween`. Absent for `matchesRegexCondition`.
+      description: 'Single validation condition inside a FieldValidationRule. The shape varies by `type`: `matchesRegexCondition` uses `regex`; `numberComparisonCondition` uses `value` + `operator`; `characterCountInBetween` uses `value: { minLength, maxLength }`.'
+    PrefillPhone:
+      type: object
+      properties:
+        phoneNumber:
+          type:
+          - string
+          - 'null'
+        phoneTypeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    LayoutSettings:
+      type: object
+      properties:
+        size:
+          type: integer
+          description: The size of the field in a 12-column HTML grid that determines its rendered width (12 = full-width, 6 = half-width, 4 = one-third, 3 = quarter-width). Field column widths sum to 12 per row - e.g., two fields of 6 sit side-by-side, three fields of 4 share a row, four fields of 3 share a row.
+          format: int32
+      additionalProperties: false
+    PrefillRequest:
+      type: object
+      properties:
+        agent:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillAgent'
+        annuitant:
+          $ref: '#/components/schemas/PrefillAnnuitant'
+        beneficiary:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillBeneficiary'
+        client:
+          $ref: '#/components/schemas/PrefillClient'
+        illustration:
+          $ref: '#/components/schemas/PrefillIllustration'
+        insured:
+          $ref: '#/components/schemas/PrefillInsured'
+        messageInformation:
+          $ref: '#/components/schemas/PrefillMessageInformation'
+        owner:
+          $ref: '#/components/schemas/PrefillOwner'
+        plan:
+          $ref: '#/components/schemas/PrefillPlan'
+        policy:
+          $ref: '#/components/schemas/PrefillPolicy'
+        policyholder:
+          $ref: '#/components/schemas/PrefillPolicyholder'
+        product:
+          $ref: '#/components/schemas/PrefillProduct'
+      additionalProperties: false
+    PrefillUnderwritingDecision:
+      type: object
+      properties:
+        classCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillDuration:
+      type: object
+      properties:
+        periodDescription:
+          type:
+          - string
+          - 'null'
+        unitCode:
+          type:
+          - string
+          - 'null'
+        unitCount:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillAgent:
+      type: object
+      properties:
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        partyIdentity:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPartyIdentity'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+        user:
+          $ref: '#/components/schemas/PrefillUser'
+      additionalProperties: false
+    PrefillLicense:
+      type: object
+      properties:
+        effectiveDate:
+          type:
+          - string
+          - 'null'
+        expirationDate:
+          type:
+          - string
+          - 'null'
+        issuingAuthority:
+          type:
+          - string
+          - 'null'
+        jurisdiction:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    SubscriberResponseValue:
+      type: object
+      properties:
+        type:
+          type:
+          - string
+          - 'null'
+          description: Value source kind. "response-query" extracts via a query expression on the response body.
+        kind:
+          type:
+          - string
+          - 'null'
+          description: Query language used to evaluate the value expression. Currently always "json-path".
+        value:
+          type:
+          - string
+          - 'null'
+          description: The query expression itself (e.g., "$.data" to grab the response's data branch).
+      additionalProperties: false
+      example:
+        type: response-query
+        kind: json-path
+        value: $.data
+    RenderCondition:
+      required:
+      - type
+      - targetNodeId
+      type: object
+      properties:
+        type:
+          enum:
+          - equality
+          - range
+          - presence
+          type: string
+          description: Kind of comparison performed by the condition.
+          example: equality
+        isEqual:
+          type: boolean
+          description: When true the condition passes if the target value equals 'value'; when false the condition passes if it differs.
+          example: true
+        value:
+          type: string
+          description: The value to compare against the resolved target answer.
+          example: NY
+        targetNodeId:
+          type: string
+          description: The answer node identifier whose value is evaluated by this condition.
+          example: SolicitationStateCode
+      description: Single condition controlling whether a field/section is rendered.
+    PrefillEmployee:
+      type: object
+      properties:
+        address:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillAddress'
+        companyName:
+          type:
+          - string
+          - 'null'
+        jobTitle:
+          type:
+          - string
+          - 'null'
+        occupationClassCode:
+          type:
+          - string
+          - 'null'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        questionAnswer:
+          type:
+          - string
+          - 'null'
+        statusCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    Subscriber:
+      type: object
+      properties:
+        triggers:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: NamedItem identifiers of the form fields whose value change fires this subscriber.
+        conditions:
+          type:
+          - array
+          - 'null'
+          items: {}
+          description: Optional conditions that must hold for the subscriber to execute. Omitted when not used.
+        actions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SubscriberAction'
+          description: Actions executed when any of the triggers fire. Each action declares an HTTP call plus one or more response handlers.
+      additionalProperties: false
+      example:
+        triggers:
+        - FirstName
+        actions:
+        - type: http
+          verb: get
+          url: /market-connect/order-entry/v1/transaction/1125715/MCDPS
+          token: OEToken
+          payload:
+            type: none
+          responseHandlers:
+          - type: blueprint-modification
+            action: replace-whole
+            value:
+              type: response-query
+              kind: json-path
+              value: $.data
+    SubscriberResponseHandler:
+      type: object
+      properties:
+        type:
+          type:
+          - string
+          - 'null'
+          description: Handler kind. "context-modification" updates a context namespace; "blueprint-modification" applies the response to the rendered blueprint.
+        action:
+          type:
+          - string
+          - 'null'
+          description: 'Action to perform within the chosen handler kind. Examples: "update-namespace", "replace-whole".'
+        namespace:
+          type:
+          - string
+          - 'null'
+          description: Namespace to update for context-modification handlers. Omitted for handler types that do not use a namespace.
+        value:
+          allOf:
+          - $ref: '#/components/schemas/SubscriberResponseValue'
+          description: How to extract the value to apply from the upstream response.
+          example:
+            type: response-query
+            kind: json-path
+            value: $.data
+      additionalProperties: false
+      example:
+        type: blueprint-modification
+        action: replace-whole
+        value:
+          type: response-query
+          kind: json-path
+          value: $.data
+    SubmitTransactionResponse:
+      required:
+      - message
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+          description: The unique identifier for the submitted transaction. Echoed back from the request.
+        message:
+          minLength: 1
+          type: string
+          description: Human-readable confirmation that the submit request was accepted.
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        message: Transaction submitted successfully
+    VisibilitySettings:
+      type: object
+      properties:
+        booleanOperator:
+          type:
+          - string
+          - 'null'
+          description: The boolean operator for combining conditions
+        conditions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/VisibilityCondition'
+          description: Array of visibility conditions with varying structures per condition type
+      additionalProperties: false
+      example:
+        booleanOperator: AND
+        conditions:
+        - type: equality
+          isEqual: true
+          value: 'Yes'
+          targetNodeId: Transaction.SolicitationState
+    SubsectionBlueprint:
+      required:
+      - id
+      - partName
+      - title
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: The unique identifier for the subsection
+        partName:
+          minLength: 1
+          type: string
+          description: The part name for the subsection
+        text:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: Text content for the subsection
+        title:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The title of the subsection
+        isCustom:
+          type: boolean
+          description: Indicates if this is a custom subsection
+        fieldGroups:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/FieldGroupBlueprint'
+          description: Array of field groups within this subsection
+        subsections:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SubsectionBlueprint'
+          description: Array of nested subsections within this subsection
+        showInNavigation:
+          type: boolean
+          description: Indicates if this subsection should be shown in navigation
+        copyable:
+          type:
+          - string
+          - 'null'
+          description: Role identifier controlling copy behavior. Use 'none' to disable copying, or a role name (e.g., 'owner', 'annuitant', 'insured', 'payor'). Multiple roles may be comma-separated.
+        visible:
+          allOf:
+          - $ref: '#/components/schemas/VisibilitySettings'
+          description: 'Visibility conditions for the subsection. When present, the subsection is only visible when all conditions are met. Example: { "booleanOperator": "AND", "conditions": [ { "type": "equality", "isEqual": true, "value": "NY", "targetNodeId": "SolicitationStateCode" } ] }'
+          example:
+            booleanOperator: AND
+            conditions:
+            - type: equality
+              isEqual: true
+              value: 'Yes'
+              targetNodeId: Transaction.SolicitationState
+        repeatable:
+          allOf:
+          - $ref: '#/components/schemas/RepeatableBlueprint'
+          description: Repeat-instance metadata when the wizard subsection or custom control declares IsRepeated.
+      additionalProperties: false
+    PrefillPolicy:
+      type: object
+      properties:
+        duration:
+          $ref: '#/components/schemas/PrefillDuration'
+        effectiveDate:
+          type:
+          - string
+          - 'null'
+        faceAmount:
+          type:
+          - number
+          - 'null'
+          format: double
+        flag:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillFlag'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+        underwritingDecision:
+          $ref: '#/components/schemas/PrefillUnderwritingDecision'
+      additionalProperties: false
+    PrefillFlag:
+      type: object
+      properties:
+        indicator:
+          type:
+          - string
+          - 'null'
+        indicatorTypeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillPartyIdentity:
+      type: object
+      properties:
+        license:
+          $ref: '#/components/schemas/PrefillLicense'
+        NPN:
+          type:
+          - string
+          - 'null'
+        typeCode:
+          type:
+          - string
+          - 'null'
+        typeId:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillCommunication:
+      type: object
+      properties:
+        emailAddress:
+          type:
+          - string
+          - 'null'
+        phone:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPhone'
+      additionalProperties: false
+    PrefillClient:
+      type: object
+      properties:
+        accountNumber:
+          type:
+          - string
+          - 'null'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+      additionalProperties: false
+    PrefillReference:
+      type: object
+      properties:
+        id:
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        source:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillPlan:
+      type: object
+      properties:
+        accountDesignationCode:
+          type:
+          - string
+          - 'null'
+        typeCode:
+          type:
+          - string
+          - 'null'
+        party:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillParty'
+        planOption:
+          $ref: '#/components/schemas/PrefillPlanOption'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+      additionalProperties: false
+    CreateTransactionRequest:
+      required:
+      - cusip
+      - state
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/StateCode'
+        cusip:
+          pattern: ^[0-9A-Z]{9}$
+          type: string
+          description: Configured product CUSIP (9 characters). Uppercase letters and digits only.
+          example: 90353U115
+        opportunityId:
+          type:
+          - string
+          - 'null'
+          description: Optional opportunity identifier in UUID format.
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        illustrationId:
+          type:
+          - string
+          - 'null'
+          description: Optional illustration identifier to associate the new transaction with a prior illustration.
+          example: ILL-2024-00001
+        accountNumber:
+          type:
+          - string
+          - 'null'
+          description: Optional account number to associate with the new transaction.
+          example: BR-9876543210
+        externalTransactionId:
+          type:
+          - string
+          - 'null'
+          description: Optional external transaction identifier from the originating system.
+          example: TXN-2024-00001
+        prefill:
+          allOf:
+          - $ref: '#/components/schemas/PrefillRequest'
+          description: Optional ACORD-aligned prefill data to pre-populate party and product fields in the new transaction.
+      additionalProperties: false
+    PrefillAllocation:
+      type: object
+      properties:
+        percent:
+          type:
+          - number
+          - 'null'
+          format: double
+        typeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillRelationship:
+      type: object
+      properties:
+        relationshipToCode:
+          type:
+          - string
+          - 'null'
+        partyRole:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPartyRole'
+      additionalProperties: false
+    PrefillIllustration:
+      type: object
+      properties:
+        illustrationNumber:
+          type:
+          - string
+          - 'null'
+        illustrationTypeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    VisibilityCondition:
+      required:
+      - type
+      - targetNodeId
+      type: object
+      properties:
+        type:
+          enum:
+          - equality
+          - range
+          - presence
+          type: string
+          description: Kind of comparison performed by the condition.
+          example: equality
+        isEqual:
+          type: boolean
+          description: When true the condition passes if the target value equals 'value'; when false the condition passes if it differs.
+          example: true
+        value:
+          type: string
+          description: The value to compare against the resolved target answer.
+          example: NY
+        targetNodeId:
+          type: string
+          description: The answer node identifier whose value is evaluated by this condition.
+          example: SolicitationStateCode
+      description: Single condition controlling whether a field/section is visible at runtime.
+    PrefillAddressBase:
+      type: object
+      properties:
+        line1:
+          type:
+          - string
+          - 'null'
+        line2:
+          type:
+          - string
+          - 'null'
+        city:
+          type:
+          - string
+          - 'null'
+        stateOrProvinceCode:
+          type:
+          - string
+          - 'null'
+        postalCode:
+          type:
+          - string
+          - 'null'
+        countryCode:
+          type:
+          - string
+          - 'null'
+        country:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillBeneficiary:
+      type: object
+      properties:
+        allocation:
+          $ref: '#/components/schemas/PrefillAllocation'
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        legalEntityTypeCode:
+          type:
+          - string
+          - 'null'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        relationship:
+          $ref: '#/components/schemas/PrefillRelationship'
+      additionalProperties: false
+    PrefillInsured:
+      type: object
+      properties:
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+      additionalProperties: false
+    QuestionDataRows:
+      title: QuestionDataRows
+      type: array
+      items:
+        $ref: '#/components/schemas/QuestionData'
+      description: All answer rows for one question or composite collection field id. Use `index` on each row for repeatable collection instances. Each row must include `id`, `type`, and `value` (see QuestionData schema).
+    PrefillPlanOption:
+      type: object
+      properties:
+        qualifiedPlanSubType:
+          type:
+          - string
+          - 'null'
+        qualifiedPlanTypeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillAddress:
+      type: object
+      properties:
+        addressBase:
+          $ref: '#/components/schemas/PrefillAddressBase'
+        line3:
+          type:
+          - string
+          - 'null'
+        line4:
+          type:
+          - string
+          - 'null'
+        stateorprovince:
+          type:
+          - string
+          - 'null'
+        typeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillQuestionAnswer:
+      type: object
+      properties:
+        questionCode:
+          type:
+          - string
+          - 'null'
+        questionText:
+          type:
+          - string
+          - 'null'
+        answerCode:
+          type:
+          - string
+          - 'null'
+        answerText:
+          type:
+          - string
+          - 'null'
+        value:
+          type:
+          - number
+          - 'null'
+          format: double
+        accountDesignationCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillAnnuitant:
+      type: object
+      properties:
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+      additionalProperties: false
+  securitySchemes:
+    openIdConnect:
+      type: openIdConnect
+      description: 'OpenID Connect via Auth0. Clients present a JWT bearer token issued by the tenant in the `Authorization: Bearer <token>` header.'
+      openIdConnectUrl: https://login.qa.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          auth_methods:
+          - bearer
+          verify_signature: true
+          ignore_signature: []
+          consumer_claim:
+          - sub
+          consumer_optional: true

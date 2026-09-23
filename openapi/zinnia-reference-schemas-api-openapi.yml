@@ -1,0 +1,265 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Policy Transactions API. Reference Schemas API
+  description: 'Enterprise API for enforcing policy transactions and validations. This API provides a comprehensive interface for - Policy transaction validation and processing
+
+    - Financial and non-financial transaction management
+
+    - Policy party management and updates
+
+    - Systematic program management
+
+    **Version History** * Draft version 1.0.6
+
+    - Added Two Endpoints- Reinstatement eligibility check api, Reinstatement actual transaction api
+
+    * Draft Specifications (Subject to Change Upon Review)'
+  version: 1.0.8
+  x-changelog:
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — aligned InitialDeathClaimRequest with the revised FNOL payload: added policy.isContestable/isFuneralHomeAssigned, deathDetails.causeOfDeath, COVEREDINSURED party role, deathNotification.partyRole enum; renamed documents[].edsDocumentId to documents[].documentId; removed parties[].isFuneralHomeAssigned (now policy-level only)'
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — added deathNotification.partyId (now required, enforced via bean validation on submit) and deathNotification.partyRole to identify the deceased party, and a riderClaim[] array (DeathClaimRiderClaim: riderCode, riderName, riderElected, partyId)'
+  - date: '2026-08-03'
+    change: Initial death claim — added POST initialdeathclaim/eligibilitycheck (no request body; returns TransactionResponse)
+  - date: '2026-08-03'
+    change: Initial death claim submit — aligned InitialDeathClaimRequest with IdnClaimRequest (added documents/DeathClaimDocument, party isNotifier, expanded partyRole and relationshipToInsured enums); responses now use shared TransactionAcceptedResponse (202) and TransactionResponse (errors)
+  - date: '2026-07-29'
+    change: Billing feature change — eligibility and validation endpoints with BillingFeatureChangeRequest payload (policyFeatures, transactionReason, signatures, documents, selfServeFlow)
+  - date: '2026-07-24'
+    change: Partial withdrawal one-time — updated PartialWithdrawalOneTime payload (selfServeFlow; tax withholding top-level fields and w4r; removed authorization from request body)
+  - date: '2026-05-26'
+    change: Added POST initialdeathclaim endpoint with standalone Initial Death Claim schemas
+  - date: '2026-05-11'
+    change: Systematic program — extended SystematicProgramUpdate request (MFA, agent, policyHolder, tax, funds, feature product, submittedDate, currency, disbursementType); PaymentForm EFT; Frequency BIANNUAL/DEFAULT; optional pdfId on TransactionAcceptedResponse for systematic program submit 202
+  - date: '2026-03-18'
+    change: Active restrict — POST/GET /bpm/v1/policies/{planCode}/{policyNumber}/Restrict and policy API alias
+  - date: '2025-07-17'
+    change: CMW-29105 - Updated SystematicProgramUpdate Post to PUT
+  - date: '2025-07-22'
+    change: CMW-30437 - New End point for Systematic Programs Quote API
+  - date: '2025-09-01'
+    change: CMW-31343 - New End point for Reinstatement Quote API and Reinstatement Actual Transaction API
+  - date: '2025-09-03'
+    change: ZDR-3002 - Added One time premium 400 error example
+servers:
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+tags:
+- name: Reference Schemas
+paths:
+  /bpm/v1/policies/{clientCode}/{planCode}/{transactionName}/paymentforms:
+    get:
+      x-internal: true
+      tags:
+      - Reference Schemas
+      summary: Get supported configurations for a transaction
+      operationId: getSupportedConfigurationsPaymentForms
+      parameters:
+      - name: clientCode
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: planCode
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: transactionName
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - SystematicProgramSetup
+          - SystematicProgramUpdate
+      - name: transaction
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: arrangementType
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              examples:
+                success:
+                  $ref: '#/components/examples/successRefSchemaResponse'
+        '400':
+          description: Bad request
+        '404':
+          description: Client code and plancode combo not found
+        '500':
+          description: Internal server error
+      security:
+      - Auth0: []
+  /bpm/v1/policies/{clientCode}/{planCode}/{transactionName}/prevalidationreference:
+    get:
+      x-internal: true
+      tags:
+      - Reference Schemas
+      summary: Get supported configurations for a transaction
+      operationId: getPreValidationReference
+      parameters:
+      - name: clientCode
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: planCode
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: transactionName
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - SystematicProgramSetup
+          - SystematicProgramUpdate
+      - name: transaction
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: arrangementType
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              examples:
+                success:
+                  $ref: '#/components/examples/successRefSchemaResponse'
+        '400':
+          description: Bad request
+        '404':
+          description: Client code and plancode combo not found
+        '500':
+          description: Internal server error
+      security:
+      - Auth0: []
+  /policy/v1/transactions/{clientCode}/{planCode}/{transactionName}/prevalidationreference:
+    get:
+      x-internal: true
+      tags:
+      - Reference Schemas
+      summary: Get supported configurations for a transaction
+      operationId: getPreValidationReference1
+      parameters:
+      - name: clientCode
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: planCode
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: transactionName
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - SystematicProgramSetup
+          - SystematicProgramUpdate
+      - name: transaction
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: arrangementType
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              examples:
+                success:
+                  $ref: '#/components/examples/successRefSchemaResponse'
+        '400':
+          description: Bad request
+        '404':
+          description: Client code and plancode combo not found
+        '500':
+          description: Internal server error
+      security:
+      - Auth0: []
+components:
+  examples:
+    successRefSchemaResponse:
+      value:
+        clientCode: WELB
+        planCode: WBFDAV05
+        transactionName: SystematicProgramSetup
+        supportedConfigurations:
+          paymentForms:
+          - ACH
+          - CHECK
+          - WIRE
+          arrangementTypes:
+          - PAYMENT
+          - WITHDRAWAL
+          - LOANREPAYMENT
+          - REQUIREDMINIMUMDISTRIBUTION
+          amountTypes:
+          - AMOUNT
+          - PERCENTAGE
+          - MAX
+          - FREEWITHDRAWALAMOUNT
+          - WITHDRAWALUNTILBASIS
+          - EARNINGSONLY
+          - PRORATA
+          - MODIFIEDEARNINGSONLY
+          frequencies:
+          - DAILY
+          - EVERYTWOWEEKS
+          - MONTHLY
+          - SEMIANNUAL
+          - QUARTERLY
+          - ANNUAL
+          - SINGLEPAYMENT
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

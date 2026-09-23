@@ -1,0 +1,1054 @@
+openapi: 3.2.0
+info:
+  title: Market Connect Order Entry Comments API
+  description: '**The Market Connect – Order Entry API** enables external distribution platforms and partner systems to electronically initiate, manage, and submit life insurance and annuity applications through a unified digital workflow.'
+  termsOfService: https://zinnia.com/terms
+  contact:
+    name: API Support
+    email: orderentrysupport@zinnia.com
+  license:
+    name: Proprietary
+    url: https://zinnia.com/terms
+  version: 1.0.3
+servers:
+- url: https://dev.api.zinnia.io
+- url: https://qa.api.zinnia.io
+- url: https://uat.api.zinnia.io
+security:
+- openIdConnect: []
+tags:
+- name: Comments
+  description: Comment management operations (save, list, and delete transaction comments)
+paths:
+  /market-connect/order-entry/v1/comments:
+    post:
+      tags:
+      - Comments
+      summary: Saves a comment against the specified transaction
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request body failed validation or required fields are missing.
+
+        - ```INVALID_TRANSACTION_ID``` - The supplied transaction ID is invalid (not a positive integer).
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```NOT_FOUND``` - No transaction exists for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: saveComment
+      requestBody:
+        description: The comment payload to save.
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/SaveCommentRequest'
+              example:
+                appSubIndicator: App
+                commentSource: OrderEntryUI
+                commentText: Customer requested a follow-up call before submission.
+                statusAtStep: InProgress
+                statusDisplayName: In Progress
+                stepTitle: Owner Information
+                transactionId: '1125715'
+        required: true
+      responses:
+        '200':
+          description: Returns the save comment envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveCommentResponse'
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Validation failed for field '$.unknownField'
+                  details: The request contains an unrecognized property. Only documented fields are allowed.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: The requested resource could not be found
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Upstream service error
+                  details: An upstream dependency returned an invalid or unsuccessful response.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+    delete:
+      tags:
+      - Comments
+      summary: Deletes a comment from a transaction
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```VALIDATION_ERROR``` - The request body failed validation, required fields are missing, or the comment ID is invalid.
+
+        - ```INVALID_TRANSACTION_ID``` - The supplied transaction ID is invalid (not a positive integer).
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```NOT_FOUND``` - No comment exists for the specified comment ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: deleteComment
+      requestBody:
+        description: The comment and transaction identifiers for the comment to delete.
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/DeleteCommentRequest'
+              example:
+                commentId: '54321'
+                transactionId: '1125715'
+        required: true
+      responses:
+        '200':
+          description: Returns the delete comment envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteCommentResponse'
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Validation failed for field '$.unknownField'
+                  details: The request contains an unrecognized property. Only documented fields are allowed.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: The requested resource could not be found
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Upstream service error
+                  details: An upstream dependency returned an invalid or unsuccessful response.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+  /market-connect/order-entry/v1/comments/{transactionId}:
+    get:
+      tags:
+      - Comments
+      summary: Retrieves the comments for a transaction
+      description: '#### Error Responses
+
+
+        - **400 Bad Request**
+
+
+        - ```INVALID_TRANSACTION_ID``` - The supplied transaction ID is invalid (not a positive integer).
+
+        - ```VALIDATION_ERROR``` - Pagination parameters are invalid (both page and pageSize must be supplied together; page must be ≥ 1; pageSize must be between 1 and 100).
+
+
+        - **401 Unauthorized**
+
+
+        - ```UNAUTHORIZED``` - Authentication failed or the access token is missing, expired, or invalid.
+
+
+        - **403 Forbidden**
+
+
+        - ```FORBIDDEN``` - The authenticated user is not authorized to access this resource.
+
+
+        - **404 Not Found**
+
+
+        - ```NOT_FOUND``` - No comments exist for the specified transaction ID.
+
+
+        - **429 Too Many Requests**
+
+
+        - ```RATE_LIMIT_EXCEEDED``` - The client has exceeded the permitted request rate or quota.
+
+
+        - **500 Internal Server Error**
+
+
+        - ```UNEXPECTED_ERROR``` - An unexpected internal system error occurred while processing the request.
+
+
+        - **502 Bad Gateway**
+
+
+        - ```UPSTREAM_SERVICE_ERROR``` - An upstream dependency returned an invalid or unsuccessful response.
+
+
+        - **503 Service Unavailable**
+
+
+        - ```SERVICE_UNAVAILABLE``` - The service or a required dependency is temporarily unavailable.
+
+
+        - **504 Gateway Timeout**
+
+
+        - ```UPSTREAM_TIMEOUT``` - A required downstream service did not respond within the configured timeout.
+
+
+        #### Standard Error Response
+
+
+        All error responses conform to the standard ```ErrorResponse``` schema and include:
+
+
+        - A stable error code from ```ErrorInfo.code```.
+
+        - A human-readable error message.
+
+        - Optional diagnostic details, when applicable.
+
+        - A timestamp indicating when the error occurred.
+
+        This consistent format enables clients to implement standardized error processing, logging, and troubleshooting across all Order Entry API endpoints.'
+      operationId: getComments
+      parameters:
+      - name: transactionId
+        in: path
+        description: Unique identifier of the transaction (positive integer encoded as a string).
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Optional 1-based page number. When omitted with pageSize, all comments are returned.
+        schema:
+          type: integer
+          description: 1-based page number. Omit both page and pageSize to return all comments.
+          format: int32
+      - name: pageSize
+        in: query
+        description: Optional page size (1–100). When omitted with page, all comments are returned.
+        schema:
+          type: integer
+          description: Number of comments per page (1–100). Omit both page and pageSize to return all comments.
+          format: int32
+      responses:
+        '200':
+          description: Returns the comments envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCommentsResponse'
+        '400':
+          description: '`VALIDATION_ERROR` - The request failed input validation.
+
+
+            `INVALID_TRANSACTION_ID` - The supplied transaction ID is invalid (less than or equal to zero).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: VALIDATION_ERROR
+                  description: Validation failed for field '$.unknownField'
+                  details: The request contains an unrecognized property. Only documented fields are allowed.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '401':
+          description: '`UNAUTHORIZED` - Authentication failed or the access token is missing, expired, or invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNAUTHORIZED
+                  description: Unauthorized access
+                  details: The request requires authentication
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '403':
+          description: '`FORBIDDEN` - The authenticated user is not authorized to access the requested transaction.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: FORBIDDEN
+                  description: Access denied
+                  details: You do not have permission to access this resource
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '404':
+          description: '`TRANSACTION_ID_NOT_FOUND` - No transaction exists for the specified transaction ID.
+
+
+            `NOT_FOUND` - The requested transaction or blueprint step could not be found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: NOT_FOUND
+                  description: Resource not found
+                  details: The requested resource could not be found
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` - The client has exceeded the permitted request rate or quota.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: RATE_LIMIT_EXCEEDED
+                  description: Request rate limit exceeded
+                  details: The client has exceeded the permitted request rate or quota.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '500':
+          description: '`BUILD_BLUEPRINT_ERROR` - An error occurred while generating the order entry blueprint.
+
+
+            `JSON_PARSE_ERROR` - The system encountered an error while parsing the transaction response.
+
+
+            `UNEXPECTED_ERROR` - An unexpected internal system error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UNEXPECTED_ERROR
+                  description: An unexpected error occurred
+                  details: An internal error occurred. Please contact support if the problem persists.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '502':
+          description: '`UPSTREAM_SERVICE_ERROR` - An upstream dependency returned an invalid or unsuccessful response.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_SERVICE_ERROR
+                  description: Upstream service error
+                  details: An upstream dependency returned an invalid or unsuccessful response.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '503':
+          description: '`SERVICE_UNAVAILABLE` - The service or a required dependency is temporarily unavailable.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: SERVICE_UNAVAILABLE
+                  description: Service unavailable
+                  details: The service or a required dependency is temporarily unavailable.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+        '504':
+          description: '`UPSTREAM_TIMEOUT` - A required downstream service did not respond within the configured timeout.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                transactionId: '12345'
+                errors:
+                - code: UPSTREAM_TIMEOUT
+                  description: Upstream timeout
+                  details: A required downstream service did not respond within the configured timeout.
+                  timestamp: '2025-01-16T13:21:19.4355657Z'
+components:
+  schemas:
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
+    DeleteCommentResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction. Populated on successful deletes.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the operation was successful
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
+      additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Comment deleted successfully
+        status: Success
+    GetCommentsResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction
+        data:
+          allOf:
+          - $ref: '#/components/schemas/CommentsData'
+          description: Comments data payload
+        isSuccess:
+          type: boolean
+          description: Indicates whether the operation was successful
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation
+      additionalProperties: false
+      example:
+        caseId: CASE-2026-001234
+        data:
+          comments:
+          - commentId: '54321'
+            commentSource: OrderEntryUI
+            commentText: Customer requested a follow-up call before submission.
+            createdDateTime: '2026-04-21T09:15:00Z'
+            lastUpdatedDateTime: '2026-04-21T09:15:00Z'
+            logonID: jdoe
+            statusAtStep: InProgress
+            statusDisplayName: In Progress
+            stepTitle: Owner Information
+            userName: Jane Doe
+          totalCount: 1
+          page: 1
+          pageSize: 20
+        isSuccess: true
+        message: Comments retrieved successfully.
+        status: Success
+    SaveCommentResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction. Populated on successful saves.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the operation was successful
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
+      additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Comment saved successfully.
+        status: Success
+    DeleteCommentRequest:
+      required:
+      - commentId
+      - transactionId
+      type: object
+      properties:
+        commentId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier of the comment to delete (positive integer encoded as a string)
+        transactionId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier of the transaction the comment belongs to (positive integer encoded as a string)
+      additionalProperties: false
+      example:
+        commentId: '54321'
+        transactionId: '1125715'
+    SaveCommentRequest:
+      required:
+      - commentText
+      - transactionId
+      type: object
+      properties:
+        appSubIndicator:
+          type:
+          - string
+          - 'null'
+          description: Indicator identifying whether the comment applies to the application or sub-application
+        commentSource:
+          type:
+          - string
+          - 'null'
+          description: Source system or user group that authored the comment
+        commentText:
+          minLength: 1
+          type: string
+          description: Free-form comment text
+        statusAtStep:
+          type:
+          - string
+          - 'null'
+          description: Status code of the transaction at the step the comment was added
+        statusDisplayName:
+          type:
+          - string
+          - 'null'
+          description: Display name for the status at the step the comment was added
+        stepTitle:
+          type:
+          - string
+          - 'null'
+          description: Title of the wizard step the comment was added on
+        transactionId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier of the transaction the comment belongs to (positive integer encoded as a string)
+      additionalProperties: false
+      example:
+        appSubIndicator: App
+        commentSource: OrderEntryUI
+        commentText: Customer requested a follow-up call before submission.
+        statusAtStep: InProgress
+        statusDisplayName: In Progress
+        stepTitle: Owner Information
+        transactionId: '1125715'
+    CommentItem:
+      type: object
+      properties:
+        commentId:
+          type:
+          - string
+          - 'null'
+          description: Unique identifier of the comment (positive integer encoded as a string)
+        commentSource:
+          type:
+          - string
+          - 'null'
+          description: Source system or user group that authored the comment
+        commentText:
+          type:
+          - string
+          - 'null'
+          description: Free-form comment text
+        createdDateTime:
+          type:
+          - string
+          - 'null'
+          description: Date and time the comment was created
+        lastUpdatedDateTime:
+          type:
+          - string
+          - 'null'
+          description: Date and time the comment was last updated
+        logonID:
+          type:
+          - string
+          - 'null'
+          description: Logon identifier of the user who authored the comment
+        statusAtStep:
+          type:
+          - string
+          - 'null'
+          description: Status code of the transaction at the step the comment was added
+        statusDisplayName:
+          type:
+          - string
+          - 'null'
+          description: Display name for the status at the step the comment was added
+        stepTitle:
+          type:
+          - string
+          - 'null'
+          description: Title of the wizard step the comment was added on
+        userName:
+          type:
+          - string
+          - 'null'
+          description: Name of the user who authored the comment
+      additionalProperties: false
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+    CommentsData:
+      type: object
+      properties:
+        comments:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/CommentItem'
+          description: List of comments for the current page
+        totalCount:
+          type: integer
+          description: Total number of comments for the transaction across all pages
+          format: int32
+        page:
+          type:
+          - integer
+          - 'null'
+          description: Current page number (1-based). Present when pagination query parameters are supplied.
+          format: int32
+        pageSize:
+          type:
+          - integer
+          - 'null'
+          description: Number of comments per page. Present when pagination query parameters are supplied.
+          format: int32
+      additionalProperties: false
+  securitySchemes:
+    openIdConnect:
+      type: openIdConnect
+      description: 'OpenID Connect via Auth0. Clients present a JWT bearer token issued by the tenant in the `Authorization: Bearer <token>` header.'
+      openIdConnectUrl: https://login.qa.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          auth_methods:
+          - bearer
+          verify_signature: true
+          ignore_signature: []
+          consumer_claim:
+          - sub
+          consumer_optional: true

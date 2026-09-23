@@ -1,0 +1,224 @@
+openapi: 3.2.0
+info:
+  title: Policy Service Metrics API
+  description: Enterprise level policy service
+  version: 0.0.21
+  contact: {}
+servers:
+- url: https://api.zinnia.io
+tags:
+- name: Metrics
+  description: Get policy metrics
+paths:
+  /policy/v1/policies/{planCode}/{policyNumber}/metrics:
+    post:
+      operationId: Metrics
+      summary: Policy Metrics
+      parameters:
+      - name: planCode
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: policyNumber
+        required: true
+        in: path
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyMetricsRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PolicyMetricsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsErrorResponse'
+        '500':
+          description: Unexpected error occured, please check server logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsErrorResponse'
+      security:
+      - Auth0: []
+      tags:
+      - Metrics
+components:
+  schemas:
+    MetricsErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: '2024-03-29T16:40:17.935761Z'
+        message:
+          type: string
+          example: Invalid date range provided
+    PolicyMetricsRequest:
+      type: object
+      properties:
+        startDate:
+          type: string
+          description: Start Date
+          example: '2024-02-02'
+        endDate:
+          type: string
+          description: End Date
+          example: '2024-02-02'
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricsType'
+    MetricsType:
+      type: string
+      enum:
+      - LAPSEPROTECTIONPAYMENTAMOUNT
+      - ACCOUNTSURRENDERVALUE
+      - ACCOUNTVALUE
+      - COSTOFINSURANCE
+      - NETDEATHBENEFIT
+      - EXPENSECHARGE
+      - UNITEXPENSECHARGE
+      - INTERESTCREDITRATE
+      - LOANREPAYMENTONETIMEAMOUNT
+      - SYSTEMATICLOANREPAYMENTAMOUNT
+      - INTERESTCREDITAMOUNT
+      - INTERESTLOANAMOUNT
+      - PARTIALWITHDRAWALONETIMEAMOUNT
+      - INITIALPREMIUMAMOUNT
+      - SUBSEQUENTPREMIUMAMOUNT
+      - ONETIMEPREMIUMAMOUNT
+      - NEWLOANAMOUNT
+      - TOTALLOANBALANCE
+      - TOTALCOVERAGEAMOUNT
+      - CUMULATIVEGROSSDEATHBENEFITAMOUNT
+      - CUMULATIVEPREMIUMSINCEISSUE
+      - COVERAGECHARGE
+      - COVERAGECREDIT
+      - INITIALPREMIUMCALCULATEDAMOUNT
+      - SUBSEQUENTPREMIUMCALCULATEDAMOUNT
+      - ONETIMEPREMIUMCALCULATEDAMOUNT
+      - SYSTEMATICWITHDRAWALAMOUNT
+      - FULLSURRENDERCHARGE
+      - PARTIALWITHDRAWALONETIMESURRENDERCHARGE
+      - SYSTEMATICWITHDRAWALSURRENDERCHARGE
+      - REQUIREDMINIMUMDISTRIBUTIONONETIMESURRENDERCHARGE
+      - ANNUITIZATIONPREMIUMTAXCHARGE
+      - DEATHPREMIUMTAXCHARGE
+      - FULLSURRENDERPREMIUMTAXCHARGE
+      - FULLSURRENDERMARKETVALUEADJUSTMENTCHARGE
+      - PARTIALWITHDRAWALONETIMEMARKETVALUEADJUSTMENTCHARGE
+      - SYSTEMATICWITHDRAWALMARKETVALUEADJUSTMENTCHARGE
+      - REQUIREDMINIMUMDISTRIBUTIONONETIMEMARKETVALUEADJUSTMENTCHARGE
+      - SYSTEMATICREQUIREDMINIMUMDISTRIBUTIONMARKETVALUEADJUSTMENTCHARGE
+      - RIDERCHARGE
+      - FIXEDINTERESTCREDITAMOUNT
+      - INDEXCREDITAMOUNT
+      - INITIALPREMIUMPAYMENTCHARGE
+      - SUBSEQUENTPREMIUMPAYMENTCHARGE
+      - ONETIMEPREMIUMPAYMENTCHARGE
+      - PREMIUMTAXAMOUNT
+      - FULLSURRENDERAMOUNT
+      - REQUIREDMINIMUMDISTRIBUTIONONETIMEAMOUNT
+      - SYSTEMATICREQUIREDMINIMUMDISTRIBUTIONAMOUNT
+      - SYSTEMATICREQUIREDMINIMUMDISTRIBUTIONSURRENDERCHARGE
+      - CURRENTBASE
+      - HYPOTHETICALANNUALLIMIT
+      - RATCHETBASE
+      - GROWTHBASE
+      - DEFERRALBONUS
+      - DEFERRALBONUSBASE
+      - SIMPLEINTERESTBASE
+      - REMAININGBENEFIT
+      - NETDECREASEINFACEAMOUNT
+      - NETINCREASEINFACEAMOUNT
+    PolicyMetricsResponse:
+      type: object
+      properties:
+        metric:
+          type: string
+          example: LAPSEPROTECTIONPAYMENTAMOUNT
+          description: Requested metric
+        begin:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        minimum:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        maximum:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        average:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        sum:
+          type: number
+          format: double
+          example: 8389.8
+          description: TBD
+        count:
+          type: integer
+          format: int64
+          example: 295
+          description: TBD
+        end:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          issuer: https://login.zinnia.com/.well-known/openid-configuration
+          extra_jwks_uris:
+          - https://login.mypolicyview.com/.well-known/jwks.json
+          issuers_allowed:
+          - https://login.zinnia.com/
+          - https://login.mypolicyview.com/
+          run_on_preflight: true
+          scopes_claim:
+          - https://api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://api.zinnia.io
+          auth_methods:
+          - bearer
+          scopes: []
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

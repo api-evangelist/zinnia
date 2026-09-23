@@ -1,0 +1,394 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Policy Transactions API. Transactions Eligibility API
+  description: 'Enterprise API for enforcing policy transactions and validations. This API provides a comprehensive interface for - Policy transaction validation and processing
+
+    - Financial and non-financial transaction management
+
+    - Policy party management and updates
+
+    - Systematic program management
+
+    **Version History** * Draft version 1.0.6
+
+    - Added Two Endpoints- Reinstatement eligibility check api, Reinstatement actual transaction api
+
+    * Draft Specifications (Subject to Change Upon Review)'
+  version: 1.0.8
+  x-changelog:
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — aligned InitialDeathClaimRequest with the revised FNOL payload: added policy.isContestable/isFuneralHomeAssigned, deathDetails.causeOfDeath, COVEREDINSURED party role, deathNotification.partyRole enum; renamed documents[].edsDocumentId to documents[].documentId; removed parties[].isFuneralHomeAssigned (now policy-level only)'
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — added deathNotification.partyId (now required, enforced via bean validation on submit) and deathNotification.partyRole to identify the deceased party, and a riderClaim[] array (DeathClaimRiderClaim: riderCode, riderName, riderElected, partyId)'
+  - date: '2026-08-03'
+    change: Initial death claim — added POST initialdeathclaim/eligibilitycheck (no request body; returns TransactionResponse)
+  - date: '2026-08-03'
+    change: Initial death claim submit — aligned InitialDeathClaimRequest with IdnClaimRequest (added documents/DeathClaimDocument, party isNotifier, expanded partyRole and relationshipToInsured enums); responses now use shared TransactionAcceptedResponse (202) and TransactionResponse (errors)
+  - date: '2026-07-29'
+    change: Billing feature change — eligibility and validation endpoints with BillingFeatureChangeRequest payload (policyFeatures, transactionReason, signatures, documents, selfServeFlow)
+  - date: '2026-07-24'
+    change: Partial withdrawal one-time — updated PartialWithdrawalOneTime payload (selfServeFlow; tax withholding top-level fields and w4r; removed authorization from request body)
+  - date: '2026-05-26'
+    change: Added POST initialdeathclaim endpoint with standalone Initial Death Claim schemas
+  - date: '2026-05-11'
+    change: Systematic program — extended SystematicProgramUpdate request (MFA, agent, policyHolder, tax, funds, feature product, submittedDate, currency, disbursementType); PaymentForm EFT; Frequency BIANNUAL/DEFAULT; optional pdfId on TransactionAcceptedResponse for systematic program submit 202
+  - date: '2026-03-18'
+    change: Active restrict — POST/GET /bpm/v1/policies/{planCode}/{policyNumber}/Restrict and policy API alias
+  - date: '2025-07-17'
+    change: CMW-29105 - Updated SystematicProgramUpdate Post to PUT
+  - date: '2025-07-22'
+    change: CMW-30437 - New End point for Systematic Programs Quote API
+  - date: '2025-09-01'
+    change: CMW-31343 - New End point for Reinstatement Quote API and Reinstatement Actual Transaction API
+  - date: '2025-09-03'
+    change: ZDR-3002 - Added One time premium 400 error example
+servers:
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+tags:
+- name: Transactions Eligibility
+  description: Eligibility evaluation for different operations
+paths:
+  /policy/v2/transactions/{planCode}/{policyNumber}/eligibility/transaction:
+    x-kong-plugin-pre-function:
+      config:
+        access:
+        - 'local path = kong.request.get_path()
+
+          local new_path = path:gsub("^/policy", "/transactions-config/policy")
+
+          kong.service.request.set_path(new_path)
+
+          '
+    post:
+      tags:
+      - Transactions Eligibility
+      summary: Transaction eligibility
+      description: 'Evaluates whether the authenticated user may perform specific transactions on the
+
+        given policy. Runs three checks: product level eligibility, user permissions
+
+        , and policy restrictions restrictions.
+
+
+        If `items` is omitted or empty, all transactions configured for the plan are evaluated.
+
+        `partyId` is extracted from the `Authorization` bearer token — it is never a body field.'
+      operationId: evaluateTransactionEligibilityByPolicy
+      parameters:
+      - name: planCode
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Plan code (exact, case-sensitive).
+        example: ANN100
+      - name: policyNumber
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Policy number (exact, case-sensitive).
+        example: POL123456
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EligibilityRequest'
+            examples:
+              specificTransactions:
+                summary: Evaluate specific transactions
+                value:
+                  items:
+                  - FullSurrender
+                  - PartialWithdrawalOneTime
+              allPlanTransactions:
+                summary: Evaluate all configured plan transactions (empty body)
+                value: {}
+      responses:
+        '200':
+          description: Eligibility evaluation completed. One result entry per evaluated subject.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EligibilityResponse'
+              examples:
+                eligible:
+                  summary: Transaction eligible
+                  value:
+                    eligibilityType: transaction
+                    results:
+                    - eligibilityItem: FullSurrender
+                      eligible: true
+                      policyEligibility:
+                        status: ELIGIBLE
+                      userEligibility:
+                        status: ELIGIBLE
+                        access:
+                        - WRITE
+                      restriction:
+                        status: NOT_RESTRICTED
+                notEligible:
+                  summary: Policy status blocks eligibility
+                  value:
+                    eligibilityType: transaction
+                    results:
+                    - eligibilityItem: PartialWithdrawalOneTime
+                      eligible: false
+                      policyEligibility:
+                        status: NOT_ELIGIBLE
+                        reason:
+                          code: POLICY_STATUS_NOT_ALLOWED
+                          message: Policy status LAPSE is not permitted for this transaction
+                      userEligibility:
+                        status: ELIGIBLE
+                        access:
+                        - WRITE
+                      restriction:
+                        status: NOT_RESTRICTED
+                notConfigured:
+                  summary: Transaction not configured in transactions-params
+                  value:
+                    eligibilityType: transaction
+                    results:
+                    - eligibilityItem: UnknownTransaction
+                      eligible: false
+                      notConfigured: true
+                      message: Transaction Not Configured
+        '400':
+          $ref: '#/components/responses/EligibilityBadRequest'
+        '401':
+          $ref: '#/components/responses/EligibilityUnauthorized'
+        '500':
+          $ref: '#/components/responses/EligibilityInternalServerError'
+      security:
+      - Auth0: []
+components:
+  responses:
+    EligibilityUnauthorized:
+      description: Missing or invalid bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EligibilityErrorResponse'
+          example:
+            status: 401
+            error: Unauthorized
+            message: partyId claim could not be extracted from token
+    EligibilityBadRequest:
+      description: Invalid request — missing required fields or malformed input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EligibilityErrorResponse'
+          example:
+            status: 400
+            error: Bad Request
+            message: policyNumber is required
+    EligibilityInternalServerError:
+      description: 'Unexpected server error. Dependency failures (CIAM, Zahara) surface as COULD_NOT_DETERMINE on the affected section rather than a 500.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EligibilityErrorResponse'
+          example:
+            status: 500
+            error: Internal Server Error
+  schemas:
+    EligibilityErrorResponse:
+      type: object
+      description: Error envelope returned by eligibility endpoints on 4xx/5xx responses.
+      properties:
+        status:
+          type: integer
+          example: 401
+        error:
+          type: string
+          example: Unauthorized
+        message:
+          type: string
+          example: partyId claim could not be extracted
+    EligibilitySectionResult:
+      type: object
+      description: 'One evaluation section of a per-subject result (policyEligibility, userEligibility, or restriction).
+
+        policyEligibility status: ELIGIBLE | NOT_ELIGIBLE | COULD_NOT_DETERMINE
+
+        userEligibility status: ELIGIBLE | NOT_ELIGIBLE | COULD_NOT_DETERMINE
+
+        restriction status: NOT_RESTRICTED | RESTRICTED | SOFT_RESTRICTED | HARD_RESTRICTED | COULD_NOT_DETERMINE
+
+        '
+      properties:
+        status:
+          type: string
+          enum:
+          - ELIGIBLE
+          - NOT_ELIGIBLE
+          - NOT_RESTRICTED
+          - RESTRICTED
+          - SOFT_RESTRICTED
+          - HARD_RESTRICTED
+          - COULD_NOT_DETERMINE
+          example: ELIGIBLE
+        blockType:
+          type: string
+          description: Blocking type from the restriction. Present on restriction section only.
+          example: Unavailable
+        restrictionStatus:
+          type: array
+          description: 'Distinct blocking status values across all active restrictions for this subject. Present on the restriction section only when status=RESTRICTED.
+
+            '
+          items:
+            type: string
+          example:
+          - Unavailable
+          - CarrierApprovalNeeded
+        access:
+          type: array
+          description: 'Distinct access levels granted to the caller for this subject, derived from the permissions the caller actually holds. Present on userEligibility only when status=ELIGIBLE. The calling system decides how to act on this list.
+
+            '
+          items:
+            type: string
+            enum:
+            - VIEW
+            - WRITE
+            - DELETE
+          example:
+          - VIEW
+          - WRITE
+        reason:
+          $ref: '#/components/schemas/EligibilityReason'
+    EligibilityReason:
+      type: object
+      description: Structured reason for a non-passing or indeterminate section.
+      properties:
+        code:
+          type: string
+          description: Machine-readable reason code.
+          example: INSUFFICIENT_PERMISSIONS
+        message:
+          type: string
+          description: Human-readable explanation.
+          example: Caller does not hold the required permissions for this transaction
+    RestrictedTransactionResult:
+      type: object
+      description: A transaction affected by a restriction type, with its blocking status.
+      properties:
+        type:
+          type: string
+          description: Transaction type code.
+          example: FullSurrender
+        status:
+          type: string
+          description: How the transaction is blocked (e.g. Unavailable, CarrierApprovalNeeded).
+          example: Unavailable
+    EligibilitySubjectResult:
+      type: object
+      description: 'Composed eligibility result for a single evaluated subject. Null fields are omitted from the JSON response (@JsonInclude NON_NULL). Three shapes exist: evaluated (sections present), notAvailable (subject absent from product-transactions), or notConfigured (subject absent from transactions-params).
+
+        '
+      required:
+      - eligibilityItem
+      - eligible
+      properties:
+        eligibilityItem:
+          type: string
+          description: Subject identifier evaluated (transaction type, capability code, or restriction type code).
+          example: FullSurrender
+        eligible:
+          type: boolean
+          description: 'true only when policyEligibility=ELIGIBLE AND userEligibility=ELIGIBLE AND restriction is not RESTRICTED/HARD_RESTRICTED. SOFT_RESTRICTED does not fail eligibility. Any COULD_NOT_DETERMINE section forces eligible=false.
+
+            '
+        restrictedTransactions:
+          type: array
+          description: 'Populated only for eligibilityType=restrictions and only when eligible=true. Lists the transactions affected by this restriction type and their blocking status. Absent for all other eligibility types.
+
+            '
+          items:
+            $ref: '#/components/schemas/RestrictedTransactionResult'
+        policyEligibility:
+          $ref: '#/components/schemas/EligibilitySectionResult'
+        userEligibility:
+          $ref: '#/components/schemas/EligibilitySectionResult'
+        restriction:
+          $ref: '#/components/schemas/EligibilitySectionResult'
+        notAvailable:
+          type: boolean
+          description: True when the subject is absent from product-transactions for this plan.
+        notConfigured:
+          type: boolean
+          description: True when the subject has no entry in transactions-params.
+        message:
+          type: string
+          description: Human-readable explanation accompanying notAvailable or notConfigured.
+          example: Transaction Not Configured
+    EligibilityResponse:
+      type: object
+      description: Top-level eligibility response envelope. Shared by all four endpoints.
+      required:
+      - eligibilityType
+      - results
+      properties:
+        eligibilityType:
+          type: string
+          description: Echoes the eligibility type evaluated by the endpoint.
+          enum:
+          - transaction
+          - capabilities
+          - restrictions
+          - cancellation
+          - sendFormDocuments
+          example: transaction
+        results:
+          type: array
+          description: One entry per evaluated subject.
+          items:
+            $ref: '#/components/schemas/EligibilitySubjectResult'
+    EligibilityRequest:
+      type: object
+      description: 'Optional request body shared by all four eligibility endpoints. planCode and policyNumber are supplied as path parameters, not in the body.
+
+        '
+      properties:
+        items:
+          type: array
+          description: 'Subject identifiers to evaluate. Semantics depend on the endpoint: transaction/cancellation — transaction type codes (e.g. FullSurrender); capabilities — capability codes (e.g. ViewPolicy); restrictions — restriction type codes (e.g. DIVORCE, OVERPAYMENT). When absent or empty, all subjects configured for the plan are evaluated.
+
+            '
+          items:
+            type: string
+          example:
+          - FullSurrender
+          - PartialWithdrawalOneTime
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

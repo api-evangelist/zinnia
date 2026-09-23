@@ -1,0 +1,638 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Policy Transactions API. Ref Data API
+  description: 'Enterprise API for enforcing policy transactions and validations. This API provides a comprehensive interface for - Policy transaction validation and processing
+
+    - Financial and non-financial transaction management
+
+    - Policy party management and updates
+
+    - Systematic program management
+
+    **Version History** * Draft version 1.0.6
+
+    - Added Two Endpoints- Reinstatement eligibility check api, Reinstatement actual transaction api
+
+    * Draft Specifications (Subject to Change Upon Review)'
+  version: 1.0.8
+  x-changelog:
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — aligned InitialDeathClaimRequest with the revised FNOL payload: added policy.isContestable/isFuneralHomeAssigned, deathDetails.causeOfDeath, COVEREDINSURED party role, deathNotification.partyRole enum; renamed documents[].edsDocumentId to documents[].documentId; removed parties[].isFuneralHomeAssigned (now policy-level only)'
+  - date: '2026-08-13'
+    change: 'ZCLA-649 Initial death claim — added deathNotification.partyId (now required, enforced via bean validation on submit) and deathNotification.partyRole to identify the deceased party, and a riderClaim[] array (DeathClaimRiderClaim: riderCode, riderName, riderElected, partyId)'
+  - date: '2026-08-03'
+    change: Initial death claim — added POST initialdeathclaim/eligibilitycheck (no request body; returns TransactionResponse)
+  - date: '2026-08-03'
+    change: Initial death claim submit — aligned InitialDeathClaimRequest with IdnClaimRequest (added documents/DeathClaimDocument, party isNotifier, expanded partyRole and relationshipToInsured enums); responses now use shared TransactionAcceptedResponse (202) and TransactionResponse (errors)
+  - date: '2026-07-29'
+    change: Billing feature change — eligibility and validation endpoints with BillingFeatureChangeRequest payload (policyFeatures, transactionReason, signatures, documents, selfServeFlow)
+  - date: '2026-07-24'
+    change: Partial withdrawal one-time — updated PartialWithdrawalOneTime payload (selfServeFlow; tax withholding top-level fields and w4r; removed authorization from request body)
+  - date: '2026-05-26'
+    change: Added POST initialdeathclaim endpoint with standalone Initial Death Claim schemas
+  - date: '2026-05-11'
+    change: Systematic program — extended SystematicProgramUpdate request (MFA, agent, policyHolder, tax, funds, feature product, submittedDate, currency, disbursementType); PaymentForm EFT; Frequency BIANNUAL/DEFAULT; optional pdfId on TransactionAcceptedResponse for systematic program submit 202
+  - date: '2026-03-18'
+    change: Active restrict — POST/GET /bpm/v1/policies/{planCode}/{policyNumber}/Restrict and policy API alias
+  - date: '2025-07-17'
+    change: CMW-29105 - Updated SystematicProgramUpdate Post to PUT
+  - date: '2025-07-22'
+    change: CMW-30437 - New End point for Systematic Programs Quote API
+  - date: '2025-09-01'
+    change: CMW-31343 - New End point for Reinstatement Quote API and Reinstatement Actual Transaction API
+  - date: '2025-09-03'
+    change: ZDR-3002 - Added One time premium 400 error example
+servers:
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+tags:
+- name: Ref Data
+  description: Ref-Data
+paths:
+  /bpm/v1/policies/{planCode}/{policyNumber}/refdata:
+    get:
+      x-internal: true
+      summary: Get PPFA Reference Data by Policy
+      description: Fetches PPFA integrated reference data filtered by policy. Includes VI restriction filtering for transaction subtypes and disbursement types.
+      operationId: getRefDataByPolicy
+      tags:
+      - Ref Data
+      parameters:
+      - name: planCode
+        in: path
+        required: true
+        description: Plan code
+        schema:
+          type: string
+        example: '534222609'
+      - name: policyNumber
+        in: path
+        required: true
+        description: Policy number
+        schema:
+          type: string
+        example: '959343323'
+      - name: transactionType
+        in: query
+        required: false
+        description: Optional transaction type filter
+        schema:
+          type: string
+          enum:
+          - OneTimeWithdrawal
+          - SystematicWithdrawal
+          - AssetRebalancing
+        example: OneTimeWithdrawal
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PPFAIntegratedDataResponse'
+        '404':
+          description: No data found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - Auth0: []
+  /policy/v1/transactions/{planCode}/{policyNumber}/refdata:
+    get:
+      x-internal: true
+      summary: Get PPFA Reference Data by Policy
+      description: Fetches PPFA integrated reference data filtered by policy. Includes VI restriction filtering for transaction subtypes and disbursement types.
+      operationId: getRefDataByPolicy1
+      tags:
+      - Ref Data
+      parameters:
+      - name: planCode
+        in: path
+        required: true
+        description: Plan code
+        schema:
+          type: string
+        example: '534222609'
+      - name: policyNumber
+        in: path
+        required: true
+        description: Policy number
+        schema:
+          type: string
+        example: '959343323'
+      - name: transactionType
+        in: query
+        required: false
+        description: Optional transaction type filter
+        schema:
+          type: string
+          enum:
+          - OneTimeWithdrawal
+          - SystematicWithdrawal
+          - AssetRebalancing
+        example: OneTimeWithdrawal
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PPFAIntegratedDataResponse'
+        '404':
+          description: No data found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - Auth0: []
+components:
+  schemas:
+    TransactionSubtype:
+      type: object
+      description: Complete transaction subtype with all arrangement and fund details, enriched with VI 21209 real-time amounts
+      properties:
+        transactionSubtype:
+          type: string
+          description: Transaction subtype name
+          example: Partial Withdrawal
+        transactionSubtypeCode:
+          type: string
+          description: Transaction subtype code
+          example: PARTIAL_WD
+        amount:
+          type: number
+          format: double
+          nullable: true
+          description: 'Amount associated with this transaction subtype from VI 21209 response.
+
+            Maps transaction subtypes to their corresponding VI amounts:
+
+            - INTEREST_ONLY → interestOnlyAmount
+
+            - RMD → rmdAmount
+
+            - RIDER_FREE → riderFreeAmount
+
+            - FREE_AVAILABLE → freeAvailableAmount (surrenderValueWithoutMarketValueAdjustment)
+
+            - SURRENDER_FREE_ATD → surrenderFreeAmountATD (freeWithdrawalAmount)
+
+            - SURRENDER/PARTIAL → surrenderValue
+
+            Null if VI data is not available or amount is zero.
+
+            '
+          example: 5000
+        minTransactionAmt:
+          type: string
+          description: Minimum transaction amount
+          example: '100.00'
+        maxTransactionAmt:
+          type: string
+          description: Maximum transaction amount
+          example: '50000.00'
+        minPercentage:
+          type: string
+          description: Minimum percentage allowed
+          example: '1'
+        maxPercentage:
+          type: string
+          description: Maximum percentage allowed
+          example: '100'
+        minRemainingBalanceAmt:
+          type: string
+          description: Minimum remaining balance amount after transaction
+          example: '500.00'
+        minContractAmt:
+          type: number
+          description: Minimum contract amount
+          example: 1000
+        fundDisbursementType:
+          type: array
+          description: Fund disbursement types (Pro Rata, Specific Fund, etc.)
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+          example:
+          - code: PRO_RATA
+            displayName: Pro Rata
+          - code: SPECIFIC_FUND
+            displayName: Specific Fund
+        sourceTransferAmtType:
+          type: array
+          description: Source transfer amount types (Dollar Amount, Percentage, Units)
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+          example:
+          - code: DOLLAR
+            displayName: Dollar Amount
+          - code: PERCENT
+            displayName: Percentage
+          - code: UNITS
+            displayName: Units
+        amountQualifier:
+          type: array
+          description: Amount qualifiers (Gross, Net)
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+          example:
+          - code: GROSS
+            displayName: Gross
+          - code: NET
+            displayName: Net
+        paymentMode:
+          $ref: '#/components/schemas/CodeDisplayName'
+        paymentMethod:
+          type: array
+          description: Available payment methods for this subtype
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+          example:
+          - code: CHECK
+            displayName: Check
+          - code: EFT
+            displayName: Electronic Funds Transfer
+          - code: WIRE
+            displayName: Wire Transfer
+        taxRateBasedOn:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxWithholdingCollect:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxWithholdingPlace:
+          $ref: '#/components/schemas/CodeDisplayName'
+        withholdStateIfFederalInd:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxJurisdiction:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxMinPercentage:
+          type: string
+          description: Minimum tax withholding percentage
+          example: '0'
+        taxMaxPercentage:
+          type: string
+          description: Maximum tax withholding percentage
+          example: '100'
+        taxTransferAmtType:
+          type: string
+          description: Tax transfer amount type
+          example: PERCENT
+        availableCalendarDate:
+          type: string
+          description: Available calendar date
+          example: '2024-01-01'
+        minDuration:
+          type: number
+          description: Minimum duration value
+          example: 1
+        minDurationQualifier:
+          $ref: '#/components/schemas/CodeDisplayName'
+        maxDuration:
+          type: number
+          description: Maximum duration value
+          example: 365
+        maxDurationQualifier:
+          $ref: '#/components/schemas/CodeDisplayName'
+        effectiveDateDuration:
+          $ref: '#/components/schemas/EffectiveDateDuration'
+        jurisdictionEffectiveDate:
+          type: string
+          description: Jurisdiction effective date
+          example: '2024-01-01'
+        saleEffectiveDate:
+          type: string
+          description: Sale effective date
+          example: '2024-01-01'
+        saleExpirationDate:
+          type: string
+          description: Sale expiration date
+          example: '2025-12-31'
+        featureCode:
+          type: string
+          description: Feature code
+          example: PARTIAL_WD_001
+        featureMaxNumInstances:
+          type: number
+          description: Maximum number of feature instances
+          example: 12
+        featureProductCode:
+          $ref: '#/components/schemas/CodeDisplayName'
+        featureProductInfo:
+          type: array
+          description: Feature product information
+          items:
+            type: object
+        maxNumSourceInvestProd:
+          type: number
+          description: Maximum number of source investment products
+          example: 10
+        minNumSourceInvestments:
+          type: number
+          description: Minimum number of source investments
+          example: 1
+        actionTypeAllowed:
+          type: array
+          description: Allowed action types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        jurisdiction:
+          $ref: '#/components/schemas/CodeDisplayName'
+        arrangementType:
+          $ref: '#/components/schemas/CodeDisplayName'
+        arrangementSubType:
+          $ref: '#/components/schemas/CodeDisplayName'
+    PPFAIntegratedDataResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+          example: 678f1a2b3c4d5e6f7890abcd
+        planName:
+          type: string
+          description: Name of the plan
+          example: Variable Annuity Premier Growth Plan
+        policyProductType:
+          $ref: '#/components/schemas/CodeDisplayName'
+        featureMapping:
+          $ref: '#/components/schemas/CodeDisplayName'
+        featureCode:
+          type: string
+          description: Feature code
+          example: PARTIAL_WD_001
+        arrangementType:
+          $ref: '#/components/schemas/CodeDisplayName'
+        arrangementSubType:
+          $ref: '#/components/schemas/CodeDisplayName'
+        transactionType:
+          type: array
+          description: List of transaction types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        transactionSubtypes:
+          type: array
+          description: Complete transaction subtypes with all arrangement details (filtered by VI restrictions)
+          items:
+            $ref: '#/components/schemas/TransactionSubtype'
+        paymentMode:
+          $ref: '#/components/schemas/CodeDisplayName'
+        paymentMethod:
+          type: array
+          description: Available payment methods
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        fundDisbursementType:
+          type: array
+          description: Fund disbursement types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        disbursementTypes:
+          type: array
+          description: Applicable disbursement types from VI
+          items:
+            type: string
+          example:
+          - Gross
+          - Net
+        sourceTransferAmtType:
+          type: array
+          description: Source transfer amount types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        amountQualifier:
+          type: array
+          description: Amount qualifiers
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        taxRateBasedOn:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxWithholdingCollect:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxWithholdingPlace:
+          $ref: '#/components/schemas/CodeDisplayName'
+        withholdStateIfFederalInd:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxJurisdiction:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxMinPercentage:
+          type: string
+          description: Minimum tax percentage
+          example: '0'
+        taxMaxPercentage:
+          type: string
+          description: Maximum tax percentage
+          example: '100'
+        taxTransferAmtType:
+          type: string
+          description: Tax transfer amount type
+          example: PERCENT
+        jurisdiction:
+          $ref: '#/components/schemas/CodeDisplayName'
+        effectiveDateDuration:
+          $ref: '#/components/schemas/EffectiveDateDuration'
+        featureMaxNumInstances:
+          type: number
+          description: Maximum feature instances
+          example: 12
+        minContractAmt:
+          type: number
+          description: Minimum contract amount
+          example: 1000
+        maxNumSourceInvestProd:
+          type: number
+          description: Maximum source investment products
+          example: 10
+        minNumSourceInvestments:
+          type: number
+          description: Minimum source investments
+          example: 1
+        featureProductCode:
+          $ref: '#/components/schemas/CodeDisplayName'
+        featureProductInfo:
+          type: array
+          description: Feature product information
+          items:
+            type: object
+        actionTypeAllowed:
+          type: array
+          description: Allowed action types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        planCode:
+          type: string
+          description: Plan code
+          example: '534222609'
+        viAmounts:
+          $ref: '#/components/schemas/ViAmounts'
+        viFunds:
+          type: array
+          description: VI-derived fund information with withdrawal eligibility
+          items:
+            $ref: '#/components/schemas/ViFund'
+    CodeDisplayName:
+      type: object
+      description: Generic code/displayName object
+      properties:
+        code:
+          type: string
+          description: Code value
+          example: WD
+        displayName:
+          type: string
+          description: Display name
+          example: Withdrawal
+    ViAmounts:
+      type: object
+      nullable: true
+      description: 'VI-derived amount values for withdrawal rule evaluation.
+
+        Contains real-time policy values from VI 21209 response.
+
+        '
+      properties:
+        interestOnlyAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Interest-only withdrawal amount
+          example: 500
+        rmdAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Required Minimum Distribution amount
+          example: 1000
+        riderFreeAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Rider free amount
+          example: 200
+        freeAvailableAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Free available amount (surrenderValueWithoutMarketValueAdjustment)
+          example: 300
+        surrenderFreeAmountATD:
+          type: number
+          format: decimal
+          nullable: true
+          description: Surrender-free amount year-to-date
+          example: 400
+        surrenderValue:
+          type: number
+          format: decimal
+          nullable: true
+          description: Total surrender value
+          example: 10000
+        policyValue:
+          type: number
+          format: decimal
+          nullable: true
+          description: Total policy value
+          example: 50000
+    ViFund:
+      type: object
+      description: VI-derived fund information with withdrawal eligibility
+      properties:
+        fundCode:
+          type: string
+          description: Fund identifier (ProductCode)
+          example: ABAF
+        fundKey:
+          type: string
+          description: Fund key (SubAccountKey)
+          example: SUB123
+        fundName:
+          type: string
+          description: Fund name
+          example: LVIP American Balanced Allocation Fund
+        withdrawalsAllowed:
+          type: boolean
+          nullable: true
+          description: Whether withdrawals are allowed from this fund
+          example: true
+        totalValue:
+          type: number
+          format: decimal
+          nullable: true
+          description: Total value of the fund
+          example: 5000
+        availableFundsAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Available funds amount
+          example: 4500
+        numberOfUnits:
+          type: number
+          format: decimal
+          nullable: true
+          description: Number of units held
+          example: 100.25
+        fundRestrictReason:
+          type: string
+          nullable: true
+          description: Fund restriction reason if any
+          example: null
+        isTransferSendAllowed:
+          type: boolean
+          nullable: true
+          description: Whether transfer send is allowed
+          example: true
+        isTransferDestinationAllowed:
+          type: boolean
+          nullable: true
+          description: Whether fund can be a transfer destination
+          example: true
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
+    EffectiveDateDuration:
+      type: object
+      description: Effective date duration with min/max values in days
+      properties:
+        minDays:
+          type: integer
+          description: Minimum duration in days
+          example: 1
+        maxDays:
+          type: integer
+          description: Maximum duration in days
+          example: 365
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

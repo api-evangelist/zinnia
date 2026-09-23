@@ -1,0 +1,610 @@
+openapi: 3.2.0
+info:
+  version: 3.5.3
+  title: Illustration Generation Illustration Engine API
+  description: Create and manage illustration requests
+servers:
+- url: https://dev.api.zinnia.io
+  description: Development
+tags:
+- name: Illustration Engine
+  description: API Endpoints for use by the internal illustration engines
+paths:
+  /illustration/v3/illustration-request:
+    post:
+      operationId: create-illustration
+      summary: Create an illustration
+      description: Start an asynchronous illustration calculation
+      parameters:
+      - name: formats
+        in: query
+        description: what output formats should be generated and stored for retrieval
+        required: true
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/Output-Format'
+      requestBody:
+        description: contains all the input data needed for processing the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Calculation-Illustration'
+      responses:
+        '201':
+          description: The request was created, the identifier for the request is returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  requestId: abc123def
+        '400':
+          description: the request was malformed
+        '500':
+          description: a processing error occurred
+      security:
+      - Auth0: []
+      tags:
+      - Illustration Engine
+  /illustration/v3/illustration-request/{id}:
+    summary: manage a specific illustration request
+    get:
+      operationId: get-illustration
+      summary: Get a specific illustration
+      description: Get status of a specific asynchronous calculation request
+      parameters:
+      - in: path
+        name: id
+        description: the illustration request identifier for which status information is desired
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: format
+        description: The output format for which information status information is desired. If not supplied will return status of all formats associated with the request identifier.
+        schema:
+          $ref: '#/components/schemas/Output-Format'
+        required: false
+      responses:
+        '200':
+          description: The request has been processed and results may be retrieved.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/Output-Status'
+                - type: string
+                  description: Status of a single requested format, if only one format is requested
+                  example: COMPLETE
+        '202':
+          description: The request has been accepted and is queued for processing.
+        '400':
+          description: The requested format is not supported.
+        '404':
+          description: The specified combination of request and format is not in the processing queue.
+      security:
+      - Auth0: []
+      tags:
+      - Illustration Engine
+  /illustration/v3/illustration-request/{id}/results/{format}:
+    summary: Operations on the results of a specific illustration request in a specific format
+    description: Allows for manipulation of the results form a specific asynchronous illustration request
+    get:
+      operationId: get-illustration-result
+      summary: Get a specific illustration result
+      description: Retrieve the results for the specified illustration request in the specified format
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The unique identifier for the illustration request.
+      - in: path
+        name: format
+        schema:
+          $ref: '#/components/schemas/Output-Format'
+        required: true
+        description: The desired output format to retrieve.
+      responses:
+        '200':
+          description: The content was successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calculation-Illustration'
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: The requested format could not be found for the specified illustration.
+        '415':
+          description: The requested media type is not supported for the specified format.
+        '500':
+          description: Unexpected error encountered while trying to fetch response, OR response fetched successfully but contains calculation error messages
+      security:
+      - Auth0: []
+      tags:
+      - Illustration Engine
+  /illustration/v3/illustration:
+    post:
+      operationId: illustration-for-immediate-processing
+      summary: Illustration for immediate processing
+      description: Triggers an immediate calculation and returns the calculated results.
+      requestBody:
+        description: contains all the input data needed for processing the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Calculation-Illustration'
+      responses:
+        '200':
+          description: the request was processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calculation-Illustration'
+        '400':
+          description: The posted request was invalid for any reason.
+        '500':
+          description: An unexpected processing error occurred, OR the request was processed successfully but contains calculation error messages.
+      security:
+      - Auth0: []
+      tags:
+      - Illustration Engine
+components:
+  schemas:
+    Financial-Activity:
+      title: Financial Activity
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+      required:
+      - attributes
+    Arrangement:
+      title: Arrangement
+      description: Describes an arbitrary agreement
+      type: object
+      properties:
+        arrangementSources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Arrangement-Source'
+        type:
+          $ref: '#/components/schemas/Arrangement-Type'
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        requestedAmount:
+          $ref: '#/components/schemas/Variable-Value'
+        deathClaim:
+          $ref: '#/components/schemas/Basic-Collection'
+        fees:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+        loanSegments:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+        matchSegment:
+          $ref: '#/components/schemas/Active-Segment'
+        payments:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+        taxWithholdings:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+    Arrangements:
+      title: Arrangements
+      description: An unkeyed collection of arrangement objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Arrangement'
+    Message:
+      title: Message
+      description: A structured signal
+      type: object
+      properties:
+        code:
+          type: integer
+        severity:
+          type: string
+          enum:
+          - INFO
+          - WARNING
+          - ERROR
+        text:
+          type: string
+        returnTo:
+          type: string
+      required:
+      - code
+      - text
+    Coverage-Collection:
+      title: Coverage-Collection (v3)
+      description: A collection of benefits
+      type: array
+      items:
+        $ref: '#/components/schemas/Coverage'
+    Policy-State:
+      title: Policy State
+      description: Represents the state of a policy at an instant in time. Describes the payload Zahara transmits when requesting calculations for a single transaction.
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        accountValue:
+          $ref: '#/components/schemas/Account-Value'
+        testValue:
+          $ref: '#/components/schemas/Basic-Collection'
+        deathBenefit:
+          $ref: '#/components/schemas/Basic-Collection'
+        coverageValue:
+          $ref: '#/components/schemas/Basic-Collection'
+        coverages:
+          $ref: '#/components/schemas/Coverage-Collection'
+        parties:
+          $ref: '#/components/schemas/Parties'
+        features:
+          $ref: '#/components/schemas/Features'
+        fundAllocations:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+        funds:
+          $ref: '#/components/schemas/Fund-Collection'
+        matchSegment:
+          $ref: '#/components/schemas/Basic-Collection'
+        loanSegments:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+        arrangements:
+          $ref: '#/components/schemas/Arrangements'
+      required:
+      - attributes
+      - accountValue
+      - testValue
+      - deathBenefit
+      - coverageValue
+      - coverages
+      - parties
+      - features
+      - fundAllocations
+      - funds
+      - matchSegment
+      - loanSegments
+      - arrangements
+    Output-Status:
+      type: object
+      properties:
+        format:
+          $ref: '#/components/schemas/Output-Format'
+        status:
+          type: string
+          enum:
+          - PENDING
+          - COMPLETE
+          - ERROR
+    Schedule:
+      title: Schedule
+      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
+      type: object
+      properties:
+        frequency:
+          description: Indicates the interval between values for each entry. Any entry other than Annual results in multiple activities within a year.
+          type: string
+          enum:
+          - ANNUAL
+          - SEMI_ANNUAL
+          - QUARTERLY
+          - MONTHLY
+          - BIWEEKLY
+          - WEEKLY
+          - DAILY
+        basis:
+          description: Specifies how to interpret the from and through properties for each entry.
+          type: string
+          enum:
+          - AGE
+          - DURATION
+        sequence:
+          description: Collection of entries describing the changes in value over time
+          type: array
+          items:
+            $ref: '#/components/schemas/Scheduled-Entry'
+          minItems: 1
+      required:
+      - sequence
+    Fund-Collection:
+      title: Fund-Collection
+      description: An unkeyed collection of funds
+      type: array
+      items:
+        $ref: '#/components/schemas/Fund'
+    Basic-Collection:
+      title: Basic Collection
+      description: A simple object that only contains a collection of unique attributes and no further structure.
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+      required:
+      - attributes
+    Participant-Collection:
+      title: Participant-Collection
+      description: An unkeyed collection of unique participant objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Participant'
+      uniqueItems: true
+    Arrangement-Type:
+      title: Arrangement Type
+      description: Enumeration of allowable arrangement types
+      type: string
+      enum:
+      - LOAN
+      - WITHDRAWAL
+      - PAYMENT
+      - CONVERSION_ACTIVATION
+    Variable-Value:
+      title: Variable Value
+      description: the value of a variable, may be constant or time-dependent
+      oneOf:
+      - type: string
+      - $ref: '#/components/schemas/Schedule'
+    Arrangement-Source:
+      title: Arrangement-Source
+      type: object
+      description: A source of funding for an arrangement
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Active-Segment'
+      required:
+      - attributes
+      - segments
+    Result:
+      title: Result
+      description: The output from a cmputation, which may vary with time
+      type: array
+      items:
+        type: string
+    Fund:
+      title: Fund
+      description: A source of money
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        segments:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+      required:
+      - attributes
+      - segments
+    Account-Value:
+      title: Account-Value
+      description: A description of the monetary value of an investment contract
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        policyMetrics:
+          $ref: '#/components/schemas/Basic-Collection'
+        loan:
+          $ref: '#/components/schemas/Basic-Collection'
+        withdrawal:
+          $ref: '#/components/schemas/Basic-Collection'
+      required:
+      - attributes
+      - policyMetrics
+      - loan
+      - withdrawal
+    Multiple-Scenario-Results:
+      title: Multiple-Scenario-Results
+      description: A grouping of uniquely identifiable scenarios containing their results
+      type: object
+      properties: {}
+      additionalProperties:
+        $ref: '#/components/schemas/Scenario-Results'
+    Attribute-Collection:
+      title: Attribute Collection
+      description: A collection of uniquely named variables, must be camel-cased.
+      type: object
+      properties:
+        ^[a-z][a-zA-Z0-9]+:
+          $ref: '#/components/schemas/Variable-Value'
+    Output-Format:
+      description: identifier for an output format
+      type: string
+      enum:
+      - RAW_ILLUSTRATION_VALUES
+      - FORMATTED_ILLUSTRATION_PDF
+    Coverage:
+      title: Coverage (v3)
+      description: A benefit conferred to a group of one or more participants
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        participants:
+          $ref: '#/components/schemas/Participant-Collection'
+        fees:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+      required:
+      - attributes
+      - participants
+      - fees
+    Active-Segment:
+      title: Active-Segment
+      type: object
+      description: A segment of a source of money that has some form of financial activity
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        financialActivity:
+          $ref: '#/components/schemas/Financial-Activity'
+      required:
+      - attributes
+    Scheduled-Entry:
+      title: Scheduled Entry
+      description: Represents a limited time period for which a value is constant.
+      type: object
+      properties:
+        from:
+          description: starting point for the value, inclusive
+          type: integer
+          minimum: 1
+        through:
+          description: ending point for the value, inclusive
+          type: integer
+          minimum: 1
+        value:
+          type: string
+      required:
+      - from
+      - through
+      - value
+    Party:
+      title: Party
+      description: A unique entity
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        person:
+          $ref: '#/components/schemas/Basic-Collection'
+        organization:
+          $ref: '#/components/schemas/Basic-Collection'
+        trust:
+          $ref: '#/components/schemas/Basic-Collection'
+      required:
+      - attributes
+      - person
+      - organization
+      - trust
+    Calculation-Illustration:
+      title: Core Calculation - Single Illustration
+      description: Describes the payload required for calculation of a single transaction
+      properties:
+        $schema:
+          type: string
+        illustrationType:
+          type: string
+          enum:
+          - NEW_BUSINESS
+          - INFORCE
+        calculationType:
+          type: string
+          description: Type of calculation
+          example: QUICK_QUOTE
+          enum:
+          - QUICK_QUOTE
+          - SINGLE_ILLUSTRATION
+          - AGGREGATE_ILLUSTRATION
+          - COMPOSITE_ILLUSTRATION
+          - POLICY_PAGE_PROJECTION
+        policyDetail:
+          $ref: '#/components/schemas/Policy-State'
+        projection:
+          properties:
+            attributes:
+              $ref: '#/components/schemas/Attribute-Collection'
+            scenarios:
+              type: array
+              items:
+                type: string
+                minLength: 1
+            coverages:
+              $ref: '#/components/schemas/Coverage-Collection'
+            parties:
+              $ref: '#/components/schemas/Parties'
+            arrangements:
+              $ref: '#/components/schemas/Arrangements'
+            options:
+              $ref: '#/components/schemas/Basic-Collection'
+            reports:
+              $ref: '#/components/schemas/Basic-Collection'
+            fundAllocations:
+              $ref: '#/components/schemas/Multiple-Basic-Collections'
+            results:
+              $ref: '#/components/schemas/Multiple-Scenario-Results'
+            messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/Message'
+      required:
+      - calculationType
+      - illustrationType
+    Participant:
+      title: Participant (v3)
+      description: An entity with a stake in a policy
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        flatExtra:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+      required:
+      - attributes
+      - flatExtra
+    Multiple-Basic-Collections:
+      title: Multiple-Basic-Collections
+      type: array
+      items:
+        $ref: '#/components/schemas/Basic-Collection'
+    Parties:
+      title: Parties
+      description: An unkeyed collection of unique Party objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Party'
+      uniqueItems: true
+    Scenario-Results:
+      title: Scenario-Results
+      description: A grouping of uniquely identifiable results, typically produced under a common set of assumptions
+      type: object
+      properties:
+        ^[a-z][a-zA-Z0-9]+:
+          $ref: '#/components/schemas/Result'
+    Features:
+      title: Features
+      description: Well-known geatures associated with a policy
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        lapseAssessment:
+          $ref: '#/components/schemas/Basic-Collection'
+        lapseProtection:
+          $ref: '#/components/schemas/Basic-Collection'
+        reinstatement:
+          $ref: '#/components/schemas/Basic-Collection'
+      required:
+      - attributes
+      - lapseAssessment
+      - lapseProtection
+      - reinstatement
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          auth_methods:
+          - bearer
+          scopes: []
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https
+x-kong-service-defaults:
+  connect_timeout: 120000
+  read_timeout: 120000
+  write_timeout: 120000

@@ -1,0 +1,426 @@
+openapi: 3.2.0
+info:
+  title: Zinnia Product Service Product V2 API
+  description: Product API
+  version: 0.1.0
+  contact: {}
+servers:
+- url: https://uat.api.zinnia.io
+tags:
+- name: Product V2
+paths:
+  /product/v2/products/{productId}:
+    get:
+      operationId: getProductById
+      summary: Get product by ID
+      description: Retrieves a single product by its UUID
+      parameters:
+      - name: productId
+        required: true
+        in: path
+        description: Unique product identifier (UUID)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductV2Model'
+        '400':
+          description: Bad request - Invalid ProductId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+      - Product V2
+      security:
+      - Auth0: []
+  /product/v2/products/search:
+    post:
+      operationId: searchProducts
+      summary: Search for products by criteria
+      description: When searching for products, each separate field combines in a logical AND grouping
+      parameters:
+      - name: orderBy
+        required: false
+        in: query
+        description: Field to order by
+        schema:
+          example: productName
+          type: string
+      - name: orderByDirection
+        required: false
+        in: query
+        description: Order direction
+        schema:
+          example: DESC
+          enum:
+          - ASC
+          - DESC
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return (max 1000)
+        schema:
+          minimum: 10
+          example: 10
+          type: number
+      - name: offset
+        required: false
+        in: query
+        description: Index to start page search at
+        schema:
+          minimum: 0
+          example: 0
+          type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSearchRequestDto'
+      responses:
+        '200':
+          description: Paginated search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+      - Product V2
+      security:
+      - Auth0: []
+components:
+  schemas:
+    ProductSearchRequestDto:
+      type: object
+      properties:
+        distributorCodes:
+          description: Distributor codes to include (logical OR)
+          example:
+          - EVGL
+          type: array
+          items:
+            type: string
+        distributorNames:
+          description: Distributor names to match (logical OR, case-insensitive)
+          type: array
+          items:
+            type: string
+        distributorEffectiveOn:
+          type: string
+          description: Date on which distributor must be effective
+          example: '2025-01-15'
+        carrierCodes:
+          description: Carrier codes to include (logical OR)
+          example:
+          - EVGL
+          type: array
+          items:
+            type: string
+        carrierNames:
+          description: Carrier names to match (logical OR, case-insensitive)
+          type: array
+          items:
+            type: string
+        cusips:
+          description: CUSIPs to match exactly (logical OR)
+          type: array
+          items:
+            type: string
+        planCodes:
+          description: Plan codes to include (logical OR)
+          example:
+          - EVGUL001
+          type: array
+          items:
+            type: string
+        productNames:
+          description: Product names to match (logical OR)
+          type: array
+          items:
+            type: string
+        marketingNames:
+          description: Marketing names to match (logical OR)
+          type: array
+          items:
+            type: string
+        legalNames:
+          description: Legal names to match (logical OR)
+          type: array
+          items:
+            type: string
+        types:
+          type: array
+          description: Product types to include (logical OR)
+          example:
+          - TERM
+          items:
+            type: string
+            enum:
+            - TERM
+            - UNIVERSAL_LIFE
+        line:
+          type: string
+          description: Product line to filter by
+          enum:
+          - LIFE
+          - ANNUITY
+        versionEffectiveOn:
+          type: string
+          description: Returns products whose version is effective on this date
+          example: '2025-01-15'
+        states:
+          description: Two-letter state abbreviations to filter by (logical OR)
+          example:
+          - NY
+          - FL
+          type: array
+          items:
+            type: string
+        stateEffectiveOn:
+          type: string
+          description: Date on which state availability must be effective
+          example: '2025-01-15'
+        stateAvailableToSell:
+          type: boolean
+          description: State-level availability filter
+        availableToSell:
+          type: boolean
+          description: Product-level availability filter
+    PaginatedProductsResponse:
+      type: object
+      properties:
+        count:
+          type: number
+          description: Total number of records matching the search
+          example: 121
+        next:
+          type:
+          - string
+          - 'null'
+          description: URL to the next page, if any
+          example: /product/v2/products/search?offset=10&limit=10
+        previous:
+          type:
+          - string
+          - 'null'
+          description: URL to the previous page, if any
+          example: ''
+        results:
+          description: Array of products matching the search criteria
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductV2Model'
+      required:
+      - count
+      - next
+      - previous
+      - results
+    StateAvailability:
+      type: object
+      properties:
+        availableToSell:
+          type: boolean
+          description: Indicates whether the product is available to sell in this state
+          example: true
+        startDate:
+          type: string
+          description: Start date of state availability (inclusive)
+          example: '2025-01-01'
+        endDate:
+          type: string
+          description: End date of state availability
+          example: '2099-01-01'
+        abbreviation:
+          type: string
+          description: Two-letter state abbreviation
+          example: NY
+          minLength: 2
+          maxLength: 2
+        name:
+          type: string
+          description: Full state name
+          example: New York
+    ProductV2Model:
+      type: object
+      properties:
+        id:
+          type: string
+          description: System-generated unique identifier (UUID)
+          example: 7b9f2b65-1b4a-4f4c-9d9d-6a7f5b6d9b1a
+        carrierCode:
+          type: string
+          description: Unique carrier code
+          example: EVGL
+        carrierName:
+          type: string
+          description: Carrier name
+          example: Everglades
+        cusip:
+          type:
+          - string
+          - 'null'
+          description: CUSIP identifier (9 characters)
+          example: 1234567AB
+        productName:
+          type: string
+          description: Primary product name
+          example: Term Life 20
+        marketingName:
+          type: string
+          description: Marketing name for the product
+          example: Everglades Term 20
+        legalName:
+          type: string
+          description: Full legal name of the product
+          example: Everglades Term Life Insurance – 20 Year Level Premium
+        version:
+          type: string
+          description: Version identifier
+          example: '1.0'
+        versionStartDate:
+          type: string
+          description: Version start date
+          example: '2025-01-01'
+        versionEndDate:
+          type: string
+          description: Version end date
+          example: '2099-01-01'
+        line:
+          type: string
+          description: Product line classification
+          enum:
+          - LIFE
+          - ANNUITY
+          example: LIFE
+        type:
+          type: string
+          description: Product type
+          enum:
+          - TERM
+          - UNIVERSAL_LIFE
+          example: TERM
+        planCode:
+          type: string
+          description: Plan code
+          example: EVGUL001
+        availableToSell:
+          type: boolean
+          description: Whether the product is available to sell at product level
+          example: true
+        distributors:
+          description: List of distributors authorized to sell this product
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/Distributor'
+        stateAvailability:
+          description: State-level availability records
+          type: array
+          items:
+            $ref: '#/components/schemas/StateAvailability'
+      required:
+      - id
+      - carrierCode
+      - carrierName
+      - productName
+      - marketingName
+      - legalName
+      - version
+      - versionStartDate
+      - versionEndDate
+      - line
+      - type
+      - planCode
+      - availableToSell
+      - stateAvailability
+    Distributor:
+      type: object
+      properties:
+        distributorCode:
+          type: string
+          description: Unique distributor code
+          example: EVGL
+        distributorName:
+          type: string
+          description: Distributor name
+          example: Everglades Distribution
+        startDate:
+          type: string
+          description: Start date of distributor authorization
+          example: '2025-01-01'
+        endDate:
+          type: string
+          description: End date of distributor authorization
+          example: '2099-01-01'
+      required:
+      - distributorCode
+      - distributorName
+      - startDate
+      - endDate
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Human-readable error description
+          example: Invalid orderByDirection. Must be "ASC" or "DESC".
+        timestamp:
+          type: string
+          description: ISO 8601 formatted timestamp of the error occurrence
+          example: '2025-12-09T16:03:00Z'
+      required:
+      - message
+      - timestamp
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.uat.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://uat.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://uat.api.zinnia.io
+          auth_methods:
+          - bearer
+          scopes: []
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

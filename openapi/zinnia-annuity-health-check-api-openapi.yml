@@ -1,0 +1,371 @@
+openapi: 3.2.0
+info:
+  title: Zinnia New Business Annuity Annuity Health Check API
+  description: New Business — Annuity API surface exposed through Kong.
+  version: 0.7.0
+  contact:
+    name: Zinnia New Business Annuity
+    email: hitesh.parakh@zinnia.com
+  x-changelog:
+  - date: '2026-08-07'
+    change: Added V3 Annuity application submission endpoint (/v3/new-business/annuity-applications), introducing a Party model (replacing role) and moving bank details from party to payment. V3 schemas colliding by name with V1/V2 suffixed with V3.
+  - date: '2026-05-12'
+    change: added ETP endpoints Annuity V1, Annuity V2 and ETP health check
+  - date: '2026-05-06'
+    change: Expose `/eapp/actuator/health` and `/suitability/actuator/health` publicly through Kong for New Business — Annuity
+  - date: '2026-05-06'
+    change: Expose `/toa/actuator/health` publicly through Kong for New Business — Annuity
+  - date: '2026-05-06'
+    change: Expose payment processing health check publicly through Kong for New Business — Annuity
+  - date: '2026-05-06'
+    change: Expose application processing health check publicly through Kong for New Business — Annuity
+  - date: '2026-05-05'
+    change: Expose application validation health check publicly through Kong for New Business — Annuity
+servers:
+- url: https://qa.api.zinnia.io
+  description: QA Environment
+- url: https://dev.api.zinnia.io
+  description: DEV Environment
+- url: https://uat.api.zinnia.io
+  description: UAT Environment
+- url: https://api.zinnia.io
+  description: PROD Environment
+tags:
+- name: Annuity Health Check
+  description: EAPP API Health Check and Annuity (Annuity app validation, app processing, payment processing, TOA, eApp, and suitability) services Health check
+paths:
+  /appvalidation/actuator/health:
+    get:
+      summary: Application Validation Health Check
+      tags:
+      - Annuity Health Check
+      description: Returns the health status of the application validation service
+      operationId: getNewBusinessAnnuityAppValidationHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+      security:
+      - Auth0: []
+  /appprocessing/actuator/health:
+    get:
+      summary: Application Processing Health Check
+      tags:
+      - Annuity Health Check
+      description: Returns the health status of the application processing service
+      operationId: getNewBusinessAnnuityAppProcessingHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+      security:
+      - Auth0: []
+  /paymentprocessing/actuator/health:
+    get:
+      summary: Payment Processing Health Check
+      tags:
+      - Annuity Health Check
+      description: Returns the health status of the payment processing service
+      operationId: getNewBusinessAnnuityPaymentProcessingHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+      security:
+      - Auth0: []
+  /toa/actuator/health:
+    get:
+      summary: TOA Health Check
+      tags:
+      - Annuity Health Check
+      description: Returns the health status of the TOA service
+      operationId: getNewBusinessAnnuityToaHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+      security:
+      - Auth0: []
+  /eapp/actuator/health:
+    get:
+      summary: EApp Health Check
+      tags:
+      - Annuity Health Check
+      description: Returns the health status of the eApp service
+      operationId: getNewBusinessAnnuityEappHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+      security:
+      - Auth0: []
+  /suitability/actuator/health:
+    get:
+      summary: Suitability Health Check
+      tags:
+      - Annuity Health Check
+      description: Returns the health status of the suitability service
+      operationId: getNewBusinessAnnuitySuitabilityHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+      security:
+      - Auth0: []
+  /eapp/health:
+    get:
+      summary: Annuity Health Check
+      tags:
+      - Annuity Health Check
+      description: Returns the health status of the application
+      operationId: getHealth
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - UP
+                    - DOWN
+                    example: UP
+        '401':
+          description: Authentication failed
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDeniedResponse'
+        '503':
+          description: Application is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - DOWN
+                    example: DOWN
+      security:
+      - Auth0: []
+components:
+  schemas:
+    AccessDeniedResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: 'User is not authorized for the carrier : CarrierName_1'
+  securitySchemes:
+    Auth0:
+      type: openIdConnect
+      openIdConnectUrl: https://login.dev.zinnia.com/.well-known/openid-configuration
+      x-kong-security-openid-connect:
+        config:
+          run_on_preflight: true
+          scopes_claim:
+          - https://dev.api.zinnia.io/permissions
+          audience_claim:
+          - aud
+          audience_required:
+          - https://dev.api.zinnia.io
+          client_id:
+          - client_id
+          auth_methods:
+          - bearer
+        enabled: true
+        protocols:
+        - grpc
+        - grpcs
+        - http
+        - https

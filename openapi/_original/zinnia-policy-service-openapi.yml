@@ -1,3 +1,5 @@
+# x-archived-from: zinnia-policy-service-openapi.yml
+# x-archived-on: 2026-09-16
 openapi: 3.0.0
 paths:
   /policy/v1/policies/search:
