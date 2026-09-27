@@ -138,81 +138,6 @@ paths:
       - Auth0: []
 components:
   schemas:
-    ValidationResponse:
-      type: object
-      properties:
-        statusCode:
-          type: integer
-          format: int32
-          example: 400
-        timestamp:
-          type: string
-          format: date-time
-        errorId:
-          type: string
-          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
-        message:
-          type: string
-          example: JSON Valdiation fails with error
-        error:
-          type: array
-          items:
-            type: string
-            example: Mandatory attribute label missing
-    Payment:
-      type: object
-      required:
-      - id
-      - paymentMethod
-      - moneySource
-      - grossAmount
-      - netAmount
-      - currentAlloc
-      properties:
-        id:
-          type: string
-          description: Unique Id to tag to respective payment records. Duplicate Ids will be rejected.
-          example: payment_1
-        paymentMethod:
-          type: string
-          description: Payment methods
-          enum:
-          - CHK
-          - WIRE
-          - EXCREP
-          - CREDITCARD
-          - ACH
-          - DTCC
-          example: CHK
-        grossAmount:
-          format: double
-          type: number
-          description: Gross Amount for the individual payment
-          example: 238500.5
-        netAmount:
-          format: double
-          type: number
-          description: Net Amount  for the individual payment
-          example: 0
-        taxInfo:
-          $ref: '#/components/schemas/TaxInfo'
-        currentAlloc:
-          type: string
-          description: Funds to be considered for Future Allocations or not
-          enum:
-          - 'YES'
-          - 'NO'
-          example: 'YES'
-        waivePremium:
-          format: int32
-          type: integer
-          description: waivePremium
-          example: 0
-        distributorId:
-          type: string
-          description: This is same as Tracking ID.If there are multiple payments, first payment distributorId will be the TrackingID. This unique system generated number is assigned by the B/D system and sent with each premium to the NSCC,  to send to the Insurance Company.  This number is assigned by the broker dealer, by which the premium can be located. Required for clearing house and detail level transactions. Broker/dealer would expect this back for chargebacks, reversals, etc. Can be returned on the "FAR" and the "COM" by the insurance carrier to identify the transaction processed.
-        exchangeReplace:
-          $ref: '#/components/schemas/ExchangeReplace'
     Feature:
       type: object
       required:
@@ -222,57 +147,511 @@ components:
           type: string
           description: Rider Code will be provided by Zinnia for the respective Products
           example: ABC0000000
-    TaxInfo:
+    Application:
       type: object
+      required:
+      - effectiveDate
+      - transmittingCompanyIdentifier
+      - transmittingCompanyName
+      - receivingCompanyName
+      - agentSubmitDate
+      - planCode
+      - applicationDate
+      - appId
+      - version
+      - contractState
+      - qualificationFlag
+      - appIndicator
+      - suitabilityAppIndicator
+      - ofacIndicator
+      - signatureMethod
+      - totalAttachmentCount
+      - fileInceptionTime
+      - initialPurchase
+      - funds
+      - roles
       properties:
-        currentContribAmount:
-          format: double
-          type: number
-          description: Current Contribution Amount
-          example: 0
-        priorContribAmount:
-          format: double
-          type: number
-          description: Prior Contribution Amount
-          example: 0
-        taxYear:
+        effectiveDate:
           type: string
-          description: tax year
-          example: '2025'
-        totalBasis:
-          format: double
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: e-App submitted date to Zinnia (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        key:
           type: number
-          description: Total Cost basis amount
-          example: 0
-        pretefraBasis:
-          format: double
-          type: number
-          description: Pre Tefra basis amount
-          example: 0
-        posttefraBasis:
-          format: double
-          type: number
-          description: Post Teefra basis amount
-          example: 0
-        post88Amount:
-          format: double
-          type: number
-          description: Post 88 Amount
-          example: 0
-    Email:
-      type: object
-      properties:
-        emailId:
+          description: Zinnia Unique idenitifer for a case. [Derived by Zinnia]
+          example: 1234567
+        sourceCd:
           type: string
-          format: email
-          description: Email address of associated party
-          example: abc@zinnia.com
-        emailType:
+          description: Zinnia Identifier for a client.[Derived by Zinnia]
+          example: ZIN_ABC
+        correlationId:
+          type: string
+          description: Zinnia Unique Identifier for a case.[Derived by Zinnia]. This is not required for Paper Apps , only eApps.
+          example: 0ca10708-4b53-464c-b745-355c8f6f0edb
+        zinniaCaseId:
+          type: string
+          description: Zinnia Unique Identifier for a case.[Derived by Zinnia]. This is  required for Paper Apps, not eApps and will be sent via Orion Application.
+          example: CA0123456789
+        transmittingCompanyIdentifier:
+          type: string
+          description: An identifer that represents Transmitting Company which is of 4 char.
+          example: '1234'
+        transmittingCompanyName:
+          type: string
+          description: Transmitting Company Name
+          example: ABC
+        receivingCompanyName:
+          type: string
+          description: Receiving Company Name, Derived by Zinnia based on the set up in Zinnia Systems.
+          example: ABC
+        submitterNSCCId:
+          type: string
+          description: The NSCC assigned membership ID for the firm initiating the transactions.Only applicable for DTCC cases.
+          example: '0075'
+        submitterNSCCName:
+          type: string
+          description: Name of the Submitter (Settling Firm).Only applicable for DTCC cases.
+          example: LPL
+        asid:
+          type: string
+          description: Identifier assigned by a clearing firm/service provider to a firm that clears business through them.Only applicable for DTCC cases.
+          example: '0075'
+        asidName:
+          type: string
+          description: Name of associated firm.Only applicable for DTCC cases.
+          example: LPL
+        firmExternalId:
+          type: string
+          description: External ID in MCS [Zinnia Commission System] that belongs to the Firm. firmExternalId or firmTaxId or firmNPN is mandatory.
+          example: Q01530
+        firmTaxId:
+          type: string
+          pattern: \d{9}
+          description: 9 digit Tax ID in MCS [Zinnia Commission System] that belongs to the Firm. firmExternalId or firmTaxId or firmNPN is mandatory.
+          minLength: 9
+          maxLength: 9
+          example: '123456789'
+        firmNPN:
+          type: string
+          description: NPN in MCS [Zinnia Commission System] that belongs to the Firm. firmExternalId or firmTaxId or firmNPN is mandatory.
+          example: '294128'
+        agentSubmitDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Agent submit date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        applicationSignedCounty:
+          type: string
+          description: Application Signed County, Only for Florida if required by Business Processing System for running rules.
+          example: Dade
+        planCode:
+          type: string
+          description: Product code assigned by Zinnia Admin system
+          example: '111'
+        applicationDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Application Signed Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        policyDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Client Agreement Date/Issue Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        solicitationDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: The date in which the Agent first proposes to the client the use of an insurance product, which may or may not be in response to an engagement/planning process.  (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        quoteStartDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: The start (run) date of the illustration or quote (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        quoteId:
+          type: string
+          description: The ID for the illustration or quote.
+          example: '12345'
+        ownerSignedDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: This date represents when the natural owner electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        jointOwnerSignedDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: This date represents when the joint owner electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        annuitantSignedDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: This date represents when the Annuitant electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        jointAnnuitantSignedDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: This date represents when the joint Annuitant electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        trusteeSignedDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: This date represents when the trustee/representative electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        beneficiarySignedDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: This date represents when the Beneficiary electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        spouseSignedDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: This date represents when the Spouse electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        igoDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Stores the IGO date. It is mandatory when contract have trust Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        appId:
+          type: string
+          description: Unique Identifier against an e-App application. First 4 letters represent the receiving company, next 3 letters represent the firm, next 8 positions represent the date eApp is submitted, next 10 positions represents the sequential number of the eApps from the eApp instance.
+          minLength: 25
+          example: XXXXEDJ041120240000000001
+        version:
+          type: string
+          description: Version for that case - 3 digits, incremental if same case if submitted more than once in case of errors.
+          example: '000'
+        contractNbr:
+          type: string
+          description: Unique number of the policy.
+          example: '000'
+        contractState:
           type: string
           enum:
-          - BUSINESS
-          - PERSONAL
-          description: This field captures the type of email address like business or personal email.
+          - AA
+          - AB
+          - AE
+          - AK
+          - AL
+          - AP
+          - AR
+          - AS
+          - AZ
+          - BC
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - GU
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MB
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NB
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NL
+          - NM
+          - NS
+          - NT
+          - NU
+          - NV
+          - NY
+          - OH
+          - OK
+          - 'ON'
+          - OR
+          - PA
+          - PE
+          - PR
+          - QC
+          - RI
+          - SC
+          - SD
+          - SK
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - VI
+          - WA
+          - WI
+          - WV
+          - WY
+          - YT
+          description: Contract State. State code
+          example: NJ
+        solicitationState:
+          type: string
+          enum:
+          - AA
+          - AE
+          - AK
+          - AL
+          - AP
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+          description: Solicitation State. State code
+          example: NJ
+        qualificationFlag:
+          type: string
+          enum:
+          - IRAREG
+          - IRASPSL
+          - IRAROLL
+          - NONQUAL
+          - ROTHIRA
+          - IRASIMPLE
+          - 403B
+          - 401K
+          - 401A
+          - 457B
+          - PENPLN
+          - HR10KEOGH
+          - INHERITIRA
+          - NONQUALSTRPLN
+          - INHERITROTHIRA
+          - 401G
+          - ROTH401K
+          - ROTH403B
+          - EDUIRA
+          - PROFSHRPLN
+          - MONEYPURCHPENSPLN
+          - TARGTBENFTPLN
+          - CUSTIRA
+          - CUSTROTHIRA
+          - CUSTROLLIRA
+          - QUALIFIED
+          - 401SCHEDA
+          - 412E
+          - ROTHIRACONV
+          - CORPDEFERCOMP
+          - CORPPENS
+          - CUSTINHERITIRA
+          - CUSTINHERITROTHIRA
+          - CUSTSARSEPIRA
+          - CUSTSIMPLEIRA
+          - CUSTSPOUSALIRA
+          - CUSTIRASEP
+          - CUSTQLACIRA
+          - DEFAULT
+          - GROUPTSA
+          - IRASEP
+          - NON457DEFCOMP
+          - IRAQLAC
+          - UGMAUTMA
+          - VULNQ
+          - _412I
+          - NOUSTAX
+          - TXORP
+          - _501C9
+          - SARSEP
+          - IRATRANSFER
+          - CASHBALPLANDEFBENE
+          - CASHBALPLANDEFCONTRIB
+          - SOLODEFBENE
+          - _7702B
+          - SOLO401K
+          - ROTH457
+          description: Qualification Codes
+          example: IRAREG
+        custodial:
+          type: string
+          enum:
+          - 'YES'
+          - 'NO'
+          description: Describes whether the case is custodial or not
+          example: 'YES'
+        appIndicator:
+          type: string
+          enum:
+          - ELECT
+          - PAPER
+          description: To determine whether the request is via eApp or Paper App
+          example: ELECT
+        suitabilityAppIndicator:
+          type: string
+          enum:
+          - NA
+          - ELECT
+          - PAPER
+          description: To determine whether the Suitability request is via eApp or Paper App. Select NA if Suitability is not being done via Zinnia.
+          example: ELECT
+        ofacIndicator:
+          type: string
+          enum:
+          - 'NO'
+          - 'YES'
+          description: To determine whether the OFAC request is being sent electronically to Zinnia. Select NO if OFAC is not being done via Zinnia electronically.
+          example: 'YES'
+        commissionOption:
+          type: string
+          description: Commission Options will be provided by Zinnia for the respective Product
+          example: A
+        binNbr:
+          type: string
+          description: Brokerage Identification Number
+          example: ABC0DF
+        telePrivileges:
+          type: string
+          description: Tele privileges value
+          enum:
+          - NONE
+          - ALL
+          - EXCONLY
+          - QTONLY
+          - OWNONLY
+          - AGTONLY
+          - DIARYNT
+          example: NONE
+        signatureMethod:
+          type: string
+          required:
+          - signatureMethod
+          description: signatureMethod
+          enum:
+          - NONE
+          - VOICE
+          - SIGNPAD
+          - WETSIG
+          - BIO
+          - CLICKTHRU
+          example: NONE
+        documentControlNumber:
+          type: string
+          description: documentControlNumber is an NSCC data point, Will be derived by Zinnia.
+          example: 1000ABC00000000000
+        totalAttachmentCount:
+          type: integer
+          required:
+          - totalAttachmentCount
+          description: totalAttachmentCount expected in Attachment payload
+          example: 1
+        fileInceptionTime:
+          type: string
+          format: date-time
+          description: Time when the case is received within ETP
+          example: '2025-06-26T00:00:00Z'
+        policyValues:
+          $ref: '#/components/schemas/PolicyValues'
+        initialPurchase:
+          $ref: '#/components/schemas/InitialPurchase'
+        funds:
+          type: array
+          description: funds that sums upto 100%
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Fund'
+        features:
+          type: array
+          description: feature for any feature/rider selected by user
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/Feature'
+        roles:
+          type: array
+          description: roles that sums every role option to 100%
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Role'
+        specialPrograms:
+          type: array
+          description: specialPrograms if any recurring transaction needs to be set up
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/SpecialProgram'
+        payouts:
+          type: array
+          description: payouts if it needs to be set up for the policy
+          items:
+            $ref: '#/components/schemas/Payouts'
+        errors:
+          type: array
+          description: Derived by Zinnia
+          items:
+            type: string
+            example: Error 1
     Address:
       type: object
       required:
@@ -637,56 +1016,44 @@ components:
           - ZW
           description: Country codes
           example: US
-    BankInformation:
-      type: object
-      required:
-      - bankName
-      - abaNumber
-      - accountNumber
-      - bankingType
-      properties:
-        bankName:
-          type: string
-          description: Bank name
-          example: ABC Bank
-        abaNumber:
-          type: string
-          pattern: \d{9}
-          description: ABA number
-          minLength: 9
-          maxLength: 9
-          example: '123456789'
-        ibaNumber:
-          type: string
-          description: International Bank Account Number
-          example: US12KBDE89571012345678
-        accountNumber:
-          type: string
-          description: Account Number
-          example: '1000000000'
-        bankingType:
-          type: string
-          enum:
-          - CHECKING
-          - SAVINGS
-          - CREDITCARD
-          - DEBITCARD
-          - BRKACCT
-          - COD
-          example: CHECKING
-    SuccessResponse:
+    ServerErrorResponse:
       type: object
       properties:
         statusCode:
           type: integer
           format: int32
-          example: 201
+          example: 500
+        timestamp:
+          type: integer
+          format: int64
+          example: 1681395423438
+        errorId:
+          type: string
+          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+        message:
+          type: string
+          example: Failed to process request
+    ValidationResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 400
         timestamp:
           type: string
           format: date-time
+        errorId:
+          type: string
+          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
         message:
           type: string
-          example: Request Submitted Successfully
+          example: JSON Valdiation fails with error
+        error:
+          type: array
+          items:
+            type: string
+            example: Mandatory attribute label missing
     Withholding:
       type: object
       required:
@@ -729,877 +1096,57 @@ components:
           - NRA
           - BACKUP
           example: FED
-    Role:
+    BankInformation:
       type: object
       required:
-      - roleType
-      - rolePercentage
-      - nameType
-      - lastName
-      - dob
-      - sex
-      - phones
-      - addresses
-      - eDelivery
-      - citizenshipCountry
+      - bankName
+      - abaNumber
+      - accountNumber
+      - bankingType
       properties:
-        roleType:
+        bankName:
           type: string
-          enum:
-          - OWN
-          - JNTOWN
-          - PRIMBENE
-          - CONTBENE
-          - MRDDESGBENE
-          - EXCCOMPANY
-          - ANN
-          - JNTANN
-          - PAYOR
-          - PAYEE
-          - ASSIGNEE
-          - PRIMWRITAGT
-          - ADDWRITAGT
-          - NONCOMAGT
-          - PRIMSERAGT
-          description: Role type. Owner, Annuitant, Servicing Agent and Writing Agent are mandatory.
-          example: OWN
-        rolePercentage:
-          type: string
-          required:
-          - rolePercentage
-          description: string($9(01) V9(09) for percentage. Total percentage of a role should be 100%.
-          example: '100'
-        nameType:
-          type: string
-          enum:
-          - IND
-          - ORG
-          - TRUST
-          - OTHER
-          - UGMA
-          - COMPANY
-          description: The name type associated with the role.
-          example: IND
-        firstName:
-          type: string
-          description: First name of the party role
-          example: firstName when name type is Natural/Individual
-        middleName:
-          type: string
-          description: Middle name of the party role
-          example: B
-        lastName:
-          type: string
-          description: Last name of the party role
-          example: Doe
-        prefix:
-          type: string
-          description: Prefix
-          example: Dr
-        suffix:
-          type: string
-          description: Suffix
-          example: Sr
-        dob:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date of birth of party role. Mandatory for Owner and Annuitant (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        sex:
-          type: string
-          enum:
-          - MALE
-          - FEMALE
-          - UNISEX
-          - OTHER
-          description: Any one of the possible value for the gender.Mandatory for Owner and Annuitant.
-          example: MALE
-        citizenshipCountry:
-          type: string
-          enum:
-          - AD
-          - AE
-          - AF
-          - AG
-          - AI
-          - AL
-          - AM
-          - AN
-          - AO
-          - AQ
-          - AR
-          - AS
-          - AT
-          - AU
-          - AW
-          - AX
-          - AZ
-          - BA
-          - BB
-          - BD
-          - BE
-          - BF
-          - BG
-          - BH
-          - BI
-          - BJ
-          - BL
-          - BM
-          - BN
-          - BO
-          - BQ
-          - BR
-          - BS
-          - BT
-          - BV
-          - BW
-          - BY
-          - BZ
-          - CA
-          - CC
-          - CD
-          - CF
-          - CG
-          - CH
-          - CI
-          - CK
-          - CL
-          - CM
-          - CN
-          - CO
-          - CR
-          - CU
-          - CV
-          - CW
-          - CX
-          - CY
-          - CZ
-          - DE
-          - DJ
-          - DK
-          - DM
-          - DO
-          - DZ
-          - EC
-          - EE
-          - EG
-          - EH
-          - ER
-          - ES
-          - ET
-          - FI
-          - FJ
-          - FK
-          - FM
-          - FO
-          - FR
-          - GA
-          - GB
-          - GD
-          - GE
-          - GF
-          - GG
-          - GH
-          - GI
-          - GL
-          - GM
-          - GN
-          - GP
-          - GQ
-          - GR
-          - GS
-          - GT
-          - GU
-          - GW
-          - GY
-          - HK
-          - HM
-          - HN
-          - HR
-          - HT
-          - HU
-          - ID
-          - IE
-          - IL
-          - IM
-          - IN
-          - IO
-          - IQ
-          - IR
-          - IS
-          - IT
-          - JE
-          - JM
-          - JO
-          - JP
-          - KE
-          - KG
-          - KH
-          - KI
-          - KM
-          - KN
-          - KP
-          - KR
-          - KW
-          - KY
-          - KZ
-          - LA
-          - LB
-          - LC
-          - LI
-          - LK
-          - LR
-          - LS
-          - LT
-          - LU
-          - LV
-          - LY
-          - MA
-          - MC
-          - MD
-          - ME
-          - MF
-          - MG
-          - MH
-          - MK
-          - ML
-          - MM
-          - MN
-          - MO
-          - MP
-          - MQ
-          - MR
-          - MS
-          - MT
-          - MU
-          - MV
-          - MW
-          - MX
-          - MY
-          - MZ
-          - NA
-          - NC
-          - NE
-          - NF
-          - NG
-          - NI
-          - NL
-          - 'NO'
-          - NP
-          - NR
-          - NU
-          - NZ
-          - OM
-          - PA
-          - PE
-          - PF
-          - PG
-          - PH
-          - PK
-          - PL
-          - PM
-          - PN
-          - PR
-          - PS
-          - PT
-          - PW
-          - PY
-          - QA
-          - RE
-          - RO
-          - RS
-          - RU
-          - RW
-          - SA
-          - SB
-          - SC
-          - SD
-          - SE
-          - SG
-          - SH
-          - SI
-          - SJ
-          - SK
-          - SL
-          - SM
-          - SN
-          - SO
-          - SR
-          - SS
-          - ST
-          - SV
-          - SX
-          - SY
-          - SZ
-          - TC
-          - TD
-          - TF
-          - TG
-          - TH
-          - TJ
-          - TK
-          - TL
-          - TM
-          - TN
-          - TO
-          - TR
-          - TT
-          - TV
-          - TW
-          - TZ
-          - UA
-          - UG
-          - UM
-          - USA
-          - UY
-          - UZ
-          - VA
-          - VC
-          - VE
-          - VG
-          - VI
-          - VN
-          - VU
-          - WF
-          - WS
-          - XK
-          - YE
-          - YT
-          - ZA
-          - ZM
-          - ZW
-          description: Country codes, Mandatory for Owner and Annuitant.
-        taxId:
+          description: Bank name
+          example: ABC Bank
+        abaNumber:
           type: string
           pattern: \d{9}
-          description: 9 digit Social Security number. Mandatory for Owner , Annuitant and Agent.
+          description: ABA number
           minLength: 9
           maxLength: 9
           example: '123456789'
-        agentCRD:
+        ibaNumber:
           type: string
-          description: CRD number for the party role, used as Agent Identifier.
-          example: '123456'
-        agentNPN:
+          description: International Bank Account Number
+          example: US12KBDE89571012345678
+        accountNumber:
           type: string
-          description: NPN number for the agent, used as Agent Identifier.
-          example: '123456'
-        agentDistributorAgentAssignedId:
-          type: string
-          description: Distributor assigned Id for an agent, used as Agent Identifier.
-          example: ABC0000000
-        agentCarrierAgentAssignedId:
-          type: string
-          description: Internal identifier assigned to the agent by carrier, used as Agent Identifier.
-          example: ABC0000000
-        agentExternalId:
-          type: string
-          description: Unique number assigned by the MCS system, used as Agent Identifier.
-          example: ABC0000000
-        phones:
-          type: array
-          description: One phone is mandatory for Owner and Annuitant
-          items:
-            $ref: '#/components/schemas/Phone'
-        relationship:
+          description: Account Number
+          example: '1000000000'
+        bankingType:
           type: string
           enum:
-          - TRUSTEE
-          - TRUSTEEOFMINOR
-          - BROTHER
-          - CHILD
-          - DAUGHTER
-          - FATHER
-          - FIANCEE
-          - GRANDCHILD
-          - LIFEPARTNER
-          - MOTHER
-          - SISTER
-          - SON
-          - SPOUSE
-          - STEPFATHER
-          - STEPMOTHER
-          - SELF
-          - OTHER
-          - GRANDFATHER
-          - GRANDMOTHER
-          - DOMPARTNER
-          - AUNT
-          - NEPHEW
-          - NIECE
-          - HUSBAND
-          - WIFE
-          - UNCLE
-          - EMPLOYER
-          - GRANDPARENT
-          - LEGALGUARDIAN
-          - TRUSTEEOFINCOMP
-          - PWROFATTRNY
-          - CNTRLNGPRSNOFENT
-          - EXECUTORS
-          - ASSOCIATE
-          - PARTNER
-          - ESTATE
-          - TRUST
-          - GRANDSON
-          - GRANDDAUGHTER
-          - PARENT
-          - NONSPOUSE
-          - CHILDRENEQUALLY
-          - CHILDRENPERSTIRPES
-          - PERSTIRPES
-          - SURVIVNGSPOUSE
-          description: Relationship code
-          example: SELF
-        addresses:
-          type: array
-          description: One address is mandatory for Owner and Annuitant
-          items:
-            $ref: '#/components/schemas/Address'
-        trustType:
-          type: string
-          enum:
-          - INDIVIDUAL
-          - CORPORATE
-          description: Type of trust &  TrustType is required when the role is a trust
-          example: INDIVIDUAL
-        eDelivery:
-          type: string
-          description: eDelivery is required/not for the role
-          enum:
-          - 'YES'
-          - 'NO'
-          example: 'YES'
-        emails:
-          type: array
-          description: Email for associated party, email is required when eDelivery is 'Y'.
-          items:
-            $ref: '#/components/schemas/Email'
-        bankInformation:
-          $ref: '#/components/schemas/BankInformation'
-        dod:
-          type: string
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date of Death (with pattern "yyyy-mm-dd")
-          example: '2023-12-19'
-    DocumentDetail:
+          - CHECKING
+          - SAVINGS
+          - CREDITCARD
+          - DEBITCARD
+          - BRKACCT
+          - COD
+          example: CHECKING
+    Email:
       type: object
-      required:
-      - documentId
-      - binaryData
-      - formId
-      - formName
-      - documentCategory
-      - documentFileType
       properties:
-        documentId:
+        emailId:
           type: string
-          description: Unique Identifier for the individual document. Duplicate document Ids will be rejected.
-          example: 0ca10708-4b53-464c-b745-355c8f6f0edb
-        binaryData:
-          type: string
-          description: Base 64 encoded binary stream
-          example: SGVsbG8gV29ybGQ=
-        formId:
-          type: string
-          description: Unique ID for a Form
-          example: FR2279
-        formName:
-          type: string
-          description: Unique Name for a form
-          example: Fixed Annuity Order Entry Cover Sheet
-        documentCategory:
-          type: string
-          description: Category of the document as per OnBase system
-          example: NB Supporting Document
-        documentFileType:
+          format: email
+          description: Email address of associated party
+          example: abc@zinnia.com
+        emailType:
           type: string
           enum:
-          - pdf
-          description: Type of file
-          example: pdf
-    Fund:
-      type: object
-      required:
-      - fundCode
-      - amountType
-      - amount
-      properties:
-        fundCode:
-          type: string
-          description: Zinnia will provide specific Fund code for individual funds per Product. Duplicate Fund codes will be rejected.
-          example: XXX000
-        amountType:
-          type: string
-          description: Type of the Amount
-          enum:
-          - AMT
-          - PCT
-          - UNITS
-          - PRORATA
-          - EARNINGSONLY
-          - MODEARNINGSONLY
-          - MAX
-          - FREEWDAMT
-          - GUARENTEEDWITHDRAWBENEFIT
-          - LIFEEXPECTANCY
-          - WDUNITBASIS
-          - NONE
-          - AUTO
-          - MAINTAINFACE
-          - ADJUSTFACE
-          - NEWAMT
-          - FACECHANGE
-          - NONFINANCIAL
-          - MAXFREE
-          - COMBO
-          - PCTAV
-          - PRORATAVAR
-          - RESERVEADJ
-          - PARTIALREBALANCE
-          - DOLLARLIQUIDFIRST
-          - DOLLARLIQUIDLAST
-          - CHOICEDOLLAR
-          - CHOICEMAXFREE
-          - EARNLIQUIDFIRST
-          - EARNLIQUIDLAST
-          - PCTLIQUIDFIRST
-          - PCTLIQUIDLAST
-          - BONUSDOLLAR
-          - BONUSPCT
-          - PRORATAFIXTHENVAR
-          - PRORATAALL
-          - SINGLEGWMB
-          - JOINTGWMB
-          - PECKINGORDER
-          - DIVREQUEST
-          - NOCONTVALREDUCT
-          - GMWBANNUALLIMIT
-          - PRIMARY
-          - JOINT
-          - GMWBRECALCANNUALLIMIT
-          - BAILOUTONLY
-          - WINDOWPERIODONLY
-          - GMWBANNUALPECKING
-          - GMWBRECALCPECKING
-          - RIAFEEPCT
-          - RIAFEEDOLLAR
-          - GWMBANNUALLIMITLEVEL
-          - GMWBALLEVELPECKING
-          - SPOUSALDEFAULT
-          - FIXEDMODIFIEDEARN
-          - PRORATANEWMONEY
-          - ACCUMALATEDEARN
-          - CONTRACTYEAREARN
-          - CALENDARYEAREARN
-          - ACCELERATEDJOINTGMWB
-          - ACCELERATEDSINGLEGMWB
-          example: PCT
-        amount:
-          type: number
-          format: double
-          description: Total percentage of all funds should be 100%.
-          example: 50.55
-    Payouts:
-      type: object
-      required:
-      - payoutOption
-      properties:
-        payoutOption:
-          type: string
-          enum:
-          - LIFEONLY
-          - JLONLY
-          - PC
-          - AC
-          - LWPC
-          - LWCR
-          example: LIFEONLY
-        livesType:
-          type: string
-          description: Lives Type
-          example: Single
-        primarySurvivorAdjType:
-          type: string
-          description: Primary Survivor Adjustment Type
-        primarySurvivorAdjPct:
-          type: string
-          description: Primary Survivor Adjustment Percent
-          example: '100'
-        jointSurvivorAdjType:
-          type: string
-          description: Joint Survivor Adjustment Type
-        jointSurvivorAdjPct:
-          type: string
-          description: Joint Survivor Adjustment Percent
-          example: '100'
-        annuityFrequencyCode:
-          type: string
-          enum:
-          - DLY
-          - BIWKLY
-          - MNTHLY
-          - SEMIANN
-          - QTRLY
-          - ANNUAL
-          - SNGLPMT
-          - BIMNTHLY
-          example: DLY
-        certainPeriodQualifier:
-          type: string
-          description: Certain Period Qualifier
-          example: A
-        certainPeriod:
-          type: string
-          description: Certain Period
-          example: '1'
-        payoutStartDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        FixedPaymentAmount:
-          type: string
-          format: integer
-          example: '1000'
-    DocumentInformation:
-      type: object
-      required:
-      - appId
-      - version
-      - effectiveDate
-      - totalDocumentCount
-      - documentDetails
-      properties:
-        appId:
-          type: string
-          description: Unique Identifier against an e-App application. First 4 letters represent the receiving company, next 3 letters represent the firm, next 8 positions represent the date eApp is submitted, next 10 positions represents the sequential number of the eApps from the eApp instance. For Orion - Accept integers upto 15 digits
-          example: XXXXEDJ041120240000000001
-        version:
-          type: string
-          description: Version for that case - 3 digits, incremental if same case if submitted more than once in case of errors. For Orion - Accept integers upto 15 digits
-          example: '000'
-        effectiveDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: e-App submitted date to Zinnia (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        totalDocumentCount:
-          type: number
-          example: 1
-        documentDetails:
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentDetail'
-    SpecialProgram:
-      type: object
-      required:
-      - specialProgramType
-      - startDate
-      - mode
-      - amountType
-      - amount
-      - duration
-      - funds
-      - firstPaymentDate
-      properties:
-        specialProgramType:
-          type: string
-          description: specialProgramType selected
-          enum:
-          - PAYOUT
-          - RMD
-          - SYSWITHDRAWAL
-          - PREMIUMDEFAULT
-          - DOLLARCOSTAVERAGE
-          - SYSPARTIALWITHDRAWGROSS
-          - AUTOREBALANCE
-          - MINREQUIREDDIST
-          - EFTDRAW
-          - ANNUITYPAYMENTDEFAULTS
-          - CHARGEDEDUCTION
-          - EFTLOANREPAY
-          - REGINVESTADVISORFEE
-          - RIDERCHARGE
-          - COVEREDPERSONAGEBAND
-          - 60DAYHHCDRECERTLETTER
-          - 45DAYHHCDRECERTLETTER
-          - 60DAYGMWBROLLUPRNWLNOTICE
-          - 45DAYGMWBROLLUPRNWLNOTICE
-          - 60DAYGMDBROLLUPRNWLNOTICE
-          - 45DAYGMDBROLLUPRNWLNOTICE
-          - 72TQDIST
-          - GMIBTERM
-          - IBGROWTHLOCKDATE
-          - LOANREPAY
-          example: PAYOUT
-        startDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Effective date of Special program (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        mode:
-          type: string
-          enum:
-          - DLY
-          - BIWKLY
-          - MNTHLY
-          - SEMIANN
-          - QTRLY
-          - ANNUAL
-          - SNGLPMT
-          - BIMNTHLY
-          description: Frequency of special program
-          example: DLY
-        amountType:
-          type: string
-          enum:
-          - AMT
-          - PCT
-          - MAX
-          - FREEWDAMT
-          - WDUNITBASIS
-          - PRORATA
-          description: amountType of special program
-          example: AMT
-        amount:
-          type: number
-          format: double
-          description: Stores the allocated percent to the specific fund
-          example: 50.5
-        distribCode:
-          type: string
-          enum:
-          - DEF
-          - PRMTRDIST
-          - ERLYDISTEXCEPAPP
-          - DISB
-          - DTHCLM
-          - DTHEXC
-          - PROHIBTRANS
-          - SEC1035EXC
-          - NRMLDISB
-          - EXCSCNTRIBCURRYRTX
-          - PS58COSTS
-          - 10YRTAXOPT
-          - EXCSCONTRIB2YRPRIORTX
-          - EXCSANNADDNLASSEC415
-          - CHARGIFTANN
-          - DIRROLLIRA
-          - DIRROLLQUALPLNTSA
-          - DISTFROMROTHIRA
-          - LOANSASDIST
-          - QUALLOANNDIST
-          - PRMTRLOANDIST
-          - DISTFROMEDIRA
-          - EXCSCONTRIB1YRPRIOR
-          - EXCSCONTRIBPLUSEARN
-          - RECHARIRAPREVYR
-          - ERLYDISTRIBSIMPLE
-          - SEPSERV
-          - TRSTTOTRST
-          - IRATOROTH
-          - QDROROLLIRA
-          - DTHROLLIRA
-          - DTHTRANS
-          - QDROLIKETOLIKE
-          - QDROPMTTOSPSE
-          - FRSTHMBYRIRAONLY
-          - EDCTNEXP
-          - MEDEXP
-          - NONTAXEVNT
-          - GROSSPDATRNY
-          - OTHERINC
-          - NONEMPCOMP
-          - PRMTREX
-          - ROYALTIES
-          - DIRTRANS
-          - ROTHIRANORMDISTRIB
-          - RECHARIRACURRYR
-          - FEEADMIN
-          - FEEASSET
-          - FEECONTRIB
-          - FEELUMPSUMDEATH
-          - FEELUMPSUMDISB
-          - FEELUMPSUMPURCHANN
-          - FEELUMPSUMOTH
-          - FEELNEWRETPERPMNT
-          - FEEEXISTINGRETINFORCE
-          - FEECONT
-          - FEEEXISTINGRETINC
-          - FEETHIRDPARTY
-          - LUMPSUMDEATH
-          - LUMPSUMDISB
-          - LUMPSUMPURCHANN
-          - LUMPSUMOTH
-          - FEEIPGEXP
-          - FROMFUND
-          - RELRESRV
-          - HEALTHDED
-          - FEEMRKTVAL
-          - FEEANNADMIN
-          - SECT1035EXCPART
-          - QDRONORMDISB
-          - QDROSEC1035
-          - DESGROTHACCTDIST
-          - REPDTHBEN6050Y
-          - DISTTRADINDVNOTFMV
-          - DIVDISTEMPSTK404K
-          - COSTCURRLIFEINSURPROTECT
-          - DISTUNDEREMPLOYEEPLANSCOMPLRESSYS
-          - EXCSCONTRIBPLUSEARN2024
-          - FEELONGTERMCAREINSUR
-          - QUALPLANLOANOFFSET
-          - QUALROTHINDVARRDIST
-          - ROTHIRADISTEXCEPAPPLIES
-          description: Distribution Code
-          example: DEF
-        duration:
-          type: string
-          description: Specifies how many times special program will be run
-          example: '5'
-        funds:
-          type: array
-          items:
-            $ref: '#/components/schemas/Fund'
-        bankInformation:
-          $ref: '#/components/schemas/BankInformation'
-        firstPaymentDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        firstPaymentYear:
-          type: string
-          description: First payment year.
-          example: '2025'
-        grossDisbursement:
-          type: string
-          description: Gross disbursment.
-          example: '10000'
-        waiveCharges:
-          type: string
-          description: Waive charges.
-          example: '1000'
-        nextDate:
-          type: string
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        priorRMDAmtType:
-          format: string
-          description: Prior RMD amount type.
-          example: '-999'
-        priorRMDAmt:
-          format: double
-          type: number
-          description: Prior RMD amount.
-          example: 100
+          - BUSINESS
+          - PERSONAL
+          description: This field captures the type of email address like business or personal email.
     Phone:
       type: object
       required:
@@ -2141,554 +1688,819 @@ components:
           type: string
           description: This field stores the Extension number
           example: '4560'
-    Application:
+    Role:
       type: object
       required:
-      - effectiveDate
-      - transmittingCompanyIdentifier
-      - transmittingCompanyName
-      - receivingCompanyName
-      - agentSubmitDate
-      - planCode
-      - applicationDate
-      - appId
-      - version
-      - contractState
-      - qualificationFlag
-      - appIndicator
-      - suitabilityAppIndicator
-      - ofacIndicator
-      - signatureMethod
-      - totalAttachmentCount
-      - fileInceptionTime
-      - initialPurchase
-      - funds
-      - roles
+      - roleType
+      - rolePercentage
+      - nameType
+      - lastName
+      - dob
+      - sex
+      - phones
+      - addresses
+      - eDelivery
+      - citizenshipCountry
       properties:
-        effectiveDate:
+        roleType:
+          type: string
+          enum:
+          - OWN
+          - JNTOWN
+          - PRIMBENE
+          - CONTBENE
+          - MRDDESGBENE
+          - EXCCOMPANY
+          - ANN
+          - JNTANN
+          - PAYOR
+          - PAYEE
+          - ASSIGNEE
+          - PRIMWRITAGT
+          - ADDWRITAGT
+          - NONCOMAGT
+          - PRIMSERAGT
+          description: Role type. Owner, Annuitant, Servicing Agent and Writing Agent are mandatory.
+          example: OWN
+        rolePercentage:
+          type: string
+          required:
+          - rolePercentage
+          description: string($9(01) V9(09) for percentage. Total percentage of a role should be 100%.
+          example: '100'
+        nameType:
+          type: string
+          enum:
+          - IND
+          - ORG
+          - TRUST
+          - OTHER
+          - UGMA
+          - COMPANY
+          description: The name type associated with the role.
+          example: IND
+        firstName:
+          type: string
+          description: First name of the party role
+          example: firstName when name type is Natural/Individual
+        middleName:
+          type: string
+          description: Middle name of the party role
+          example: B
+        lastName:
+          type: string
+          description: Last name of the party role
+          example: Doe
+        prefix:
+          type: string
+          description: Prefix
+          example: Dr
+        suffix:
+          type: string
+          description: Suffix
+          example: Sr
+        dob:
           type: string
           format: date
           pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: e-App submitted date to Zinnia (with pattern "yyyy-mm-dd").
+          description: Date of birth of party role. Mandatory for Owner and Annuitant (with pattern "yyyy-mm-dd").
           example: '2023-12-19'
-        key:
-          type: number
-          description: Zinnia Unique idenitifer for a case. [Derived by Zinnia]
-          example: 1234567
-        sourceCd:
+        sex:
           type: string
-          description: Zinnia Identifier for a client.[Derived by Zinnia]
-          example: ZIN_ABC
-        correlationId:
+          enum:
+          - MALE
+          - FEMALE
+          - UNISEX
+          - OTHER
+          description: Any one of the possible value for the gender.Mandatory for Owner and Annuitant.
+          example: MALE
+        citizenshipCountry:
           type: string
-          description: Zinnia Unique Identifier for a case.[Derived by Zinnia]. This is not required for Paper Apps , only eApps.
-          example: 0ca10708-4b53-464c-b745-355c8f6f0edb
-        zinniaCaseId:
-          type: string
-          description: Zinnia Unique Identifier for a case.[Derived by Zinnia]. This is  required for Paper Apps, not eApps and will be sent via Orion Application.
-          example: CA0123456789
-        transmittingCompanyIdentifier:
-          type: string
-          description: An identifer that represents Transmitting Company which is of 4 char.
-          example: '1234'
-        transmittingCompanyName:
-          type: string
-          description: Transmitting Company Name
-          example: ABC
-        receivingCompanyName:
-          type: string
-          description: Receiving Company Name, Derived by Zinnia based on the set up in Zinnia Systems.
-          example: ABC
-        submitterNSCCId:
-          type: string
-          description: The NSCC assigned membership ID for the firm initiating the transactions.Only applicable for DTCC cases.
-          example: '0075'
-        submitterNSCCName:
-          type: string
-          description: Name of the Submitter (Settling Firm).Only applicable for DTCC cases.
-          example: LPL
-        asid:
-          type: string
-          description: Identifier assigned by a clearing firm/service provider to a firm that clears business through them.Only applicable for DTCC cases.
-          example: '0075'
-        asidName:
-          type: string
-          description: Name of associated firm.Only applicable for DTCC cases.
-          example: LPL
-        firmExternalId:
-          type: string
-          description: External ID in MCS [Zinnia Commission System] that belongs to the Firm. firmExternalId or firmTaxId or firmNPN is mandatory.
-          example: Q01530
-        firmTaxId:
+          enum:
+          - AD
+          - AE
+          - AF
+          - AG
+          - AI
+          - AL
+          - AM
+          - AN
+          - AO
+          - AQ
+          - AR
+          - AS
+          - AT
+          - AU
+          - AW
+          - AX
+          - AZ
+          - BA
+          - BB
+          - BD
+          - BE
+          - BF
+          - BG
+          - BH
+          - BI
+          - BJ
+          - BL
+          - BM
+          - BN
+          - BO
+          - BQ
+          - BR
+          - BS
+          - BT
+          - BV
+          - BW
+          - BY
+          - BZ
+          - CA
+          - CC
+          - CD
+          - CF
+          - CG
+          - CH
+          - CI
+          - CK
+          - CL
+          - CM
+          - CN
+          - CO
+          - CR
+          - CU
+          - CV
+          - CW
+          - CX
+          - CY
+          - CZ
+          - DE
+          - DJ
+          - DK
+          - DM
+          - DO
+          - DZ
+          - EC
+          - EE
+          - EG
+          - EH
+          - ER
+          - ES
+          - ET
+          - FI
+          - FJ
+          - FK
+          - FM
+          - FO
+          - FR
+          - GA
+          - GB
+          - GD
+          - GE
+          - GF
+          - GG
+          - GH
+          - GI
+          - GL
+          - GM
+          - GN
+          - GP
+          - GQ
+          - GR
+          - GS
+          - GT
+          - GU
+          - GW
+          - GY
+          - HK
+          - HM
+          - HN
+          - HR
+          - HT
+          - HU
+          - ID
+          - IE
+          - IL
+          - IM
+          - IN
+          - IO
+          - IQ
+          - IR
+          - IS
+          - IT
+          - JE
+          - JM
+          - JO
+          - JP
+          - KE
+          - KG
+          - KH
+          - KI
+          - KM
+          - KN
+          - KP
+          - KR
+          - KW
+          - KY
+          - KZ
+          - LA
+          - LB
+          - LC
+          - LI
+          - LK
+          - LR
+          - LS
+          - LT
+          - LU
+          - LV
+          - LY
+          - MA
+          - MC
+          - MD
+          - ME
+          - MF
+          - MG
+          - MH
+          - MK
+          - ML
+          - MM
+          - MN
+          - MO
+          - MP
+          - MQ
+          - MR
+          - MS
+          - MT
+          - MU
+          - MV
+          - MW
+          - MX
+          - MY
+          - MZ
+          - NA
+          - NC
+          - NE
+          - NF
+          - NG
+          - NI
+          - NL
+          - 'NO'
+          - NP
+          - NR
+          - NU
+          - NZ
+          - OM
+          - PA
+          - PE
+          - PF
+          - PG
+          - PH
+          - PK
+          - PL
+          - PM
+          - PN
+          - PR
+          - PS
+          - PT
+          - PW
+          - PY
+          - QA
+          - RE
+          - RO
+          - RS
+          - RU
+          - RW
+          - SA
+          - SB
+          - SC
+          - SD
+          - SE
+          - SG
+          - SH
+          - SI
+          - SJ
+          - SK
+          - SL
+          - SM
+          - SN
+          - SO
+          - SR
+          - SS
+          - ST
+          - SV
+          - SX
+          - SY
+          - SZ
+          - TC
+          - TD
+          - TF
+          - TG
+          - TH
+          - TJ
+          - TK
+          - TL
+          - TM
+          - TN
+          - TO
+          - TR
+          - TT
+          - TV
+          - TW
+          - TZ
+          - UA
+          - UG
+          - UM
+          - USA
+          - UY
+          - UZ
+          - VA
+          - VC
+          - VE
+          - VG
+          - VI
+          - VN
+          - VU
+          - WF
+          - WS
+          - XK
+          - YE
+          - YT
+          - ZA
+          - ZM
+          - ZW
+          description: Country codes, Mandatory for Owner and Annuitant.
+        taxId:
           type: string
           pattern: \d{9}
-          description: 9 digit Tax ID in MCS [Zinnia Commission System] that belongs to the Firm. firmExternalId or firmTaxId or firmNPN is mandatory.
+          description: 9 digit Social Security number. Mandatory for Owner , Annuitant and Agent.
           minLength: 9
           maxLength: 9
           example: '123456789'
-        firmNPN:
+        agentCRD:
           type: string
-          description: NPN in MCS [Zinnia Commission System] that belongs to the Firm. firmExternalId or firmTaxId or firmNPN is mandatory.
-          example: '294128'
-        agentSubmitDate:
+          description: CRD number for the party role, used as Agent Identifier.
+          example: '123456'
+        agentNPN:
           type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Agent submit date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        applicationSignedCounty:
+          description: NPN number for the agent, used as Agent Identifier.
+          example: '123456'
+        agentDistributorAgentAssignedId:
           type: string
-          description: Application Signed County, Only for Florida if required by Business Processing System for running rules.
-          example: Dade
-        planCode:
+          description: Distributor assigned Id for an agent, used as Agent Identifier.
+          example: ABC0000000
+        agentCarrierAgentAssignedId:
           type: string
-          description: Product code assigned by Zinnia Admin system
-          example: '111'
-        applicationDate:
+          description: Internal identifier assigned to the agent by carrier, used as Agent Identifier.
+          example: ABC0000000
+        agentExternalId:
           type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Application Signed Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        policyDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Client Agreement Date/Issue Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        solicitationDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: The date in which the Agent first proposes to the client the use of an insurance product, which may or may not be in response to an engagement/planning process.  (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        quoteStartDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: The start (run) date of the illustration or quote (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        quoteId:
-          type: string
-          description: The ID for the illustration or quote.
-          example: '12345'
-        ownerSignedDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: This date represents when the natural owner electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        jointOwnerSignedDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: This date represents when the joint owner electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        annuitantSignedDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: This date represents when the Annuitant electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        jointAnnuitantSignedDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: This date represents when the joint Annuitant electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        trusteeSignedDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: This date represents when the trustee/representative electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        beneficiarySignedDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: This date represents when the Beneficiary electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        spouseSignedDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: This date represents when the Spouse electronically signed the application and any supporting documentation. (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        igoDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Stores the IGO date. It is mandatory when contract have trust Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        appId:
-          type: string
-          description: Unique Identifier against an e-App application. First 4 letters represent the receiving company, next 3 letters represent the firm, next 8 positions represent the date eApp is submitted, next 10 positions represents the sequential number of the eApps from the eApp instance.
-          minLength: 25
-          example: XXXXEDJ041120240000000001
-        version:
-          type: string
-          description: Version for that case - 3 digits, incremental if same case if submitted more than once in case of errors.
-          example: '000'
-        contractNbr:
-          type: string
-          description: Unique number of the policy.
-          example: '000'
-        contractState:
+          description: Unique number assigned by the MCS system, used as Agent Identifier.
+          example: ABC0000000
+        phones:
+          type: array
+          description: One phone is mandatory for Owner and Annuitant
+          items:
+            $ref: '#/components/schemas/Phone'
+        relationship:
           type: string
           enum:
-          - AA
-          - AB
-          - AE
-          - AK
-          - AL
-          - AP
-          - AR
-          - AS
-          - AZ
-          - BC
-          - CA
-          - CO
-          - CT
-          - DC
-          - DE
-          - FL
-          - GA
-          - GU
-          - HI
-          - IA
-          - ID
-          - IL
-          - IN
-          - KS
-          - KY
-          - LA
-          - MA
-          - MB
-          - MD
-          - ME
-          - MI
-          - MN
-          - MO
-          - MS
-          - MT
-          - NB
-          - NC
-          - ND
-          - NE
-          - NH
-          - NJ
-          - NL
-          - NM
-          - NS
-          - NT
-          - NU
-          - NV
-          - NY
-          - OH
-          - OK
-          - 'ON'
-          - OR
-          - PA
-          - PE
-          - PR
-          - QC
-          - RI
-          - SC
-          - SD
-          - SK
-          - TN
-          - TX
-          - UT
-          - VA
-          - VT
-          - VI
-          - WA
-          - WI
-          - WV
-          - WY
-          - YT
-          description: Contract State. State code
-          example: NJ
-        solicitationState:
+          - TRUSTEE
+          - TRUSTEEOFMINOR
+          - BROTHER
+          - CHILD
+          - DAUGHTER
+          - FATHER
+          - FIANCEE
+          - GRANDCHILD
+          - LIFEPARTNER
+          - MOTHER
+          - SISTER
+          - SON
+          - SPOUSE
+          - STEPFATHER
+          - STEPMOTHER
+          - SELF
+          - OTHER
+          - GRANDFATHER
+          - GRANDMOTHER
+          - DOMPARTNER
+          - AUNT
+          - NEPHEW
+          - NIECE
+          - HUSBAND
+          - WIFE
+          - UNCLE
+          - EMPLOYER
+          - GRANDPARENT
+          - LEGALGUARDIAN
+          - TRUSTEEOFINCOMP
+          - PWROFATTRNY
+          - CNTRLNGPRSNOFENT
+          - EXECUTORS
+          - ASSOCIATE
+          - PARTNER
+          - ESTATE
+          - TRUST
+          - GRANDSON
+          - GRANDDAUGHTER
+          - PARENT
+          - NONSPOUSE
+          - CHILDRENEQUALLY
+          - CHILDRENPERSTIRPES
+          - PERSTIRPES
+          - SURVIVNGSPOUSE
+          description: Relationship code
+          example: SELF
+        addresses:
+          type: array
+          description: One address is mandatory for Owner and Annuitant
+          items:
+            $ref: '#/components/schemas/Address'
+        trustType:
           type: string
           enum:
-          - AA
-          - AE
-          - AK
-          - AL
-          - AP
-          - AR
-          - AZ
-          - CA
-          - CO
-          - CT
-          - DC
-          - DE
-          - FL
-          - GA
-          - HI
-          - IA
-          - ID
-          - IL
-          - IN
-          - KS
-          - KY
-          - LA
-          - MA
-          - MD
-          - ME
-          - MI
-          - MN
-          - MO
-          - MS
-          - MT
-          - NC
-          - ND
-          - NE
-          - NH
-          - NJ
-          - NM
-          - NV
-          - NY
-          - OH
-          - OK
-          - OR
-          - PA
-          - RI
-          - SC
-          - SD
-          - TN
-          - TX
-          - UT
-          - VA
-          - VT
-          - WA
-          - WI
-          - WV
-          - WY
-          description: Solicitation State. State code
-          example: NJ
-        qualificationFlag:
+          - INDIVIDUAL
+          - CORPORATE
+          description: Type of trust &  TrustType is required when the role is a trust
+          example: INDIVIDUAL
+        eDelivery:
           type: string
-          enum:
-          - IRAREG
-          - IRASPSL
-          - IRAROLL
-          - NONQUAL
-          - ROTHIRA
-          - IRASIMPLE
-          - 403B
-          - 401K
-          - 401A
-          - 457B
-          - PENPLN
-          - HR10KEOGH
-          - INHERITIRA
-          - NONQUALSTRPLN
-          - INHERITROTHIRA
-          - 401G
-          - ROTH401K
-          - ROTH403B
-          - EDUIRA
-          - PROFSHRPLN
-          - MONEYPURCHPENSPLN
-          - TARGTBENFTPLN
-          - CUSTIRA
-          - CUSTROTHIRA
-          - CUSTROLLIRA
-          - QUALIFIED
-          - 401SCHEDA
-          - 412E
-          - ROTHIRACONV
-          - CORPDEFERCOMP
-          - CORPPENS
-          - CUSTINHERITIRA
-          - CUSTINHERITROTHIRA
-          - CUSTSARSEPIRA
-          - CUSTSIMPLEIRA
-          - CUSTSPOUSALIRA
-          - CUSTIRASEP
-          - CUSTQLACIRA
-          - DEFAULT
-          - GROUPTSA
-          - IRASEP
-          - NON457DEFCOMP
-          - IRAQLAC
-          - UGMAUTMA
-          - VULNQ
-          - _412I
-          - NOUSTAX
-          - TXORP
-          - _501C9
-          - SARSEP
-          - IRATRANSFER
-          - CASHBALPLANDEFBENE
-          - CASHBALPLANDEFCONTRIB
-          - SOLODEFBENE
-          - _7702B
-          - SOLO401K
-          - ROTH457
-          description: Qualification Codes
-          example: IRAREG
-        custodial:
-          type: string
+          description: eDelivery is required/not for the role
           enum:
           - 'YES'
           - 'NO'
-          description: Describes whether the case is custodial or not
           example: 'YES'
-        appIndicator:
-          type: string
-          enum:
-          - ELECT
-          - PAPER
-          description: To determine whether the request is via eApp or Paper App
-          example: ELECT
-        suitabilityAppIndicator:
-          type: string
-          enum:
-          - NA
-          - ELECT
-          - PAPER
-          description: To determine whether the Suitability request is via eApp or Paper App. Select NA if Suitability is not being done via Zinnia.
-          example: ELECT
-        ofacIndicator:
-          type: string
-          enum:
-          - 'NO'
-          - 'YES'
-          description: To determine whether the OFAC request is being sent electronically to Zinnia. Select NO if OFAC is not being done via Zinnia electronically.
-          example: 'YES'
-        commissionOption:
-          type: string
-          description: Commission Options will be provided by Zinnia for the respective Product
-          example: A
-        binNbr:
-          type: string
-          description: Brokerage Identification Number
-          example: ABC0DF
-        telePrivileges:
-          type: string
-          description: Tele privileges value
-          enum:
-          - NONE
-          - ALL
-          - EXCONLY
-          - QTONLY
-          - OWNONLY
-          - AGTONLY
-          - DIARYNT
-          example: NONE
-        signatureMethod:
-          type: string
-          required:
-          - signatureMethod
-          description: signatureMethod
-          enum:
-          - NONE
-          - VOICE
-          - SIGNPAD
-          - WETSIG
-          - BIO
-          - CLICKTHRU
-          example: NONE
-        documentControlNumber:
-          type: string
-          description: documentControlNumber is an NSCC data point, Will be derived by Zinnia.
-          example: 1000ABC00000000000
-        totalAttachmentCount:
-          type: integer
-          required:
-          - totalAttachmentCount
-          description: totalAttachmentCount expected in Attachment payload
-          example: 1
-        fileInceptionTime:
-          type: string
-          format: date-time
-          description: Time when the case is received within ETP
-          example: '2025-06-26T00:00:00Z'
-        policyValues:
-          $ref: '#/components/schemas/PolicyValues'
-        initialPurchase:
-          $ref: '#/components/schemas/InitialPurchase'
-        funds:
+        emails:
           type: array
-          description: funds that sums upto 100%
-          minItems: 1
+          description: Email for associated party, email is required when eDelivery is 'Y'.
           items:
-            $ref: '#/components/schemas/Fund'
-        features:
-          type: array
-          description: feature for any feature/rider selected by user
-          minItems: 0
-          items:
-            $ref: '#/components/schemas/Feature'
-        roles:
-          type: array
-          description: roles that sums every role option to 100%
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/Role'
-        specialPrograms:
-          type: array
-          description: specialPrograms if any recurring transaction needs to be set up
-          minItems: 0
-          items:
-            $ref: '#/components/schemas/SpecialProgram'
-        payouts:
-          type: array
-          description: payouts if it needs to be set up for the policy
-          items:
-            $ref: '#/components/schemas/Payouts'
-        errors:
-          type: array
-          description: Derived by Zinnia
-          items:
-            type: string
-            example: Error 1
-    PolicyValues:
+            $ref: '#/components/schemas/Email'
+        bankInformation:
+          $ref: '#/components/schemas/BankInformation'
+        dod:
+          type: string
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date of Death (with pattern "yyyy-mm-dd")
+          example: '2023-12-19'
+    SpecialProgram:
       type: object
       required:
-      - fedMaritalStatus
-      - stateMaritalStatus
-      - mktSegment
+      - specialProgramType
+      - startDate
+      - mode
+      - amountType
+      - amount
+      - duration
+      - funds
+      - firstPaymentDate
       properties:
-        fedMaritalStatus:
+        specialProgramType:
+          type: string
+          description: specialProgramType selected
+          enum:
+          - PAYOUT
+          - RMD
+          - SYSWITHDRAWAL
+          - PREMIUMDEFAULT
+          - DOLLARCOSTAVERAGE
+          - SYSPARTIALWITHDRAWGROSS
+          - AUTOREBALANCE
+          - MINREQUIREDDIST
+          - EFTDRAW
+          - ANNUITYPAYMENTDEFAULTS
+          - CHARGEDEDUCTION
+          - EFTLOANREPAY
+          - REGINVESTADVISORFEE
+          - RIDERCHARGE
+          - COVEREDPERSONAGEBAND
+          - 60DAYHHCDRECERTLETTER
+          - 45DAYHHCDRECERTLETTER
+          - 60DAYGMWBROLLUPRNWLNOTICE
+          - 45DAYGMWBROLLUPRNWLNOTICE
+          - 60DAYGMDBROLLUPRNWLNOTICE
+          - 45DAYGMDBROLLUPRNWLNOTICE
+          - 72TQDIST
+          - GMIBTERM
+          - IBGROWTHLOCKDATE
+          - LOANREPAY
+          example: PAYOUT
+        startDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Effective date of Special program (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        mode:
+          type: string
+          enum:
+          - DLY
+          - BIWKLY
+          - MNTHLY
+          - SEMIANN
+          - QTRLY
+          - ANNUAL
+          - SNGLPMT
+          - BIMNTHLY
+          description: Frequency of special program
+          example: DLY
+        amountType:
+          type: string
+          enum:
+          - AMT
+          - PCT
+          - MAX
+          - FREEWDAMT
+          - WDUNITBASIS
+          - PRORATA
+          description: amountType of special program
+          example: AMT
+        amount:
+          type: number
+          format: double
+          description: Stores the allocated percent to the specific fund
+          example: 50.5
+        distribCode:
           type: string
           enum:
           - DEF
-          - SNGL
-          - MRRD
-          - HOH
-          - QUALWIDOWWITHDEPCHILD
-          - DOMESTICPARTNER
-          - DIVORCED
-          description: Fed marital status
-          example: MRRD
-        stateMaritalStatus:
+          - PRMTRDIST
+          - ERLYDISTEXCEPAPP
+          - DISB
+          - DTHCLM
+          - DTHEXC
+          - PROHIBTRANS
+          - SEC1035EXC
+          - NRMLDISB
+          - EXCSCNTRIBCURRYRTX
+          - PS58COSTS
+          - 10YRTAXOPT
+          - EXCSCONTRIB2YRPRIORTX
+          - EXCSANNADDNLASSEC415
+          - CHARGIFTANN
+          - DIRROLLIRA
+          - DIRROLLQUALPLNTSA
+          - DISTFROMROTHIRA
+          - LOANSASDIST
+          - QUALLOANNDIST
+          - PRMTRLOANDIST
+          - DISTFROMEDIRA
+          - EXCSCONTRIB1YRPRIOR
+          - EXCSCONTRIBPLUSEARN
+          - RECHARIRAPREVYR
+          - ERLYDISTRIBSIMPLE
+          - SEPSERV
+          - TRSTTOTRST
+          - IRATOROTH
+          - QDROROLLIRA
+          - DTHROLLIRA
+          - DTHTRANS
+          - QDROLIKETOLIKE
+          - QDROPMTTOSPSE
+          - FRSTHMBYRIRAONLY
+          - EDCTNEXP
+          - MEDEXP
+          - NONTAXEVNT
+          - GROSSPDATRNY
+          - OTHERINC
+          - NONEMPCOMP
+          - PRMTREX
+          - ROYALTIES
+          - DIRTRANS
+          - ROTHIRANORMDISTRIB
+          - RECHARIRACURRYR
+          - FEEADMIN
+          - FEEASSET
+          - FEECONTRIB
+          - FEELUMPSUMDEATH
+          - FEELUMPSUMDISB
+          - FEELUMPSUMPURCHANN
+          - FEELUMPSUMOTH
+          - FEELNEWRETPERPMNT
+          - FEEEXISTINGRETINFORCE
+          - FEECONT
+          - FEEEXISTINGRETINC
+          - FEETHIRDPARTY
+          - LUMPSUMDEATH
+          - LUMPSUMDISB
+          - LUMPSUMPURCHANN
+          - LUMPSUMOTH
+          - FEEIPGEXP
+          - FROMFUND
+          - RELRESRV
+          - HEALTHDED
+          - FEEMRKTVAL
+          - FEEANNADMIN
+          - SECT1035EXCPART
+          - QDRONORMDISB
+          - QDROSEC1035
+          - DESGROTHACCTDIST
+          - REPDTHBEN6050Y
+          - DISTTRADINDVNOTFMV
+          - DIVDISTEMPSTK404K
+          - COSTCURRLIFEINSURPROTECT
+          - DISTUNDEREMPLOYEEPLANSCOMPLRESSYS
+          - EXCSCONTRIBPLUSEARN2024
+          - FEELONGTERMCAREINSUR
+          - QUALPLANLOANOFFSET
+          - QUALROTHINDVARRDIST
+          - ROTHIRADISTEXCEPAPPLIES
+          description: Distribution Code
+          example: DEF
+        duration:
           type: string
-          enum:
-          - DEF
-          - SNGL
-          - MRRD
-          - HOH
-          - QUALWIDOWWITHDEPCHILD
-          - DOMESTICPARTNER
-          - DIVORCED
-          description: State marital status
-          example: MRRD
-        withholding:
+          description: Specifies how many times special program will be run
+          example: '5'
+        funds:
           type: array
           items:
-            $ref: '#/components/schemas/Withholding'
-        contribType:
+            $ref: '#/components/schemas/Fund'
+        bankInformation:
+          $ref: '#/components/schemas/BankInformation'
+        firstPaymentDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        firstPaymentYear:
+          type: string
+          description: First payment year.
+          example: '2025'
+        grossDisbursement:
+          type: string
+          description: Gross disbursment.
+          example: '10000'
+        waiveCharges:
+          type: string
+          description: Waive charges.
+          example: '1000'
+        nextDate:
+          type: string
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        priorRMDAmtType:
+          format: string
+          description: Prior RMD amount type.
+          example: '-999'
+        priorRMDAmt:
+          format: double
+          type: number
+          description: Prior RMD amount.
+          example: 100
+    Payouts:
+      type: object
+      required:
+      - payoutOption
+      properties:
+        payoutOption:
           type: string
           enum:
-          - NA
-          - EMPVOL
-          - EMPDISC
-          description: Contribution type
-          example: EMPVOL
+          - LIFEONLY
+          - JLONLY
+          - PC
+          - AC
+          - LWPC
+          - LWCR
+          example: LIFEONLY
+        livesType:
+          type: string
+          description: Lives Type
+          example: Single
+        primarySurvivorAdjType:
+          type: string
+          description: Primary Survivor Adjustment Type
+        primarySurvivorAdjPct:
+          type: string
+          description: Primary Survivor Adjustment Percent
+          example: '100'
+        jointSurvivorAdjType:
+          type: string
+          description: Joint Survivor Adjustment Type
+        jointSurvivorAdjPct:
+          type: string
+          description: Joint Survivor Adjustment Percent
+          example: '100'
+        annuityFrequencyCode:
+          type: string
+          enum:
+          - DLY
+          - BIWKLY
+          - MNTHLY
+          - SEMIANN
+          - QTRLY
+          - ANNUAL
+          - SNGLPMT
+          - BIMNTHLY
+          example: DLY
+        certainPeriodQualifier:
+          type: string
+          description: Certain Period Qualifier
+          example: A
+        certainPeriod:
+          type: string
+          description: Certain Period
+          example: '1'
+        payoutStartDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        FixedPaymentAmount:
+          type: string
+          format: integer
+          example: '1000'
+    Payment:
+      type: object
+      required:
+      - id
+      - paymentMethod
+      - moneySource
+      - grossAmount
+      - netAmount
+      - currentAlloc
+      properties:
+        id:
+          type: string
+          description: Unique Id to tag to respective payment records. Duplicate Ids will be rejected.
+          example: payment_1
+        paymentMethod:
+          type: string
+          description: Payment methods
+          enum:
+          - CHK
+          - WIRE
+          - EXCREP
+          - CREDITCARD
+          - ACH
+          - DTCC
+          example: CHK
+        grossAmount:
+          format: double
+          type: number
+          description: Gross Amount for the individual payment
+          example: 238500.5
+        netAmount:
+          format: double
+          type: number
+          description: Net Amount  for the individual payment
+          example: 0
+        taxInfo:
+          $ref: '#/components/schemas/TaxInfo'
+        currentAlloc:
+          type: string
+          description: Funds to be considered for Future Allocations or not
+          enum:
+          - 'YES'
+          - 'NO'
+          example: 'YES'
+        waivePremium:
+          format: int32
+          type: integer
+          description: waivePremium
+          example: 0
+        distributorId:
+          type: string
+          description: This is same as Tracking ID.If there are multiple payments, first payment distributorId will be the TrackingID. This unique system generated number is assigned by the B/D system and sent with each premium to the NSCC,  to send to the Insurance Company.  This number is assigned by the broker dealer, by which the premium can be located. Required for clearing house and detail level transactions. Broker/dealer would expect this back for chargebacks, reversals, etc. Can be returned on the "FAR" and the "COM" by the insurance carrier to identify the transaction processed.
+        exchangeReplace:
+          $ref: '#/components/schemas/ExchangeReplace'
+    DocumentDetail:
+      type: object
+      required:
+      - documentId
+      - binaryData
+      - formId
+      - formName
+      - documentCategory
+      - documentFileType
+      properties:
+        documentId:
+          type: string
+          description: Unique Identifier for the individual document. Duplicate document Ids will be rejected.
+          example: 0ca10708-4b53-464c-b745-355c8f6f0edb
+        binaryData:
+          type: string
+          description: Base 64 encoded binary stream
+          example: SGVsbG8gV29ybGQ=
+        formId:
+          type: string
+          description: Unique ID for a Form
+          example: FR2279
+        formName:
+          type: string
+          description: Unique Name for a form
+          example: Fixed Annuity Order Entry Cover Sheet
+        documentCategory:
+          type: string
+          description: Category of the document as per OnBase system
+          example: NB Supporting Document
+        documentFileType:
+          type: string
+          enum:
+          - pdf
+          description: Type of file
+          example: pdf
     ExchangeReplace:
       type: object
       description: For any payment that is a replacement/exchange
@@ -2800,23 +2612,86 @@ components:
           - 'YES'
           - 'NO'
           example: 'YES'
-    ServerErrorResponse:
+    SuccessResponse:
       type: object
       properties:
         statusCode:
           type: integer
           format: int32
-          example: 500
+          example: 201
         timestamp:
-          type: integer
-          format: int64
-          example: 1681395423438
-        errorId:
           type: string
-          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+          format: date-time
         message:
           type: string
-          example: Failed to process request
+          example: Request Submitted Successfully
+    TaxInfo:
+      type: object
+      properties:
+        currentContribAmount:
+          format: double
+          type: number
+          description: Current Contribution Amount
+          example: 0
+        priorContribAmount:
+          format: double
+          type: number
+          description: Prior Contribution Amount
+          example: 0
+        taxYear:
+          type: string
+          description: tax year
+          example: '2025'
+        totalBasis:
+          format: double
+          type: number
+          description: Total Cost basis amount
+          example: 0
+        pretefraBasis:
+          format: double
+          type: number
+          description: Pre Tefra basis amount
+          example: 0
+        posttefraBasis:
+          format: double
+          type: number
+          description: Post Teefra basis amount
+          example: 0
+        post88Amount:
+          format: double
+          type: number
+          description: Post 88 Amount
+          example: 0
+    DocumentInformation:
+      type: object
+      required:
+      - appId
+      - version
+      - effectiveDate
+      - totalDocumentCount
+      - documentDetails
+      properties:
+        appId:
+          type: string
+          description: Unique Identifier against an e-App application. First 4 letters represent the receiving company, next 3 letters represent the firm, next 8 positions represent the date eApp is submitted, next 10 positions represents the sequential number of the eApps from the eApp instance. For Orion - Accept integers upto 15 digits
+          example: XXXXEDJ041120240000000001
+        version:
+          type: string
+          description: Version for that case - 3 digits, incremental if same case if submitted more than once in case of errors. For Orion - Accept integers upto 15 digits
+          example: '000'
+        effectiveDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: e-App submitted date to Zinnia (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        totalDocumentCount:
+          type: number
+          example: 1
+        documentDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentDetail'
     InitialPurchase:
       type: object
       required:
@@ -2838,6 +2713,88 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Payment'
+    Fund:
+      type: object
+      required:
+      - fundCode
+      - amountType
+      - amount
+      properties:
+        fundCode:
+          type: string
+          description: Zinnia will provide specific Fund code for individual funds per Product. Duplicate Fund codes will be rejected.
+          example: XXX000
+        amountType:
+          type: string
+          description: Type of the Amount
+          enum:
+          - AMT
+          - PCT
+          - UNITS
+          - PRORATA
+          - EARNINGSONLY
+          - MODEARNINGSONLY
+          - MAX
+          - FREEWDAMT
+          - GUARENTEEDWITHDRAWBENEFIT
+          - LIFEEXPECTANCY
+          - WDUNITBASIS
+          - NONE
+          - AUTO
+          - MAINTAINFACE
+          - ADJUSTFACE
+          - NEWAMT
+          - FACECHANGE
+          - NONFINANCIAL
+          - MAXFREE
+          - COMBO
+          - PCTAV
+          - PRORATAVAR
+          - RESERVEADJ
+          - PARTIALREBALANCE
+          - DOLLARLIQUIDFIRST
+          - DOLLARLIQUIDLAST
+          - CHOICEDOLLAR
+          - CHOICEMAXFREE
+          - EARNLIQUIDFIRST
+          - EARNLIQUIDLAST
+          - PCTLIQUIDFIRST
+          - PCTLIQUIDLAST
+          - BONUSDOLLAR
+          - BONUSPCT
+          - PRORATAFIXTHENVAR
+          - PRORATAALL
+          - SINGLEGWMB
+          - JOINTGWMB
+          - PECKINGORDER
+          - DIVREQUEST
+          - NOCONTVALREDUCT
+          - GMWBANNUALLIMIT
+          - PRIMARY
+          - JOINT
+          - GMWBRECALCANNUALLIMIT
+          - BAILOUTONLY
+          - WINDOWPERIODONLY
+          - GMWBANNUALPECKING
+          - GMWBRECALCPECKING
+          - RIAFEEPCT
+          - RIAFEEDOLLAR
+          - GWMBANNUALLIMITLEVEL
+          - GMWBALLEVELPECKING
+          - SPOUSALDEFAULT
+          - FIXEDMODIFIEDEARN
+          - PRORATANEWMONEY
+          - ACCUMALATEDEARN
+          - CONTRACTYEAREARN
+          - CALENDARYEAREARN
+          - ACCELERATEDJOINTGMWB
+          - ACCELERATEDSINGLEGMWB
+          example: PCT
+        amount:
+          type: number
+          format: double
+          description: Total percentage of all funds should be 100%.
+          example: 50.55
     AccessDeniedResponse:
       type: object
       properties:
@@ -2847,6 +2804,49 @@ components:
         message:
           type: string
           example: 'User is not authorized for the carrier : CarrierName_1'
+    PolicyValues:
+      type: object
+      required:
+      - fedMaritalStatus
+      - stateMaritalStatus
+      - mktSegment
+      properties:
+        fedMaritalStatus:
+          type: string
+          enum:
+          - DEF
+          - SNGL
+          - MRRD
+          - HOH
+          - QUALWIDOWWITHDEPCHILD
+          - DOMESTICPARTNER
+          - DIVORCED
+          description: Fed marital status
+          example: MRRD
+        stateMaritalStatus:
+          type: string
+          enum:
+          - DEF
+          - SNGL
+          - MRRD
+          - HOH
+          - QUALWIDOWWITHDEPCHILD
+          - DOMESTICPARTNER
+          - DIVORCED
+          description: State marital status
+          example: MRRD
+        withholding:
+          type: array
+          items:
+            $ref: '#/components/schemas/Withholding'
+        contribType:
+          type: string
+          enum:
+          - NA
+          - EMPVOL
+          - EMPDISC
+          description: Contribution type
+          example: EMPVOL
   securitySchemes:
     Auth0:
       type: openIdConnect

@@ -358,72 +358,21 @@ paths:
       - Auth0: []
 components:
   schemas:
-    ValidationResponse:
+    CaseSuccessResponse:
       type: object
       properties:
-        statusCode:
-          type: integer
-          format: int32
-          example: 400
-        timestamp:
+        caseId:
           type: string
-          format: date-time
-        errorId:
+          example: CA000000536
+        correlationId:
           type: string
-          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
-        message:
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        eappId:
           type: string
-          example: JSON Valdiation fails with error
-        error:
-          type: array
-          items:
-            type: string
-            example: Mandatory attribute label missing
-    AmountType:
-      type: string
-      enum:
-      - AMOUNT
-      - PERCENTAGE
-      - MAX
-      - FREEWITHDRAWALAMOUNT
-      - WITHDRAWALUNTILBASIS
-      - EARNINGSONLY
-      - PRORATA
-      description: Amount Type selected by user. Following is dropdown list 1. Amount -- If selected user should be able to enter Amount for Transaction Amount field 2. Percent -- If selected user should be able to enter Percentage for Transaction Amount field 3. Max -- If selected user should NOT be able to enter Amount. Auto calculated using Maximum Withdrawal Amount. 4. Free Withdrawal Amount -- If selected user should NOT be able to enter Amount. Auto calcualted using Free Withdrawal Amount. 5. Withdraw Until Basis ---- If selected user should NOT be able to enter Amount. Auto calcualted using Cost Basis.
-    PartyRole:
-      type: string
-      enum:
-      - OWNER
-      - PRIMARYBENEFICIARY
-      - CONTINGENTBENEFICIARY
-      - INSURED
-      - PAYOR
-      - PAYEE
-      - AGENT
-      - THIRDPARTYDESIGNEE
-      description: Party Role
-    PaymentForm:
-      type: string
-      enum:
-      - DTCC
-      - CREDITCARD
-      - ACH
-      - CHECK
-      - WIRE
-      - EXCHANGE
-      - EFT
-      description: Mode of payment
-    BaseAdhocParty:
-      type: object
-      properties:
-        partyId:
+          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+        policyNumber:
           type: string
-          example: Party_PI_1
-          description: Impacted Party in the event of financial transaction
-        bankId:
-          type: string
-          example: Bank_1
-          description: Comes in Acord 103
+          example: ABC37457845
     IdentifierInstance:
       type: object
       description: An object representing an identifier and its corresponding value.
@@ -438,6 +387,32 @@ components:
           type: string
           description: The value of the identifier.
           example: ABC123349257367
+    ArrangementType:
+      type: string
+      enum:
+      - PAYMENT
+      - WITHDRAWAL
+      - LOANREPAYMENT
+      - REQUIREDMINIMUMDISTRIBUTION
+      - PAYOUT
+      description: The type of payment such as fixed or flexible
+    ServerErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 500
+        timestamp:
+          type: integer
+          format: int64
+          example: 1681395423438
+        errorId:
+          type: string
+          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+        message:
+          type: string
+          example: Failed to process request
     CreateCaseRequest:
       type: object
       properties:
@@ -477,6 +452,98 @@ components:
       - caseType
       - caseSubType
       - identifiers
+    CancelTransactionRequest:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/CancelTransaction'
+      properties:
+        caseId:
+          type: string
+          example: CA0000007389
+          description: Zinnia Live Case ID
+    PartyRole:
+      type: string
+      enum:
+      - OWNER
+      - PRIMARYBENEFICIARY
+      - CONTINGENTBENEFICIARY
+      - INSURED
+      - PAYOR
+      - PAYEE
+      - AGENT
+      - THIRDPARTYDESIGNEE
+      description: Party Role
+    SystematicProgramQuote:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          example: 657b717b7dcf554abf9ef067
+          description: The unique ID to track transaction request across all systems
+        effectiveDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd") when the transaction was originally scheduled or expected to happen, can be a non-business day
+        reverseInitiator:
+          type: boolean
+          description: Property to isolate source transaction(s) that initiated the reversal
+        arrangementId:
+          type: string
+          example: arr_1
+          description: The unique ID for the systematic programs available in the policy
+        systematicProgram:
+          $ref: '#/components/schemas/AdhocSystematicProgram'
+      required:
+      - effectiveDate
+      - systematicProgram
+    DisbursementType:
+      type: string
+      enum:
+      - GROSS
+      - NET
+      - NETNET
+      description: The type of amount for  withdrawal such as Gross or Net
+    ValidationResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 400
+        timestamp:
+          type: string
+          format: date-time
+        errorId:
+          type: string
+          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
+        message:
+          type: string
+          example: JSON Valdiation fails with error
+        error:
+          type: array
+          items:
+            type: string
+            example: Mandatory attribute label missing
+    TransactionAcceptedResponse:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          example: 3a2a3435-2089-4b81-9959-e0d569ccf4f0
+          description: Unique identifier which used by every system to trace the request
+        caseId:
+          type: string
+          example: CA0000369469
+          description: Zinnia Live Case ID
+        caseStatus:
+          type: string
+          example: IN_PROGRESS
+          description: Zinnia Live Case Status
+        pdfId:
+          type: string
+          description: Identifier for the generated or associated PDF document (e.g. OnBase document number). Returned on systematic program setup and update submit when available.
+          example: DOC-10004567
     TransactionResponse:
       type: object
       properties:
@@ -491,21 +558,6 @@ components:
             $ref: '#/components/schemas/Error'
         quoteResponse:
           type: object
-    Error:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          example: BPM.NM.002
-          description: This is the NIGO id generated by BPM system
-        attribute:
-          type: string
-        error:
-          type: string
-          description: This is the error generated by BPM system
-        resolution:
-          type: string
-          description: Resolution generated by BPM system to resolve the error
     AdhocSystematicProgram:
       type: object
       properties:
@@ -554,102 +606,65 @@ components:
       required:
       - paymentForm
       - arrangementType
-    SystematicProgramQuoteRequest:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/SystematicProgramQuote'
-      properties:
-        caseId:
-          type: string
-          example: CA0000007389
-          description: Zinnia Live Case ID
-        externalTransactionId:
-          type: string
-          description: Transaction ID from external system
-          example: A12345
-    CaseSuccessResponse:
+    Error:
       type: object
       properties:
-        caseId:
+        errorCode:
           type: string
-          example: CA000000536
-        correlationId:
+          example: BPM.NM.002
+          description: This is the NIGO id generated by BPM system
+        attribute:
           type: string
-          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
-        eappId:
+        error:
           type: string
-          example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
-        policyNumber:
+          description: This is the error generated by BPM system
+        resolution:
           type: string
-          example: ABC37457845
-    SystematicProgramQuote:
+          description: Resolution generated by BPM system to resolve the error
+    BaseAdhocParty:
+      type: object
+      properties:
+        partyId:
+          type: string
+          example: Party_PI_1
+          description: Impacted Party in the event of financial transaction
+        bankId:
+          type: string
+          example: Bank_1
+          description: Comes in Acord 103
+    Frequency:
+      type: string
+      enum:
+      - DAILY
+      - EVERYTWOWEEKS
+      - MONTHLY
+      - SEMIANNUAL
+      - BIANNUAL
+      - QUARTERLY
+      - ANNUAL
+      - SINGLEPAYMENT
+      - DEFAULT
+      description: frequency
+    CancelTransaction:
       type: object
       properties:
         correlationId:
           type: string
           example: 657b717b7dcf554abf9ef067
-          description: The unique ID to track transaction request across all systems
-        effectiveDate:
+        transactionId:
           type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd") when the transaction was originally scheduled or expected to happen, can be a non-business day
-        reverseInitiator:
-          type: boolean
-          description: Property to isolate source transaction(s) that initiated the reversal
-        arrangementId:
+          example: '377'
+        reason:
           type: string
-          example: arr_1
-          description: The unique ID for the systematic programs available in the policy
-        systematicProgram:
-          $ref: '#/components/schemas/AdhocSystematicProgram'
+          description: Reason for cancellation
+          example: Entered Incorrect Email Id
+        externalTransactionId:
+          type: string
+          description: Transaction ID from external system
+          example: A12345
       required:
-      - effectiveDate
-      - systematicProgram
-    ArrangementType:
-      type: string
-      enum:
-      - PAYMENT
-      - WITHDRAWAL
-      - LOANREPAYMENT
-      - REQUIREDMINIMUMDISTRIBUTION
-      - PAYOUT
-      description: The type of payment such as fixed or flexible
-    DisbursementType:
-      type: string
-      enum:
-      - GROSS
-      - NET
-      - NETNET
-      description: The type of amount for  withdrawal such as Gross or Net
-    CaseCancellationResponse:
-      type: object
-      properties:
-        caseId:
-          type: string
-          description: The unique identifier of the cancelled case
-          example: CA0000007516
-        correlationId:
-          type: string
-          description: Unique identifier to trace the request across systems
-          example: 218d8992-3783-42ac-b59a-66cbc36adaa2
-        caseStatus:
-          type: string
-          description: The updated status of the case
-          example: CANCELLED
-        message:
-          type: string
-          description: Confirmation message
-          example: Case cancellation initiated successfully
-    CancelTransactionRequest:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/CancelTransaction'
-      properties:
-        caseId:
-          type: string
-          example: CA0000007389
-          description: Zinnia Live Case ID
+      - transactionId
+      - reason
     CaseCancellationRequest:
       type: object
       required:
@@ -687,38 +702,17 @@ components:
           type: string
           description: The transaction sub-type associated with the case
           example: Reinstatement
-    Frequency:
+    AmountType:
       type: string
       enum:
-      - DAILY
-      - EVERYTWOWEEKS
-      - MONTHLY
-      - SEMIANNUAL
-      - BIANNUAL
-      - QUARTERLY
-      - ANNUAL
-      - SINGLEPAYMENT
-      - DEFAULT
-      description: frequency
-    TransactionAcceptedResponse:
-      type: object
-      properties:
-        correlationId:
-          type: string
-          example: 3a2a3435-2089-4b81-9959-e0d569ccf4f0
-          description: Unique identifier which used by every system to trace the request
-        caseId:
-          type: string
-          example: CA0000369469
-          description: Zinnia Live Case ID
-        caseStatus:
-          type: string
-          example: IN_PROGRESS
-          description: Zinnia Live Case Status
-        pdfId:
-          type: string
-          description: Identifier for the generated or associated PDF document (e.g. OnBase document number). Returned on systematic program setup and update submit when available.
-          example: DOC-10004567
+      - AMOUNT
+      - PERCENTAGE
+      - MAX
+      - FREEWITHDRAWALAMOUNT
+      - WITHDRAWALUNTILBASIS
+      - EARNINGSONLY
+      - PRORATA
+      description: Amount Type selected by user. Following is dropdown list 1. Amount -- If selected user should be able to enter Amount for Transaction Amount field 2. Percent -- If selected user should be able to enter Percentage for Transaction Amount field 3. Max -- If selected user should NOT be able to enter Amount. Auto calculated using Maximum Withdrawal Amount. 4. Free Withdrawal Amount -- If selected user should NOT be able to enter Amount. Auto calcualted using Free Withdrawal Amount. 5. Withdraw Until Basis ---- If selected user should NOT be able to enter Amount. Auto calcualted using Cost Basis.
     AdhocDisbursementParty:
       type: object
       properties:
@@ -751,23 +745,49 @@ components:
       - partyId
       - paymentForm
       - allocationPercentage
-    ServerErrorResponse:
+    SystematicProgramQuoteRequest:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/SystematicProgramQuote'
+      properties:
+        caseId:
+          type: string
+          example: CA0000007389
+          description: Zinnia Live Case ID
+        externalTransactionId:
+          type: string
+          description: Transaction ID from external system
+          example: A12345
+    CaseCancellationResponse:
       type: object
       properties:
-        statusCode:
-          type: integer
-          format: int32
-          example: 500
-        timestamp:
-          type: integer
-          format: int64
-          example: 1681395423438
-        errorId:
+        caseId:
           type: string
-          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+          description: The unique identifier of the cancelled case
+          example: CA0000007516
+        correlationId:
+          type: string
+          description: Unique identifier to trace the request across systems
+          example: 218d8992-3783-42ac-b59a-66cbc36adaa2
+        caseStatus:
+          type: string
+          description: The updated status of the case
+          example: CANCELLED
         message:
           type: string
-          example: Failed to process request
+          description: Confirmation message
+          example: Case cancellation initiated successfully
+    PaymentForm:
+      type: string
+      enum:
+      - DTCC
+      - CREDITCARD
+      - ACH
+      - CHECK
+      - WIRE
+      - EXCHANGE
+      - EFT
+      description: Mode of payment
     AccessDeniedResponse:
       type: object
       properties:
@@ -785,39 +805,7 @@ components:
         message:
           type: string
           example: 'User is not authorized for the carrier : CarrierName_1'
-    CancelTransaction:
-      type: object
-      properties:
-        correlationId:
-          type: string
-          example: 657b717b7dcf554abf9ef067
-        transactionId:
-          type: string
-          example: '377'
-        reason:
-          type: string
-          description: Reason for cancellation
-          example: Entered Incorrect Email Id
-        externalTransactionId:
-          type: string
-          description: Transaction ID from external system
-          example: A12345
-      required:
-      - transactionId
-      - reason
   examples:
-    failureTransactionResponse:
-      value:
-        status: failure
-        validationResult:
-        - errorCode: BPM.NM.005
-          attribute: null
-          error: Amount request is invalid.
-          resolution: Please check the One Time Premium Amount and submit the request again.
-        - errorCode: BPM.NM.003
-          attribute: null
-          error: Party information does not match with information in the Zahara system.
-          resolution: Please validate the party information and submit the request again.
     successTransactionResponse:
       value:
         status: success
@@ -1412,6 +1400,18 @@ components:
                 version: 1
               version: 40
           error: null
+    failureTransactionResponse:
+      value:
+        status: failure
+        validationResult:
+        - errorCode: BPM.NM.005
+          attribute: null
+          error: Amount request is invalid.
+          resolution: Please check the One Time Premium Amount and submit the request again.
+        - errorCode: BPM.NM.003
+          attribute: null
+          error: Party information does not match with information in the Zahara system.
+          resolution: Please validate the party information and submit the request again.
   securitySchemes:
     Auth0:
       type: openIdConnect

@@ -1540,327 +1540,6 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
-    ErrorInfo:
-      required:
-      - code
-      - timestamp
-      type: object
-      properties:
-        code:
-          enum:
-          - VALIDATION_ERROR
-          - INVALID_TRANSACTION_ID
-          - INVALID_STEP_NAME
-          - TRANSACTION_CREATION_FAILED
-          - TRANSACTION_ID_NOT_FOUND
-          - SAVE_TRANSACTION_ERROR
-          - SAVE_TRANSACTION_FAILED
-          - INVALID_RESPONSE_FORMAT
-          - BUILD_BLUEPRINT_ERROR
-          - JSON_PARSE_ERROR
-          - TRANSFORMER_NULL_RESPONSE
-          - EMPTY_BLUEPRINT
-          - UNEXPECTED_ERROR
-          - SERVICE_ERROR
-          - UNAUTHORIZED
-          - FORBIDDEN
-          - NOT_FOUND
-          - RATE_LIMIT_EXCEEDED
-          - UPSTREAM_SERVICE_ERROR
-          - SERVICE_UNAVAILABLE
-          - UPSTREAM_TIMEOUT
-          - FIRST_STEP_SETUP_FAILED
-          - METHOD_NOT_ALLOWED
-          type: string
-          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
-        description:
-          type:
-          - string
-          - 'null'
-        details:
-          type:
-          - string
-          - 'null'
-        timestamp:
-          type: string
-          format: date-time
-      additionalProperties: false
-      example:
-        code: VALIDATION_ERROR
-        description: Validation failed for field '$.fieldName'
-        details: The request contains an unrecognized property. Only documented fields are allowed.
-        timestamp: '2024-01-15T10:30:00.000Z'
-    RetriggerEsignatureEmailNotificationRequest:
-      required:
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-          description: String form of the transaction (case) id; must be a positive integer.
-      additionalProperties: false
-      example:
-        transactionId: '1131068'
-    CancelEsignatureCeremonyResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: True when the DocuSign ceremony was voided and the case returned to Pending upstream.
-        message:
-          type:
-          - string
-          - 'null'
-          description: User-safe message when success is false; may also confirm the outcome when true.
-      additionalProperties: false
-      example:
-        success: true
-        message: E-signature ceremony canceled; case is Pending.
-    EsignatureResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: True when signers were retrieved successfully.
-        message:
-          type:
-          - string
-          - 'null'
-          description: User-safe message; populated when success is false.
-        signers:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/EsignatureSigner'
-          description: DocuSign recipients for the transaction, ordered by signing sequence.
-      additionalProperties: false
-      example:
-        success: true
-        message: Signer details retrieved successfully.
-        signers:
-        - recipientId: '11306862'
-          signerName: EE EE
-          signerEntityRole: PrimaryOwner
-          signerEmail: anannya.gupta@everglades.com
-          signerSequence: '1'
-          signerAccessCode: []
-          signerAuthMethod:
-          - Phone
-          - SMS
-          signerCountryCode: '1'
-          signerPhoneNo: '8650827071'
-        - recipientId: '11306935'
-          signerName: RR RR
-          signerEntityRole: AgentOfRecord
-          signerEmail: ''
-          signerSequence: '2'
-          signerAccessCode: []
-          signerAuthMethod:
-          - Phone
-          - SMS
-          signerCountryCode: '1'
-          signerPhoneNo: '8650827071'
-    UpdateEsignSignerRequest:
-      type: object
-      properties:
-        recipientId:
-          type:
-          - string
-          - 'null'
-          description: DocuSign recipient ID from GET signers or signer status.
-        signerEmail:
-          type:
-          - string
-          - 'null'
-          description: Corrected signer email address.
-        signerSequence:
-          type:
-          - string
-          - 'null'
-          description: Signing order when routing is sequential.
-        signerAuthMethod:
-          type:
-          - string
-          - 'null'
-          description: Auth method for the signer (for example Phone or SMS).
-        signerCountryCode:
-          type:
-          - string
-          - 'null'
-          description: Country calling code (default 1 for US).
-        signerPhoneNo:
-          type:
-          - string
-          - 'null'
-          description: Corrected phone digits only; stored without dashes.
-      additionalProperties: false
-    SaveEsignatureResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: True when the case was submitted to DocuSign for e-signature.
-        message:
-          type:
-          - string
-          - 'null'
-          description: User-safe confirmation or failure text from the submission result.
-      additionalProperties: false
-      example:
-        success: true
-        message: Case submitted for e-signature successfully.
-    EsignatureSignerStatusResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: True when signer status rows were retrieved successfully.
-        signers:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/EsignatureSignerStatus'
-          description: Per-recipient DocuSign status and contact details for the transaction.
-      additionalProperties: false
-      example:
-        success: true
-        signers:
-        - recipientId: '11306862'
-          signerName: EE EE1
-          signerStatus: Needs to Sign
-          signerEmail: anannya.gupta@everglades.com
-          dateOfAction: '2026-01-12T14:22:00'
-          signerAuthMethod: Phone
-          signerCountryCode: '1'
-          signerPhoneNo: '8650827071'
-        - recipientId: '11306935'
-          signerName: RR RR
-          signerStatus: Waiting for Other Signer(s)
-          signerEmail: ''
-          dateOfAction: ''
-          signerAuthMethod: SMS
-          signerCountryCode: '1'
-          signerPhoneNo: '8650827071'
-    CancelEsignatureCeremonyRequest:
-      required:
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-          description: String form of the transaction (case) id to cancel; must be a positive integer.
-      additionalProperties: false
-      example:
-        transactionId: '1131068'
-    UpdateEsignSignerDetailsResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: True when signer contact details were updated (e-sign must be pending upstream).
-        message:
-          type:
-          - string
-          - 'null'
-          description: User-safe message confirming the update or describing a failure.
-      additionalProperties: false
-      example:
-        success: true
-        message: Signer contact details updated successfully.
-    SaveEsignatureSignerRequest:
-      type: object
-      properties:
-        recipientId:
-          type:
-          - string
-          - 'null'
-          description: DocuSign recipient ID from GET signers (required for submission).
-        signerAccessCode:
-          type:
-          - string
-          - 'null'
-          description: Access code when required; empty string when none.
-        signerAuthMethod:
-          type:
-          - string
-          - 'null'
-          description: Selected auth method for submission (for example Phone).
-        signerCountryCode:
-          type:
-          - string
-          - 'null'
-          description: Country calling code (default 1 for US).
-        signerEmail:
-          type:
-          - string
-          - 'null'
-          description: Signer email; may be empty for some roles.
-        signerEntityRole:
-          type:
-          - string
-          - 'null'
-          description: Entity role (for example PrimaryOwner, AgentOfRecord).
-        signerName:
-          type:
-          - string
-          - 'null'
-          description: Display name sent to DocuSign for this recipient.
-        signerPhoneNo:
-          type:
-          - string
-          - 'null'
-          description: Phone digits only; stored without dashes.
-        signerSequence:
-          type:
-          - string
-          - 'null'
-          description: Signing order when routing is sequential.
-      additionalProperties: false
-    RetriggerEsignatureEmailNotificationResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: True when the signing notification was retriggered (e-sign in progress upstream).
-        message:
-          type:
-          - string
-          - 'null'
-          description: User-safe message; e.g. notification successfully triggered when success is true.
-      additionalProperties: false
-      example:
-        success: true
-        message: Notification successfully triggered.
-    UpdateEsignSignerDetailsRequest:
-      required:
-      - signers
-      type: object
-      properties:
-        transactionId:
-          minimum: 1
-          type: integer
-          description: Transaction (case) identifier whose signer contact details should be updated.
-          format: int64
-        signers:
-          minItems: 1
-          type: array
-          items:
-            $ref: '#/components/schemas/UpdateEsignSignerRequest'
-          description: Signer rows with corrected email and/or phone while e-sign is pending.
-      additionalProperties: false
-      example:
-        transactionId: 1131068
-        signers:
-        - recipientId: '11306862'
-          signerEmail: corrected.email@everglades.com
-          signerSequence: '1'
-          signerAuthMethod: Phone
-          signerCountryCode: '1'
-          signerPhoneNo: '8650827071'
     EsignatureSigner:
       type: object
       properties:
@@ -1926,27 +1605,270 @@ components:
         - SMS
         signerCountryCode: '1'
         signerPhoneNo: '8650827071'
-    ErrorResponse:
+    RetriggerEsignatureEmailNotificationRequest:
       required:
-      - errors
       - transactionId
       type: object
       properties:
         transactionId:
           minLength: 1
           type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
+          description: String form of the transaction (case) id; must be a positive integer.
       additionalProperties: false
       example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
+        transactionId: '1131068'
+    UpdateEsignSignerDetailsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when signer contact details were updated (e-sign must be pending upstream).
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe message confirming the update or describing a failure.
+      additionalProperties: false
+      example:
+        success: true
+        message: Signer contact details updated successfully.
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
+    SaveEsignatureSignerRequest:
+      type: object
+      properties:
+        recipientId:
+          type:
+          - string
+          - 'null'
+          description: DocuSign recipient ID from GET signers (required for submission).
+        signerAccessCode:
+          type:
+          - string
+          - 'null'
+          description: Access code when required; empty string when none.
+        signerAuthMethod:
+          type:
+          - string
+          - 'null'
+          description: Selected auth method for submission (for example Phone).
+        signerCountryCode:
+          type:
+          - string
+          - 'null'
+          description: Country calling code (default 1 for US).
+        signerEmail:
+          type:
+          - string
+          - 'null'
+          description: Signer email; may be empty for some roles.
+        signerEntityRole:
+          type:
+          - string
+          - 'null'
+          description: Entity role (for example PrimaryOwner, AgentOfRecord).
+        signerName:
+          type:
+          - string
+          - 'null'
+          description: Display name sent to DocuSign for this recipient.
+        signerPhoneNo:
+          type:
+          - string
+          - 'null'
+          description: Phone digits only; stored without dashes.
+        signerSequence:
+          type:
+          - string
+          - 'null'
+          description: Signing order when routing is sequential.
+      additionalProperties: false
+    UpdateEsignSignerDetailsRequest:
+      required:
+      - signers
+      type: object
+      properties:
+        transactionId:
+          minimum: 1
+          type: integer
+          description: Transaction (case) identifier whose signer contact details should be updated.
+          format: int64
+        signers:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateEsignSignerRequest'
+          description: Signer rows with corrected email and/or phone while e-sign is pending.
+      additionalProperties: false
+      example:
+        transactionId: 1131068
+        signers:
+        - recipientId: '11306862'
+          signerEmail: corrected.email@everglades.com
+          signerSequence: '1'
+          signerAuthMethod: Phone
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+    RetriggerEsignatureEmailNotificationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when the signing notification was retriggered (e-sign in progress upstream).
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe message; e.g. notification successfully triggered when success is true.
+      additionalProperties: false
+      example:
+        success: true
+        message: Notification successfully triggered.
+    SaveEsignatureResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when the case was submitted to DocuSign for e-signature.
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe confirmation or failure text from the submission result.
+      additionalProperties: false
+      example:
+        success: true
+        message: Case submitted for e-signature successfully.
+    EsignatureSignerStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when signer status rows were retrieved successfully.
+        signers:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/EsignatureSignerStatus'
+          description: Per-recipient DocuSign status and contact details for the transaction.
+      additionalProperties: false
+      example:
+        success: true
+        signers:
+        - recipientId: '11306862'
+          signerName: EE EE1
+          signerStatus: Needs to Sign
+          signerEmail: anannya.gupta@everglades.com
+          dateOfAction: '2026-01-12T14:22:00'
+          signerAuthMethod: Phone
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+        - recipientId: '11306935'
+          signerName: RR RR
+          signerStatus: Waiting for Other Signer(s)
+          signerEmail: ''
+          dateOfAction: ''
+          signerAuthMethod: SMS
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+    UpdateEsignSignerRequest:
+      type: object
+      properties:
+        recipientId:
+          type:
+          - string
+          - 'null'
+          description: DocuSign recipient ID from GET signers or signer status.
+        signerEmail:
+          type:
+          - string
+          - 'null'
+          description: Corrected signer email address.
+        signerSequence:
+          type:
+          - string
+          - 'null'
+          description: Signing order when routing is sequential.
+        signerAuthMethod:
+          type:
+          - string
+          - 'null'
+          description: Auth method for the signer (for example Phone or SMS).
+        signerCountryCode:
+          type:
+          - string
+          - 'null'
+          description: Country calling code (default 1 for US).
+        signerPhoneNo:
+          type:
+          - string
+          - 'null'
+          description: Corrected phone digits only; stored without dashes.
+      additionalProperties: false
+    CancelEsignatureCeremonyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when the DocuSign ceremony was voided and the case returned to Pending upstream.
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe message when success is false; may also confirm the outcome when true.
+      additionalProperties: false
+      example:
+        success: true
+        message: E-signature ceremony canceled; case is Pending.
     EsignatureSignerStatus:
       type: object
       properties:
@@ -2000,6 +1922,51 @@ components:
         signerAuthMethod: Phone
         signerCountryCode: '1'
         signerPhoneNo: '8650827071'
+    EsignatureResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: True when signers were retrieved successfully.
+        message:
+          type:
+          - string
+          - 'null'
+          description: User-safe message; populated when success is false.
+        signers:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/EsignatureSigner'
+          description: DocuSign recipients for the transaction, ordered by signing sequence.
+      additionalProperties: false
+      example:
+        success: true
+        message: Signer details retrieved successfully.
+        signers:
+        - recipientId: '11306862'
+          signerName: EE EE
+          signerEntityRole: PrimaryOwner
+          signerEmail: anannya.gupta@everglades.com
+          signerSequence: '1'
+          signerAccessCode: []
+          signerAuthMethod:
+          - Phone
+          - SMS
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
+        - recipientId: '11306935'
+          signerName: RR RR
+          signerEntityRole: AgentOfRecord
+          signerEmail: ''
+          signerSequence: '2'
+          signerAccessCode: []
+          signerAuthMethod:
+          - Phone
+          - SMS
+          signerCountryCode: '1'
+          signerPhoneNo: '8650827071'
     SaveEsignatureRequest:
       required:
       - signers
@@ -2038,6 +2005,39 @@ components:
           signerName: RR RR
           signerPhoneNo: '8650827071'
           signerSequence: '2'
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+    CancelEsignatureCeremonyRequest:
+      required:
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+          description: String form of the transaction (case) id to cancel; must be a positive integer.
+      additionalProperties: false
+      example:
+        transactionId: '1131068'
   securitySchemes:
     openIdConnect:
       type: openIdConnect

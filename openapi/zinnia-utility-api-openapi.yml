@@ -65,17 +65,6 @@ paths:
       - Utility
 components:
   schemas:
-    Age-Calculation-Response:
-      type: object
-      properties:
-        age:
-          type: integer
-          description: Calculated age
-          example: 35
-        monthsSinceLastBirthday:
-          type: integer
-          description: Number of months since last birthday
-          example: 0
     Age-Calculation-Request:
       type: object
       required:
@@ -95,6 +84,17 @@ components:
           example: '2025-08-25'
         calculationMethod:
           $ref: '#/components/schemas/Age-Calculation-Method'
+    Age-Calculation-Response:
+      type: object
+      properties:
+        age:
+          type: integer
+          description: Calculated age
+          example: 35
+        monthsSinceLastBirthday:
+          type: integer
+          description: Number of months since last birthday
+          example: 0
     Age-Calculation-Method:
       type: string
       enum:

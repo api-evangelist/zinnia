@@ -295,27 +295,6 @@ components:
         description: Validation failed for field '$.fieldName'
         details: The request contains an unrecognized property. Only documented fields are allowed.
         timestamp: '2024-01-15T10:30:00.000Z'
-    ErrorResponse:
-      required:
-      - errors
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
     ReviewerActionResponse:
       type: object
       properties:
@@ -356,6 +335,27 @@ components:
           description: Order-entry transaction (instance) identifier.
           format: int32
       additionalProperties: false
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
   securitySchemes:
     openIdConnect:
       type: openIdConnect

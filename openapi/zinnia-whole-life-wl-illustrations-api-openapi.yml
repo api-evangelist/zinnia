@@ -73,35 +73,247 @@ paths:
       - Whole Life (WL) Illustrations
 components:
   schemas:
-    Illustration-Inputs-WL:
-      title: Illustration Request for Whole Life
-      description: Illustration Request for Whole Life product
+    Non-Insured-Party:
+      title: Non-Insured Party
+      description: 'Represents a party with a roleCode other than `INSURED`
+
+        '
+      type: object
       allOf:
-      - $ref: '#/components/schemas/Illustration-Inputs-Projection-Base'
-      - $ref: '#/components/schemas/Illustration-Inputs-New-Business-Base'
-      - type: object
-        properties:
-          conversion:
-            $ref: '#/components/schemas/Conversion'
-          surplusDistribution:
-            type: object
-            description: Surplus distribution configuration for whole life policy
+      - $ref: '#/components/schemas/Party-Base'
+      properties:
+        roleCode:
+          $ref: '#/components/schemas/Party-Role'
+      required:
+      - roleCode
+    PropertyCollection-Loan:
+      title: Loan Property Collection
+      description: Reusable collection of loan-related properties
+      type: object
+      properties:
+        loan:
+          type: object
+          properties:
+            amount:
+              type: number
+              format: double
+              description: Loan amount
+              example: 0
+            interestCreditedAmount:
+              type: number
+              format: double
+              description: Loan interest credited amount
+              example: 0
+            interestDueAmount:
+              type: number
+              format: double
+              description: Loan interest due amount
+              example: 0
+            payoffAmount:
+              type: number
+              format: double
+              description: Loan payoff amount
+              example: 0
+            maximumLoanAmount:
+              type: number
+              format: double
+              description: Maximum loan amount
+              example: 0
+        netAccountValue:
+          type: number
+          format: double
+          example: 0.104742
+        netDeathBenefitAmount:
+          type: number
+          format: double
+          example: 250000.104742
+        netSurrenderValue:
+          type: number
+          format: double
+          example: 0.104742
+        policyNetOutlayAmount:
+          type: number
+          format: double
+          example: 397.2
+        premiumOutlayAmount:
+          type: number
+          format: double
+          example: 397.2
+    Schedule-FaceAmount:
+      title: Face Amount Schedule
+      allOf:
+      - $ref: '#/components/schemas/Schedule-Base'
+      properties:
+        sequence:
+          items:
+            title: Face Amount Schedule Entry
             properties:
-              surplusDistributionOption:
-                $ref: '#/components/schemas/Schedule-SurplusDistributionOption'
-              excessSurplusDistributionOption:
-                type: string
-                description: Excess surplus distribution handling option
-                example: CASH
-                enum:
-                - CASH
-                - PAID_UP_ADDITION
+              value:
+                example: 250000
+                oneOf:
+                - type: number
+                  format: double
+                - title: Face Amount Option
+                  type: string
+                  enum:
+                  - SOLVE_FOR_TARGET_CASH_VALUE
+                  - MINIMUM_NON_MEC
             required:
-            - surplusDistributionOption
-          distributions:
-            $ref: '#/components/schemas/Distributions'
-        required:
-        - surplusDistribution
+            - value
+    Schedule-Premium:
+      title: Premium Schedule
+      allOf:
+      - $ref: '#/components/schemas/Schedule-Base'
+      properties:
+        sequence:
+          items:
+            title: Premium Schedule Entry
+            properties:
+              value:
+                example: 25000
+                oneOf:
+                - type: number
+                  format: double
+                - title: Premium Option
+                  type: string
+                  enum:
+                  - SOLVE_FOR_TARGET_CASH_VALUE
+                  - MINIMUM_PREMIUM
+                  - TARGET_PREMIUM
+                  - GUIDELINE_MAXIMUM_PREMIUM
+                  - GUIDELINE_LEVEL_PREMIUM
+                  - LEVEL_NON_MEC
+            required:
+            - value
+    Distributions:
+      title: Distributions
+      description: Distributions
+      type: object
+      required:
+      - frequency
+      - sequence
+      properties:
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+        sequence:
+          description: Sequence
+          type: array
+          items:
+            type: object
+            title: Sequence
+            description: Distribution sequence
+            properties:
+              amountType:
+                type: string
+                description: Amount type
+                example: AMOUNT
+                enum:
+                - NONE
+                - AMOUNT
+                - PERCENTANGE
+                - MAX
+                - FREE_WITHDRAWAL_AMOUNT
+                - WITHDRAWA_LUNTIL_BASIS
+                - EARNINGS_ONLY
+                - PRORATA
+                - MODIFIED_EARNINGS_ONLY
+              requestedAmount:
+                type: number
+                format: double
+                description: Requested amount
+                example: 10000
+              funding:
+                type: string
+                description: Funding
+                example: LOAN
+                enum:
+                - LOAN
+                - WITHDRAWAL
+                - SWITCH_AT_BASIS
+              from:
+                $ref: '#/components/schemas/Distribution-Sequence-FromThrough'
+              through:
+                $ref: '#/components/schemas/Distribution-Sequence-FromThrough'
+        loanInterestOption:
+          description: Specifies how loan interest is processed; BORROW indicates that the interest is added into the loan amount, CASH indicates that the loan is paid and does not accumulate.
+          type: string
+          example: BORROW
+          enum:
+          - BORROW
+          - CASH
+    Illustration-Inputs-New-Business-Base:
+      title: New Business Base
+      description: Properties for new business scenarios
+      type: object
+      properties:
+        jurisdiction:
+          type: string
+          description: US state code.https://en.wikipedia.org/wiki/ISO_3166-2:US
+          enum:
+          - AK
+          - AL
+          - AR
+          - AS
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - GU
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MP
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - PR
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UM
+          - UT
+          - VA
+          - VI
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+        planCode:
+          type: string
+          description: Plan code
+          example: EG123
+      required:
+      - jurisdiction
+      - planCode
     Party-Base:
       title: Party
       type: object
@@ -284,133 +496,66 @@ components:
               type: string
               description: Identification value
               example: ECN
-    Participant-Collection-V4:
-      title: Participants
-      description: A collection of unique participants
+    Distribution-Sequence-FromThrough:
+      title: From/Through Entry in a Distribution Sequence
+      type: object
+      description: From/Through
+      properties:
+        offset:
+          type: number
+          format: integer
+          description: Offset
+          example: 1
+        basis:
+          type: string
+          description: Basis
+          example: AGE
+          enum:
+          - AGE
+          - DURATION
+          - RETIREMENT
+    Coverage-Collection-V4:
+      title: Coverages
+      description: A collection of benefits
       type: array
       items:
-        title: Participant
-        description: An entity with a stake in a policy
+        title: Coverage
+        description: A benefit conferred to a group of one or more participants
         type: object
         properties:
-          issueAge:
+          coverageId:
+            type: string
+            description: Coverage id
+            example: BASE_COVERAGE
+            enum:
+            - BASE_COVERAGE
+            - Rider_ABRTRM
+            - Rider_CTR
+            - Rider_ABRCHR
+            - Rider_ADR
+            - Rider_WPR
+            - Rider_CGR
+            - Rider_GIBR
+            - Rider_OPR
+            - Rider_OWDR
+            - Rider_WDR
+            - Rider_NHR
+            - Rider_ABRCRI
+            - Rider_OWP
+          riderYears:
             type: number
             format: integer
-            description: Issue age
-            example: 30
-          participantId:
-            type: string
-            description: Participant id (UUID)
-            example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
-          underwritingClass:
-            type: string
-            description: Underwriting class
-            example: ULTRANONTOBACCO
-            enum:
-            - ULTRANONTOBACCO
-            - ELITENONTOBACCO
-            - PREFERREDNONTOBACCO
-            - STANDARDNONTOBACCO
-            - STANDARDTOBACCO
-            - STANDARDAGGREGATE
-            - SUBSTANDARDNONTOBACCO
-            - SUBSTANDARDTOBACCO
-            - STANDARDPLUSNONTOBACCO
-            - PREFERREDTOBACCO
-            - STANDARDCONVERSIONNONTOBACCO
-            - STANDARDCONVERSIONTOBACCO
-            - STANDARDPLUSBLEND
-            - STANDARDPLUSTOBACCO
-            - STANDARDBLEND
-            - SUBSTANDARDBLEND
-            - PREFERREDSELECTNONTOBACCO
-            - PREFERREDSELECTBLEND
-            - PREFERREDSELECTTOBACCO
-            - PREFERREDBLEND
-          subStandardRating:
-            type: string
-            description: Substandard rating
-            example: TABLEA
-            enum:
-            - TABLEA
-            - TABLEB
-            - TABLEC
-            - TABLED
-            - TABLEE
-            - TABLEF
-            - TABLEG
-            - TABLEH
-            - TABLEI
-            - TABLEJ
-            - TABLEK
-            - TABLEL
-            - TABLEM
-            - TABLEN
-            - TABLEO
-            - TABLEP
-            - NONETABLE
-          flatExtra:
-            type: array
-            description: Flat extra
-            items:
-              $ref: '#/components/schemas/Flat-Extra'
+            example: 10
+            description: Rider years
+          currentAmount:
+            type: number
+            format: double
+            example: 1000
+            description: Current amount
+          participants:
+            $ref: '#/components/schemas/Participant-Collection-V4'
         required:
-        - issueAge
-        - participantId
-      uniqueItems: true
-    PropertyCollection-Withdrawal:
-      title: Withdrawal Property Collection
-      description: Reusable collection of withdrawal-related properties
-      type: object
-      properties:
-        cumulativeWithdrawalAmount:
-          type: number
-          format: double
-          description: Cumulative withdrawal amount
-          example: 0
-        maximumWithdrawalAmount:
-          type: number
-          format: double
-          description: Maximum withdrawal amount
-          example: 0
-        withdrawalAmount:
-          type: number
-          format: double
-          description: Withdrawal amount
-          example: 0
-    Message:
-      title: Message
-      description: A structured signal
-      type: object
-      properties:
-        code:
-          type: integer
-        severity:
-          type: string
-          enum:
-          - INFO
-          - WARNING
-          - ERROR
-        text:
-          type: string
-        returnTo:
-          type: string
-      required:
-      - code
-      - text
-    Non-Insured-Party:
-      title: Non-Insured Party
-      description: 'Represents a party with a roleCode other than `INSURED`
-
-        '
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Party-Base'
-      properties:
-        roleCode:
-          $ref: '#/components/schemas/Party-Role'
-      required:
-      - roleCode
+        - coverageId
     Illustration-Response-Base:
       title: Illustration Response
       description: Fundamental Illustration response schema. See the schema for a specific product
@@ -423,31 +568,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Message'
-    Schedule-Premium:
-      title: Premium Schedule
-      allOf:
-      - $ref: '#/components/schemas/Schedule-Base'
-      properties:
-        sequence:
-          items:
-            title: Premium Schedule Entry
-            properties:
-              value:
-                example: 25000
-                oneOf:
-                - type: number
-                  format: double
-                - title: Premium Option
-                  type: string
-                  enum:
-                  - SOLVE_FOR_TARGET_CASH_VALUE
-                  - MINIMUM_PREMIUM
-                  - TARGET_PREMIUM
-                  - GUIDELINE_MAXIMUM_PREMIUM
-                  - GUIDELINE_LEVEL_PREMIUM
-                  - LEVEL_NON_MEC
-            required:
-            - value
     Scenario-Base:
       title: Base Scenario Results
       description: Fundamental outputs that apply across all products. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
@@ -653,343 +773,6 @@ components:
           type: number
           format: double
           example: 110.04
-    Party-Role:
-      title: Party Role
-      example: OWNER
-      type: string
-      description: The role of a given party
-      enum:
-      - OWNER
-      - PRIMARYBENEFICIARY
-      - CONTINGENTBENEFICIARY
-      - INSURED
-      - PAYOR
-      - PAYEE
-      - AGENT
-      - PRIMARYWRITINGAGENT
-      - PRIMARYSERVICINGAGENT
-      - ADDITIONALSERVICINGAGENT
-      - ADDITIONALWRITINGAGENT
-      - THIRDPARTYDESIGNEE
-      - JOINTOWNER
-      - COVERAGEINSURED
-      - ASSIGNEE
-      - ANNUITANT
-      - EXCHANGECOMPANY
-      - JOINTANNUITANT
-      - GRANTOR
-      - TRUSTEE
-      - POWEROFATTORNEY
-      - AUTHORIZEDSIGNATORY
-      - OTHERINTERESTEDPARTY
-      - CONTINGENTOWNER
-    Flat-Extra:
-      title: Flat Extra
-      type: object
-      properties:
-        type:
-          type: string
-          description: Type of flat extra
-          example: PERMANENT
-          enum:
-          - PERMANENT
-          - TEMPORARY
-        amount:
-          type: number
-          format: double
-          description: Amount
-          example: 1000
-        duration:
-          type: number
-          format: integer
-          description: Duration
-          example: 12
-        durationType:
-          type: string
-          description: Duration type
-          example: YEARS
-          enum:
-          - YEARS
-          - MONTHS
-        startDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd")
-          example: '2025-05-13'
-    Illustration-Response-WL:
-      title: Illustration Response for Whole Life
-      description: Illustration Response for Whole Life product
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Response-Base'
-      properties:
-        assumed:
-          $ref: '#/components/schemas/Scenario-WL'
-        guaranteed:
-          $ref: '#/components/schemas/Scenario-WL'
-        midpoint:
-          $ref: '#/components/schemas/Scenario-WL'
-    Schedule-SurplusDistributionOption:
-      title: Surplus Distribution Option Schedule
-      allOf:
-      - $ref: '#/components/schemas/Schedule-Base'
-      properties:
-        sequence:
-          items:
-            title: Surplus Distribution Option Schedule Entry
-            properties:
-              value:
-                example: CASH
-                oneOf:
-                - title: Surplus Distribution Option
-                  type: string
-                  enum:
-                  - CASH
-                  - PAY_BACK_LOAN
-                  - REDUCE_PREMIUM
-                  - PAID_UP_ADDITION
-                  - ACCUMULATE
-                  - ONE_YEAR_TERM
-            required:
-            - value
-    Conversion:
-      title: Conversion
-      description: Specifies what type of conversion is occurring
-      type: object
-      properties:
-        conversionType:
-          type: string
-          description: Type of conversion
-          example: STANDARD
-          enum:
-          - NONE
-          - STANDARD
-          - PREMIUM_CREDIT
-        isSourceMEC:
-          type: boolean
-          description: Conversion MEC indicator - Indicates the source policy being converted was already in MEC status
-          example: true
-        conversionCredit:
-          type: number
-          format: double
-          description: Amount to be credited to new policy on conversion
-          example: 5000
-      required:
-      - conversionType
-      - isSourceMEC
-    PropertyCollection-Loan:
-      title: Loan Property Collection
-      description: Reusable collection of loan-related properties
-      type: object
-      properties:
-        loan:
-          type: object
-          properties:
-            amount:
-              type: number
-              format: double
-              description: Loan amount
-              example: 0
-            interestCreditedAmount:
-              type: number
-              format: double
-              description: Loan interest credited amount
-              example: 0
-            interestDueAmount:
-              type: number
-              format: double
-              description: Loan interest due amount
-              example: 0
-            payoffAmount:
-              type: number
-              format: double
-              description: Loan payoff amount
-              example: 0
-            maximumLoanAmount:
-              type: number
-              format: double
-              description: Maximum loan amount
-              example: 0
-        netAccountValue:
-          type: number
-          format: double
-          example: 0.104742
-        netDeathBenefitAmount:
-          type: number
-          format: double
-          example: 250000.104742
-        netSurrenderValue:
-          type: number
-          format: double
-          example: 0.104742
-        policyNetOutlayAmount:
-          type: number
-          format: double
-          example: 397.2
-        premiumOutlayAmount:
-          type: number
-          format: double
-          example: 397.2
-    Schedule-Base:
-      title: Generic Schedule
-      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
-      type: object
-      properties:
-        frequency:
-          $ref: '#/components/schemas/Frequency'
-        basis:
-          description: Specifies how to interpret the from and through properties for each entry.
-          type: string
-          example: AGE
-          enum:
-          - AGE
-          - DURATION
-          - RETIREMENT
-        sequence:
-          description: Collection of entries describing the changes in value over time
-          type: array
-          items:
-            title: Schedule Entry
-            description: Represents a limited time period for which a value is constant.
-            type: object
-            properties:
-              from:
-                description: starting point for the value, inclusive
-                type: integer
-                minimum: 1
-                example: 1
-              through:
-                description: ending point for the value, inclusive
-                type: integer
-                minimum: 1
-                example: 10
-            required:
-            - from
-            - through
-          minItems: 1
-      required:
-      - sequence
-    Frequency:
-      type: string
-      description: Frequency
-      example: DAILY
-      enum:
-      - DAILY
-      - EVERYTWOWEEKS
-      - MONTHLY
-      - SEMIANNUAL
-      - QUARTERLY
-      - ANNUAL
-      - SINGLEPAYMENT
-    Single-Year-Values-WL:
-      title: Single-Year Values for Whole Life
-      description: A single-year slice of data that varies annually - these values are specific to Whole Life products
-      allOf:
-      - $ref: '#/components/schemas/Single-Year-Values-Base'
-      - $ref: '#/components/schemas/PropertyCollection-Withdrawal'
-      properties:
-        coverages:
-          properties:
-            acceleratedDeathBenefitForTerminalIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            acceleratedDeathBenefitForChronicIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            acceleratedDeathBenefitForCriticalIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            accidentalDeathBenefit:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            charitableGiving:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            childrensTerm:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            waiverOfPremium:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            ownerWaiverOfPremium:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            guaranteedInsurabilityBenefit:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-        totalSurplusDistributions:
-          type: number
-          format: double
-          example: 1.23
-        paidUpAdditionDeathBenefit:
-          type: number
-          format: double
-          example: 1.23
-        paidUpAdditionCashValue:
-          type: number
-          format: double
-          example: 1.23
-        reducedPaidUp:
-          type: number
-          format: double
-          example: 1.23
-        modifiedEndowmentContractIndicator:
-          type: number
-          format: double
-          example: 0
-    Illustration-Inputs-Projection-Base:
-      title: Projection Base
-      description: Base for projection scenarios
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Inputs-Base'
-      - type: object
-        properties:
-          coverages:
-            $ref: '#/components/schemas/Coverage-Collection-V4'
-          parties:
-            type: array
-            description: Must have at least one party representing the Insured participant
-            items:
-              anyOf:
-              - $ref: '#/components/schemas/Non-Insured-Party'
-              - $ref: '#/components/schemas/Insured'
-            minItems: 1
-            uniqueItems: true
-          options:
-            $ref: '#/components/schemas/Options-Base'
-        required:
-        - coverages
-        - parties
-    Schedule-FaceAmount:
-      title: Face Amount Schedule
-      allOf:
-      - $ref: '#/components/schemas/Schedule-Base'
-      properties:
-        sequence:
-          items:
-            title: Face Amount Schedule Entry
-            properties:
-              value:
-                example: 250000
-                oneOf:
-                - type: number
-                  format: double
-                - title: Face Amount Option
-                  type: string
-                  enum:
-                  - SOLVE_FOR_TARGET_CASH_VALUE
-                  - MINIMUM_NON_MEC
-            required:
-            - value
-    Distribution-Sequence-FromThrough:
-      title: From/Through Entry in a Distribution Sequence
-      type: object
-      description: From/Through
-      properties:
-        offset:
-          type: number
-          format: integer
-          description: Offset
-          example: 1
-        basis:
-          type: string
-          description: Basis
-          example: AGE
-          enum:
-          - AGE
-          - DURATION
-          - RETIREMENT
     Single-Year-Values-Base:
       title: Single-Year Values
       description: A single-year slice of data that varies annually - these values apply to any scenario and any product
@@ -1054,6 +837,262 @@ components:
           type: number
           format: double
           example: 0.102552
+    Frequency:
+      type: string
+      description: Frequency
+      example: DAILY
+      enum:
+      - DAILY
+      - EVERYTWOWEEKS
+      - MONTHLY
+      - SEMIANNUAL
+      - QUARTERLY
+      - ANNUAL
+      - SINGLEPAYMENT
+    Flat-Extra:
+      title: Flat Extra
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of flat extra
+          example: PERMANENT
+          enum:
+          - PERMANENT
+          - TEMPORARY
+        amount:
+          type: number
+          format: double
+          description: Amount
+          example: 1000
+        duration:
+          type: number
+          format: integer
+          description: Duration
+          example: 12
+        durationType:
+          type: string
+          description: Duration type
+          example: YEARS
+          enum:
+          - YEARS
+          - MONTHS
+        startDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd")
+          example: '2025-05-13'
+    Scenario-WL:
+      title: Scenario Results for Whole Life
+      description: Outputs for Whole Life product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Scenario-Base'
+      properties:
+        annualTimeSeriesData:
+          type: array
+          items:
+            $ref: '#/components/schemas/Single-Year-Values-WL'
+        coverages:
+          properties:
+            acceleratedDeathBenefitForTerminalIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            acceleratedDeathBenefitForChronicIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            acceleratedDeathBenefitForCriticalIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            accidentalDeathBenefit:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            charitableGiving:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            childrensTerm:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            guaranteedInsurabilityBenefit:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            ownerWaiverOfPremium:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            waiverOfPremium:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+        modifiedEndowmentContract:
+          type: object
+          properties:
+            adjustmentIndicator:
+              type: number
+              format: integer
+              example: 0
+              description: Adjustment indicator
+            conversionYear:
+              type: number
+              format: integer
+              example: 0
+              description: Conversion year
+    Illustration-Inputs-Projection-Base:
+      title: Projection Base
+      description: Base for projection scenarios
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Inputs-Base'
+      - type: object
+        properties:
+          coverages:
+            $ref: '#/components/schemas/Coverage-Collection-V4'
+          parties:
+            type: array
+            description: Must have at least one party representing the Insured participant
+            items:
+              anyOf:
+              - $ref: '#/components/schemas/Non-Insured-Party'
+              - $ref: '#/components/schemas/Insured'
+            minItems: 1
+            uniqueItems: true
+          options:
+            $ref: '#/components/schemas/Options-Base'
+        required:
+        - coverages
+        - parties
+    Illustration-Response-WL:
+      title: Illustration Response for Whole Life
+      description: Illustration Response for Whole Life product
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Response-Base'
+      properties:
+        assumed:
+          $ref: '#/components/schemas/Scenario-WL'
+        guaranteed:
+          $ref: '#/components/schemas/Scenario-WL'
+        midpoint:
+          $ref: '#/components/schemas/Scenario-WL'
+    Participant-Collection-V4:
+      title: Participants
+      description: A collection of unique participants
+      type: array
+      items:
+        title: Participant
+        description: An entity with a stake in a policy
+        type: object
+        properties:
+          issueAge:
+            type: number
+            format: integer
+            description: Issue age
+            example: 30
+          participantId:
+            type: string
+            description: Participant id (UUID)
+            example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+          underwritingClass:
+            type: string
+            description: Underwriting class
+            example: ULTRANONTOBACCO
+            enum:
+            - ULTRANONTOBACCO
+            - ELITENONTOBACCO
+            - PREFERREDNONTOBACCO
+            - STANDARDNONTOBACCO
+            - STANDARDTOBACCO
+            - STANDARDAGGREGATE
+            - SUBSTANDARDNONTOBACCO
+            - SUBSTANDARDTOBACCO
+            - STANDARDPLUSNONTOBACCO
+            - PREFERREDTOBACCO
+            - STANDARDCONVERSIONNONTOBACCO
+            - STANDARDCONVERSIONTOBACCO
+            - STANDARDPLUSBLEND
+            - STANDARDPLUSTOBACCO
+            - STANDARDBLEND
+            - SUBSTANDARDBLEND
+            - PREFERREDSELECTNONTOBACCO
+            - PREFERREDSELECTBLEND
+            - PREFERREDSELECTTOBACCO
+            - PREFERREDBLEND
+          subStandardRating:
+            type: string
+            description: Substandard rating
+            example: TABLEA
+            enum:
+            - TABLEA
+            - TABLEB
+            - TABLEC
+            - TABLED
+            - TABLEE
+            - TABLEF
+            - TABLEG
+            - TABLEH
+            - TABLEI
+            - TABLEJ
+            - TABLEK
+            - TABLEL
+            - TABLEM
+            - TABLEN
+            - TABLEO
+            - TABLEP
+            - NONETABLE
+          flatExtra:
+            type: array
+            description: Flat extra
+            items:
+              $ref: '#/components/schemas/Flat-Extra'
+        required:
+        - issueAge
+        - participantId
+      uniqueItems: true
+    Schedule-Base:
+      title: Generic Schedule
+      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
+      type: object
+      properties:
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+        basis:
+          description: Specifies how to interpret the from and through properties for each entry.
+          type: string
+          example: AGE
+          enum:
+          - AGE
+          - DURATION
+          - RETIREMENT
+        sequence:
+          description: Collection of entries describing the changes in value over time
+          type: array
+          items:
+            title: Schedule Entry
+            description: Represents a limited time period for which a value is constant.
+            type: object
+            properties:
+              from:
+                description: starting point for the value, inclusive
+                type: integer
+                minimum: 1
+                example: 1
+              through:
+                description: ending point for the value, inclusive
+                type: integer
+                minimum: 1
+                example: 10
+            required:
+            - from
+            - through
+          minItems: 1
+      required:
+      - sequence
+    Insured:
+      title: Insured Party
+      description: 'Represents a party with roleCode: `Insured`
+
+        '
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Party-Base'
+      properties:
+        roleCode:
+          type: string
+          enum:
+          - INSURED
+          example: INSURED
+      required:
+      - lastName
+      - gender
+      - roleCode
     Illustration-Inputs-Base:
       title: Illustration Request
       description: Fundamental Illustration request schema. See the schema for a specific product
@@ -1115,74 +1154,56 @@ components:
       required:
       - calculationType
       - illustrationRequestDate
-    Scenario-WL:
-      title: Scenario Results for Whole Life
-      description: Outputs for Whole Life product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
+    Message:
+      title: Message
+      description: A structured signal
       type: object
-      allOf:
-      - $ref: '#/components/schemas/Scenario-Base'
       properties:
-        annualTimeSeriesData:
-          type: array
-          items:
-            $ref: '#/components/schemas/Single-Year-Values-WL'
-        coverages:
-          properties:
-            acceleratedDeathBenefitForTerminalIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            acceleratedDeathBenefitForChronicIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            acceleratedDeathBenefitForCriticalIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            accidentalDeathBenefit:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            charitableGiving:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            childrensTerm:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            guaranteedInsurabilityBenefit:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            ownerWaiverOfPremium:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            waiverOfPremium:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-        modifiedEndowmentContract:
-          type: object
-          properties:
-            adjustmentIndicator:
-              type: number
-              format: integer
-              example: 0
-              description: Adjustment indicator
-            conversionYear:
-              type: number
-              format: integer
-              example: 0
-              description: Conversion year
-    Insured:
-      title: Insured Party
-      description: 'Represents a party with roleCode: `Insured`
-
-        '
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Party-Base'
-      properties:
-        roleCode:
+        code:
+          type: integer
+        severity:
           type: string
           enum:
-          - INSURED
-          example: INSURED
+          - INFO
+          - WARNING
+          - ERROR
+        text:
+          type: string
+        returnTo:
+          type: string
       required:
-      - lastName
-      - gender
-      - roleCode
-    Date-Field:
+      - code
+      - text
+    Party-Role:
+      title: Party Role
+      example: OWNER
       type: string
-      format: date
-      pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-      description: Date (with pattern "yyyy-mm-dd")
-      example: '2025-05-13'
+      description: The role of a given party
+      enum:
+      - OWNER
+      - PRIMARYBENEFICIARY
+      - CONTINGENTBENEFICIARY
+      - INSURED
+      - PAYOR
+      - PAYEE
+      - AGENT
+      - PRIMARYWRITINGAGENT
+      - PRIMARYSERVICINGAGENT
+      - ADDITIONALSERVICINGAGENT
+      - ADDITIONALWRITINGAGENT
+      - THIRDPARTYDESIGNEE
+      - JOINTOWNER
+      - COVERAGEINSURED
+      - ASSIGNEE
+      - ANNUITANT
+      - EXCHANGECOMPANY
+      - JOINTANNUITANT
+      - GRANTOR
+      - TRUSTEE
+      - POWEROFATTORNEY
+      - AUTHORIZEDSIGNATORY
+      - OTHERINTERESTEDPARTY
+      - CONTINGENTOWNER
     Options-Base:
       title: Options
       description: Fundamental Options schema. Some products may have product-specific Options.
@@ -1287,121 +1308,111 @@ components:
           format: double
           description: Target cash value amount
           example: 10000
-    Coverage-Collection-V4:
-      title: Coverages
-      description: A collection of benefits
-      type: array
-      items:
-        title: Coverage
-        description: A benefit conferred to a group of one or more participants
-        type: object
-        properties:
-          coverageId:
-            type: string
-            description: Coverage id
-            example: BASE_COVERAGE
-            enum:
-            - BASE_COVERAGE
-            - Rider_ABRTRM
-            - Rider_CTR
-            - Rider_ABRCHR
-            - Rider_ADR
-            - Rider_WPR
-            - Rider_CGR
-            - Rider_GIBR
-            - Rider_OPR
-            - Rider_OWDR
-            - Rider_WDR
-            - Rider_NHR
-            - Rider_ABRCRI
-            - Rider_OWP
-          riderYears:
-            type: number
-            format: integer
-            example: 10
-            description: Rider years
-          currentAmount:
-            type: number
-            format: double
-            example: 1000
-            description: Current amount
-          participants:
-            $ref: '#/components/schemas/Participant-Collection-V4'
-        required:
-        - coverageId
-    Illustration-Inputs-New-Business-Base:
-      title: New Business Base
-      description: Properties for new business scenarios
-      type: object
+    Single-Year-Values-WL:
+      title: Single-Year Values for Whole Life
+      description: A single-year slice of data that varies annually - these values are specific to Whole Life products
+      allOf:
+      - $ref: '#/components/schemas/Single-Year-Values-Base'
+      - $ref: '#/components/schemas/PropertyCollection-Withdrawal'
       properties:
-        jurisdiction:
-          type: string
-          description: US state code.https://en.wikipedia.org/wiki/ISO_3166-2:US
-          enum:
-          - AK
-          - AL
-          - AR
-          - AS
-          - AZ
-          - CA
-          - CO
-          - CT
-          - DC
-          - DE
-          - FL
-          - GA
-          - GU
-          - HI
-          - IA
-          - ID
-          - IL
-          - IN
-          - KS
-          - KY
-          - LA
-          - MA
-          - MD
-          - ME
-          - MI
-          - MN
-          - MO
-          - MP
-          - MS
-          - MT
-          - NC
-          - ND
-          - NE
-          - NH
-          - NJ
-          - NM
-          - NV
-          - NY
-          - OH
-          - OK
-          - OR
-          - PA
-          - PR
-          - RI
-          - SC
-          - SD
-          - TN
-          - TX
-          - UM
-          - UT
-          - VA
-          - VI
-          - VT
-          - WA
-          - WI
-          - WV
-          - WY
-        planCode:
-          type: string
-          description: Plan code
-          example: EG123
-      required:
-      - jurisdiction
-      - planCode
+        coverages:
+          properties:
+            acceleratedDeathBenefitForTerminalIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            acceleratedDeathBenefitForChronicIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            acceleratedDeathBenefitForCriticalIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            accidentalDeathBenefit:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            charitableGiving:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            childrensTerm:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            waiverOfPremium:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            ownerWaiverOfPremium:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            guaranteedInsurabilityBenefit:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+        totalSurplusDistributions:
+          type: number
+          format: double
+          example: 1.23
+        paidUpAdditionDeathBenefit:
+          type: number
+          format: double
+          example: 1.23
+        paidUpAdditionCashValue:
+          type: number
+          format: double
+          example: 1.23
+        reducedPaidUp:
+          type: number
+          format: double
+          example: 1.23
+        modifiedEndowmentContractIndicator:
+          type: number
+          format: double
+          example: 0
+    Schedule-SurplusDistributionOption:
+      title: Surplus Distribution Option Schedule
+      allOf:
+      - $ref: '#/components/schemas/Schedule-Base'
+      properties:
+        sequence:
+          items:
+            title: Surplus Distribution Option Schedule Entry
+            properties:
+              value:
+                example: CASH
+                oneOf:
+                - title: Surplus Distribution Option
+                  type: string
+                  enum:
+                  - CASH
+                  - PAY_BACK_LOAN
+                  - REDUCE_PREMIUM
+                  - PAID_UP_ADDITION
+                  - ACCUMULATE
+                  - ONE_YEAR_TERM
+            required:
+            - value
+    Illustration-Inputs-WL:
+      title: Illustration Request for Whole Life
+      description: Illustration Request for Whole Life product
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Inputs-Projection-Base'
+      - $ref: '#/components/schemas/Illustration-Inputs-New-Business-Base'
+      - type: object
+        properties:
+          conversion:
+            $ref: '#/components/schemas/Conversion'
+          surplusDistribution:
+            type: object
+            description: Surplus distribution configuration for whole life policy
+            properties:
+              surplusDistributionOption:
+                $ref: '#/components/schemas/Schedule-SurplusDistributionOption'
+              excessSurplusDistributionOption:
+                type: string
+                description: Excess surplus distribution handling option
+                example: CASH
+                enum:
+                - CASH
+                - PAID_UP_ADDITION
+            required:
+            - surplusDistributionOption
+          distributions:
+            $ref: '#/components/schemas/Distributions'
+        required:
+        - surplusDistribution
+    Date-Field:
+      type: string
+      format: date
+      pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+      description: Date (with pattern "yyyy-mm-dd")
+      example: '2025-05-13'
     Output-Coverage-Values:
       title: Output Coverage Values
       description: Result values relevant to a specific coverage
@@ -1456,62 +1467,51 @@ components:
           type: boolean
           example: true
           description: indicates that this coverage was actually used in producing the quote
-    Distributions:
-      title: Distributions
-      description: Distributions
+    PropertyCollection-Withdrawal:
+      title: Withdrawal Property Collection
+      description: Reusable collection of withdrawal-related properties
       type: object
-      required:
-      - frequency
-      - sequence
       properties:
-        frequency:
-          $ref: '#/components/schemas/Frequency'
-        sequence:
-          description: Sequence
-          type: array
-          items:
-            type: object
-            title: Sequence
-            description: Distribution sequence
-            properties:
-              amountType:
-                type: string
-                description: Amount type
-                example: AMOUNT
-                enum:
-                - NONE
-                - AMOUNT
-                - PERCENTANGE
-                - MAX
-                - FREE_WITHDRAWAL_AMOUNT
-                - WITHDRAWA_LUNTIL_BASIS
-                - EARNINGS_ONLY
-                - PRORATA
-                - MODIFIED_EARNINGS_ONLY
-              requestedAmount:
-                type: number
-                format: double
-                description: Requested amount
-                example: 10000
-              funding:
-                type: string
-                description: Funding
-                example: LOAN
-                enum:
-                - LOAN
-                - WITHDRAWAL
-                - SWITCH_AT_BASIS
-              from:
-                $ref: '#/components/schemas/Distribution-Sequence-FromThrough'
-              through:
-                $ref: '#/components/schemas/Distribution-Sequence-FromThrough'
-        loanInterestOption:
-          description: Specifies how loan interest is processed; BORROW indicates that the interest is added into the loan amount, CASH indicates that the loan is paid and does not accumulate.
+        cumulativeWithdrawalAmount:
+          type: number
+          format: double
+          description: Cumulative withdrawal amount
+          example: 0
+        maximumWithdrawalAmount:
+          type: number
+          format: double
+          description: Maximum withdrawal amount
+          example: 0
+        withdrawalAmount:
+          type: number
+          format: double
+          description: Withdrawal amount
+          example: 0
+    Conversion:
+      title: Conversion
+      description: Specifies what type of conversion is occurring
+      type: object
+      properties:
+        conversionType:
           type: string
-          example: BORROW
+          description: Type of conversion
+          example: STANDARD
           enum:
-          - BORROW
-          - CASH
+          - NONE
+          - STANDARD
+          - PREMIUM_CREDIT
+        isSourceMEC:
+          type: boolean
+          description: Conversion MEC indicator - Indicates the source policy being converted was already in MEC status
+          example: true
+        conversionCredit:
+          type: number
+          format: double
+          description: Amount to be credited to new policy on conversion
+          example: 5000
+      required:
+      - conversionType
+      - isSourceMEC
   securitySchemes:
     Auth0:
       type: openIdConnect

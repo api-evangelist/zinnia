@@ -21,11 +21,11 @@ tags:
 - Annuities
 - Policy Administration
 - Insurtech
-- Financial-Services
+- Financial Services
 - Third Party Administration
 - New Business
 - Order Entry
-- Document-Management
+- Document Management
 - Underwriting
 - Enterprise
 tags_raw:
@@ -41,6 +41,8 @@ tags_raw:
 - document-management
 - underwriting
 - enterprise
+- Financial-Services
+- Document-Management
 apis:
 - aid: zinnia:zinnia-annuity-health-check-api
   name: Zinnia Annuity Health Check API

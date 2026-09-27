@@ -547,200 +547,6 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
-    ErrorInfo:
-      required:
-      - code
-      - timestamp
-      type: object
-      properties:
-        code:
-          enum:
-          - VALIDATION_ERROR
-          - INVALID_TRANSACTION_ID
-          - INVALID_STEP_NAME
-          - TRANSACTION_CREATION_FAILED
-          - TRANSACTION_ID_NOT_FOUND
-          - SAVE_TRANSACTION_ERROR
-          - SAVE_TRANSACTION_FAILED
-          - INVALID_RESPONSE_FORMAT
-          - BUILD_BLUEPRINT_ERROR
-          - JSON_PARSE_ERROR
-          - TRANSFORMER_NULL_RESPONSE
-          - EMPTY_BLUEPRINT
-          - UNEXPECTED_ERROR
-          - SERVICE_ERROR
-          - UNAUTHORIZED
-          - FORBIDDEN
-          - NOT_FOUND
-          - RATE_LIMIT_EXCEEDED
-          - UPSTREAM_SERVICE_ERROR
-          - SERVICE_UNAVAILABLE
-          - UPSTREAM_TIMEOUT
-          - FIRST_STEP_SETUP_FAILED
-          - METHOD_NOT_ALLOWED
-          type: string
-          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
-        description:
-          type:
-          - string
-          - 'null'
-        details:
-          type:
-          - string
-          - 'null'
-        timestamp:
-          type: string
-          format: date-time
-      additionalProperties: false
-      example:
-        code: VALIDATION_ERROR
-        description: Validation failed for field '$.fieldName'
-        details: The request contains an unrecognized property. Only documented fields are allowed.
-        timestamp: '2024-01-15T10:30:00.000Z'
-    AdditionalDocumentType:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of attachment type codes
-        documentType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of document type codes
-        formType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of form type codes
-      additionalProperties: false
-    AttachmentDocument:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - string
-          - 'null'
-          description: Attachment type code when applicable; otherwise null.
-        documentType:
-          type:
-          - string
-          - 'null'
-          description: Document type label or code.
-        fileName:
-          type:
-          - string
-          - 'null'
-          description: Original file name as uploaded.
-        formType:
-          type:
-          - string
-          - 'null'
-          description: Form type code when applicable; otherwise null.
-        uploadDate:
-          type:
-          - string
-          - 'null'
-          description: Upload timestamp as returned by the attachment service.
-        documentId:
-          type:
-          - string
-          - 'null'
-          description: Electronic document service (EDS) identifier for the uploaded file.
-        documentSize:
-          type:
-          - integer
-          - 'null'
-          description: Size of the uploaded file in bytes.
-          format: int64
-      additionalProperties: false
-      example:
-        documentType: ESIGNATURE
-        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
-        uploadDate: 04/06/2026 11:22:05 PM
-        documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-        documentSize: 9000000
-        attachmentType: null
-        formType: null
-    AttachmentData:
-      type: object
-      properties:
-        additionalDocumentTypes:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/AdditionalDocumentType'
-          description: Document types the user may optionally upload.
-        documentRules:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/DocumentRule'
-          description: Conditional rules for required or optional documents.
-        documents:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/AttachmentDocument'
-          description: Files already stored for the transaction, including EDS documentId and documentSize in bytes.
-        requiredDocuments:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/RequiredDocument'
-          description: Documents still required before submission.
-      additionalProperties: false
-      example:
-        additionalDocumentTypes:
-        - attachmentType: []
-          documentType:
-          - Wet-signed Paperwork
-          - Supporting Documents
-          - Trust Certification
-          - Green Card
-          - Driver License – Proof of Age
-          - Illustration
-          - POA Paperwork
-          - Check Deposit Form
-          formType: []
-        documentRules:
-        - conditions: Owner age < 65
-          key: PROOF_OF_AGE
-          message: Proof of age documentation may be required.
-          value: optional
-        documents:
-        - documentType: ESIGNATURE
-          fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
-          uploadDate: 04/06/2026 11:22:05 PM
-          documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-          documentSize: 9000000
-          attachmentType: null
-          formType: null
-        - documentType: DRIVER LICENSE – PROOF OF AGE
-          fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM1.pdf
-          uploadDate: 04/06/2026 11:26:07 PM
-          documentId: b2c3d4e5-f6a7-8901-bcde-f12345678901
-          documentSize: 10000000
-          attachmentType: null
-          formType: null
-        requiredDocuments:
-        - attachmentType: APP
-          displayName: Signed application
-          documentType: APPLICATION
-          formType: APP_FULL
-          message: Upload the fully signed application prior to submission.
     AttachmentResponse:
       required:
       - carrierCode
@@ -890,6 +696,56 @@ components:
         isSuccess: true
         message: Attachment document ingested successfully.
         status: Success
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
     DocumentRule:
       type: object
       properties:
@@ -914,56 +770,6 @@ components:
           - 'null'
           description: Rule value
       additionalProperties: false
-    RequiredDocument:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - string
-          - 'null'
-          description: Attachment type code
-        displayName:
-          type:
-          - string
-          - 'null'
-          description: Display name shown to the user
-        documentType:
-          type:
-          - string
-          - 'null'
-          description: Document type code
-        formType:
-          type:
-          - string
-          - 'null'
-          description: Form type code
-        message:
-          type:
-          - string
-          - 'null'
-          description: Instructional message for the required document
-      additionalProperties: false
-    ErrorResponse:
-      required:
-      - errors
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
     IngestAttachmentDocumentRequest:
       required:
       - action
@@ -1001,6 +807,200 @@ components:
         documentId: 6a3c4358bd44a9000c8d140e
         sourceSystem: AnnuityNet
         action: added
+    RequiredDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code
+        displayName:
+          type:
+          - string
+          - 'null'
+          description: Display name shown to the user
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type code
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code
+        message:
+          type:
+          - string
+          - 'null'
+          description: Instructional message for the required document
+      additionalProperties: false
+    AdditionalDocumentType:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of attachment type codes
+        documentType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of document type codes
+        formType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of form type codes
+      additionalProperties: false
+    AttachmentDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code when applicable; otherwise null.
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type label or code.
+        fileName:
+          type:
+          - string
+          - 'null'
+          description: Original file name as uploaded.
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code when applicable; otherwise null.
+        uploadDate:
+          type:
+          - string
+          - 'null'
+          description: Upload timestamp as returned by the attachment service.
+        documentId:
+          type:
+          - string
+          - 'null'
+          description: Electronic document service (EDS) identifier for the uploaded file.
+        documentSize:
+          type:
+          - integer
+          - 'null'
+          description: Size of the uploaded file in bytes.
+          format: int64
+      additionalProperties: false
+      example:
+        documentType: ESIGNATURE
+        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+        uploadDate: 04/06/2026 11:22:05 PM
+        documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        documentSize: 9000000
+        attachmentType: null
+        formType: null
+    AttachmentData:
+      type: object
+      properties:
+        additionalDocumentTypes:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/AdditionalDocumentType'
+          description: Document types the user may optionally upload.
+        documentRules:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/DocumentRule'
+          description: Conditional rules for required or optional documents.
+        documents:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/AttachmentDocument'
+          description: Files already stored for the transaction, including EDS documentId and documentSize in bytes.
+        requiredDocuments:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/RequiredDocument'
+          description: Documents still required before submission.
+      additionalProperties: false
+      example:
+        additionalDocumentTypes:
+        - attachmentType: []
+          documentType:
+          - Wet-signed Paperwork
+          - Supporting Documents
+          - Trust Certification
+          - Green Card
+          - Driver License – Proof of Age
+          - Illustration
+          - POA Paperwork
+          - Check Deposit Form
+          formType: []
+        documentRules:
+        - conditions: Owner age < 65
+          key: PROOF_OF_AGE
+          message: Proof of age documentation may be required.
+          value: optional
+        documents:
+        - documentType: ESIGNATURE
+          fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+          uploadDate: 04/06/2026 11:22:05 PM
+          documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+          documentSize: 9000000
+          attachmentType: null
+          formType: null
+        - documentType: DRIVER LICENSE – PROOF OF AGE
+          fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM1.pdf
+          uploadDate: 04/06/2026 11:26:07 PM
+          documentId: b2c3d4e5-f6a7-8901-bcde-f12345678901
+          documentSize: 10000000
+          attachmentType: null
+          formType: null
+        requiredDocuments:
+        - attachmentType: APP
+          displayName: Signed application
+          documentType: APPLICATION
+          formType: APP_FULL
+          message: Upload the fully signed application prior to submission.
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
   securitySchemes:
     openIdConnect:
       type: openIdConnect

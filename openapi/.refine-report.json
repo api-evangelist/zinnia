@@ -57,7 +57,7 @@
     "zinnia-product-v2-api-openapi.yml"
   ],
   "archived": [
-    "deleted 2 superseded output(s) from the previous generation"
+    "deleted 1 superseded output(s) from the previous generation"
   ],
   "errors": [],
   "warnings": [],
@@ -83,8 +83,8 @@
     "zinnia-product-service-openapi.json: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
     "zinnia-product-service-openapi.json: declared missing tag: Product V2",
     "tag 'Health' spans 2 source specs (zinnia-illustration-client-cases-openapi.json, zinnia-market-connect-order-entry-openapi.json): per-path servers applied",
-    "superseded outputs removed: zinnia-e-signature-api-openapi.yml, zinnia-product-pricing-api-openapi.yml",
-    "apis.yml register: written (+2 apis, 42 total)"
+    "superseded outputs removed: zinnia-product-pricing-api-openapi.yml",
+    "apis.yml register: written (+1 apis, 42 total)"
   ],
   "skipped": [
     "_original/zinnia-product-service-openapi.yml: archived document superseded by a larger archived document",
@@ -109,7 +109,7 @@
     "zinnia-details-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "zinnia-documents-v2-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "zinnia-documents-v3-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "zinnia-e-signature-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "zinnia-esignature-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "zinnia-financial-transactions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "zinnia-health-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "zinnia-hybrid-iul-term-hit-illustrations-api-openapi.yml: previously refined output, superseded by openapi/_original/",

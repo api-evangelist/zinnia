@@ -1332,38 +1332,87 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
-    PrefillProduct:
+    PrefillOwner:
       type: object
       properties:
-        address:
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        partyIdentity:
           type:
           - array
           - 'null'
           items:
-            $ref: '#/components/schemas/PrefillAddress'
-        carrierCode:
-          type:
-          - string
-          - 'null'
-        cusip:
-          type:
-          - string
-          - 'null'
-        marketingName:
-          type:
-          - string
-          - 'null'
-        productCode:
-          type:
-          - string
-          - 'null'
+            $ref: '#/components/schemas/PrefillPartyIdentity'
         questionAnswer:
           type:
           - array
           - 'null'
           items:
             $ref: '#/components/schemas/PrefillQuestionAnswer'
+        relationship:
+          $ref: '#/components/schemas/PrefillRelationship'
       additionalProperties: false
+    PrefillAddressBase:
+      type: object
+      properties:
+        line1:
+          type:
+          - string
+          - 'null'
+        line2:
+          type:
+          - string
+          - 'null'
+        city:
+          type:
+          - string
+          - 'null'
+        stateOrProvinceCode:
+          type:
+          - string
+          - 'null'
+        postalCode:
+          type:
+          - string
+          - 'null'
+        countryCode:
+          type:
+          - string
+          - 'null'
+        country:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    VisibilityCondition:
+      required:
+      - type
+      - targetNodeId
+      type: object
+      properties:
+        type:
+          enum:
+          - equality
+          - range
+          - presence
+          type: string
+          description: Kind of comparison performed by the condition.
+          example: equality
+        isEqual:
+          type: boolean
+          description: When true the condition passes if the target value equals 'value'; when false the condition passes if it differs.
+          example: true
+        value:
+          type: string
+          description: The value to compare against the resolved target answer.
+          example: NY
+        targetNodeId:
+          type: string
+          description: The answer node identifier whose value is evaluated by this condition.
+          example: SolicitationStateCode
+      description: Single condition controlling whether a field/section is visible at runtime.
     FieldValidationRule:
       required:
       - conditions
@@ -1398,83 +1447,160 @@ components:
           - type: matchesRegexCondition
             targetNodeId: Transaction.Beneficiaries[0].EmailAddresses["Home"].Address
             regex: ^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$
-    PrefillNameBase:
+    PrefillEmployee:
       type: object
       properties:
-        prefix:
-          type:
-          - string
-          - 'null'
-        fullName:
-          type:
-          - string
-          - 'null'
-        givenName:
-          type:
-          - string
-          - 'null'
-        otherGivenName:
-          type:
-          - string
-          - 'null'
-        suffix:
-          type:
-          - string
-          - 'null'
-        surname:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillMessageInformation:
-      type: object
-      properties:
-        businessPurposeTypeCode:
-          type:
-          - string
-          - 'null'
-        businessPurposeSubTypeCode:
-          type:
-          - string
-          - 'null'
-        sender:
-          type:
-          - string
-          - 'null'
-        receiver:
-          type:
-          - string
-          - 'null'
-        associatedFirmId:
-          type:
-          - string
-          - 'null'
-        trackingNumber:
-          type:
-          - string
-          - 'null'
-        effectiveDate:
-          type:
-          - string
-          - 'null'
-        reference:
+        address:
           type:
           - array
           - 'null'
           items:
-            $ref: '#/components/schemas/PrefillReference'
-        eSignature:
+            $ref: '#/components/schemas/PrefillAddress'
+        companyName:
           type:
           - string
           - 'null'
-        transactionNumber:
+        jobTitle:
           type:
           - string
           - 'null'
-        TransExternalTransactionId:
+        occupationClassCode:
           type:
           - string
           - 'null'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        questionAnswer:
+          type:
+          - string
+          - 'null'
+        statusCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillAllocation:
+      type: object
+      properties:
+        percent:
+          type:
+          - number
+          - 'null'
+          format: double
+        typeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    SelectOptionsApplicationContext:
+      type: object
+      properties:
+        tag:
+          type:
+          - string
+          - 'null'
+          description: Tag used to associate dataset values with a field
+        labelKey:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: Localized label key for dataset items
+        valuePath:
+          type:
+          - string
+          - 'null'
+          description: Dataset value path
+      additionalProperties: false
+      example:
+        tag: '507602'
+        labelKey:
+          en: Name
+        valuePath: Value
+    SelectOption:
+      required:
+      - text
+      - value
+      type: object
+      properties:
+        text:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
+        value:
+          minLength: 1
+          type: string
+          description: The value representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
+      additionalProperties: false
+    PrefillReference:
+      type: object
+      properties:
+        id:
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        source:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillAgent:
+      type: object
+      properties:
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        partyIdentity:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPartyIdentity'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+        user:
+          $ref: '#/components/schemas/PrefillUser'
+      additionalProperties: false
+    PrefillPhone:
+      type: object
+      properties:
+        phoneNumber:
+          type:
+          - string
+          - 'null'
+        phoneTypeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillBeneficiary:
+      type: object
+      properties:
+        allocation:
+          $ref: '#/components/schemas/PrefillAllocation'
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        legalEntityTypeCode:
+          type:
+          - string
+          - 'null'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        relationship:
+          $ref: '#/components/schemas/PrefillRelationship'
+      additionalProperties: false
+    PrefillAnnuitant:
+      type: object
+      properties:
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
       additionalProperties: false
     PrefillOrganization:
       type: object
@@ -1497,97 +1623,6 @@ components:
           - string
           - 'null'
       additionalProperties: false
-    TransactionDataQuestionRowsMap:
-      title: TransactionDataQuestionRowsMap
-      type: object
-      properties:
-        '259726':
-          $ref: '#/components/schemas/QuestionDataRows'
-      additionalProperties:
-        $ref: '#/components/schemas/QuestionDataRows'
-      description: Answers keyed by blueprint question id or composite collection field id. Named properties below are representative examples (same keys as the default example); any other field id is valid and uses the same value shape (see additionalProperties → QuestionDataRows → QuestionData). Each array entry is one row; use index for repeatable collection instances.
-      example:
-        '259726':
-        - id: '259726'
-          type: dropdown
-          questionText: Account designation
-          questionSubText: Account designation
-          displayValue: Owner
-          value: Owner
-          index: 0
-    PrefillPerson:
-      type: object
-      properties:
-        birthDate:
-          type:
-          - string
-          - 'null'
-        citizenship:
-          type:
-          - string
-          - 'null'
-        citizenshipCode:
-          type:
-          - string
-          - 'null'
-        dependentCount:
-          type:
-          - number
-          - 'null'
-          format: double
-        gender:
-          type:
-          - string
-          - 'null'
-        genderCode:
-          type:
-          - string
-          - 'null'
-        maritalstatus:
-          type:
-          - string
-          - 'null'
-        maritalStatusCode:
-          type:
-          - string
-          - 'null'
-        militaryStatusCode:
-          type:
-          - string
-          - 'null'
-        militarystatus:
-          type:
-          - string
-          - 'null'
-        residencyStatusCode:
-          type:
-          - string
-          - 'null'
-        residencystatus:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    SectionGroupBlueprint:
-      required:
-      - id
-      - title
-      type: object
-      properties:
-        id:
-          minLength: 1
-          type: string
-          description: The unique identifier for the section group
-        title:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedText'
-          description: The section group title in multiple languages. Supports localization through language codes (e.g., en, fr)
-        partName:
-          type:
-          - string
-          - 'null'
-          description: An identifier (partName) for the section group
-      additionalProperties: false
     ErrorResponse:
       required:
       - errors
@@ -1609,122 +1644,178 @@ components:
           description: Unauthorized access
           details: The request requires authentication
           timestamp: '2025-01-16T13:21:19.4355657Z'
-    PrefillPartyRole:
+    PrefillRelationship:
       type: object
       properties:
-        roleCode:
+        relationshipToCode:
           type:
           - string
           - 'null'
-        roleCodes:
+        partyRole:
           type:
           - array
           - 'null'
           items:
-            type: string
+            $ref: '#/components/schemas/PrefillPartyRole'
       additionalProperties: false
-    SubscriberAction:
+    SubscriberResponseValue:
       type: object
       properties:
         type:
           type:
           - string
           - 'null'
-          description: The action transport. Currently always "http".
-        verb:
+          description: Value source kind. "response-query" extracts via a query expression on the response body.
+        kind:
           type:
           - string
           - 'null'
-          description: HTTP verb to use (e.g., "get", "post").
-        url:
+          description: Query language used to evaluate the value expression. Currently always "json-path".
+        value:
           type:
           - string
           - 'null'
-          description: 'Relative URL of the OE endpoint to call when the trigger fires. Three shapes are emitted: ''/market-connect/order-entry/v1/dataset'' (dataset refresh); ''/market-connect/order-entry/v1/transaction/{transactionId}/{stepName}'' (multi-step blueprint refresh); ''/market-connect/order-entry/v1/transaction/{transactionId}'' (single/enhanced blueprint refresh).'
-        token:
-          type:
-          - string
-          - 'null'
-          description: Bearer-token alias forwarded by the UI on the call. Always "OEToken" today.
-        payload:
+          description: The query expression itself (e.g., "$.data" to grab the response's data branch).
+      additionalProperties: false
+      example:
+        type: response-query
+        kind: json-path
+        value: $.data
+    FieldGroupBlueprint:
+      required:
+      - id
+      - partName
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: The unique identifier for the field group
+        partName:
+          minLength: 1
+          type: string
+          description: An identifier (partName) for the field group
+        text:
           allOf:
-          - $ref: '#/components/schemas/SubscriberActionPayload'
-          description: Request payload envelope. Use type "none" when no body is required.
-          example:
-            type: basic
-            payload:
-              transactionId: '1125715'
-              stepName: MCDPS
-              fieldId: '531783'
-        responseHandlers:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The text associated with a field group, such as descriptions or related notes. Supports localization through language codes (e.g., en, fr).
+        title:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The title of the field group in multiple languages. Supports localization through language codes (e.g., en, fr).
+        isCustom:
+          type: boolean
+          description: Indicates whether this is a custom field group
+        fields:
           type:
           - array
           - 'null'
           items:
-            $ref: '#/components/schemas/SubscriberResponseHandler'
-          description: One or more handlers that apply the upstream response back to the form.
+            $ref: '#/components/schemas/FieldBlueprint'
+          description: Array of fields (questions) within this field group
+        displayAsCard:
+          type: boolean
+          description: Indicates if this field group should be displayed as a card
+        copyable:
+          type:
+          - string
+          - 'null'
+          description: Role identifier controlling copy behavior. Use 'none' to disable copying, or a role name (e.g., 'owner', 'annuitant', 'insured', 'payor'). Multiple roles may be comma-separated.
+        repeatable:
+          allOf:
+          - $ref: '#/components/schemas/RepeatableBlueprint'
+          description: Repeat-instance metadata when the wizard field element or custom control declares IsRepeated.
       additionalProperties: false
-      example:
-        type: http
-        verb: get
-        url: /market-connect/order-entry/v1/transaction/1064727
-        token: OEToken
-        payload:
-          type: none
-        responseHandlers:
-        - type: blueprint-modification
-          action: replace-whole
-          value:
-            type: response-query
-            kind: json-path
-            value: $.data
-    Blueprint:
-      required:
-      - sectionBlueprints
-      - sectionGroupBlueprints
+    ValidationConditionGroup:
       type: object
       properties:
-        sectionBlueprints:
-          type: array
+        booleanOperator:
+          type:
+          - string
+          - 'null'
+          description: The boolean operator used to combine multiple conditions (e.g., "and"). Omitted when there is only one condition.
+        conditions:
+          type:
+          - array
+          - 'null'
           items:
-            $ref: '#/components/schemas/SectionBlueprint'
-          description: An array of sections representing the hierarchical structure of an order entry blueprint, nested from sections to subsections, field groups, and individual fields
-        sectionGroupBlueprints:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/SectionGroupBlueprint'
-          description: Map of section groups keyed by group identifier. Each value assigns sections to their corresponding group.
+            $ref: '#/components/schemas/ValidationCondition'
+          description: Array of validation conditions with varying structures per condition type
       additionalProperties: false
-    ValidationErrors:
+      example:
+        booleanOperator: and
+        conditions:
+        - type: numberComparisonCondition
+          targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
+          value: 9999999999
+          operator: lessThanOrEqual
+        - type: numberComparisonCondition
+          targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
+          value: 1
+          operator: greaterThanOrEqual
+    QuestionDataRows:
+      title: QuestionDataRows
+      type: array
+      items:
+        $ref: '#/components/schemas/QuestionData'
+      description: All answer rows for one question or composite collection field id. Use `index` on each row for repeatable collection instances. Each row must include `id`, `type`, and `value` (see QuestionData schema).
+    PrefillUnderwritingDecision:
       type: object
       properties:
-        fieldId:
+        classCode:
           type:
           - string
           - 'null'
-          description: ControlID as a string (numeric ids appear quoted). Omitted when fieldId is 0.
-        answerNodeId:
-          type:
-          - string
-          - 'null'
-          description: Answer node path from annuity NamedItem; matches FieldBlueprint.AnswerNodeId.
-        message:
-          type:
-          - string
-          - 'null'
-          description: The validation error message
-        sectionName:
-          type:
-          - string
-          - 'null'
-          description: The section/step name where the error occurred
       additionalProperties: false
-      description: One validation message in API shape. Optional properties are omitted in JSON when null (e.g. fieldId is missing or 0).
+    Subscriber:
+      type: object
+      properties:
+        triggers:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: NamedItem identifiers of the form fields whose value change fires this subscriber.
+        conditions:
+          type:
+          - array
+          - 'null'
+          items: {}
+          description: Optional conditions that must hold for the subscriber to execute. Omitted when not used.
+        actions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SubscriberAction'
+          description: Actions executed when any of the triggers fire. Each action declares an HTTP call plus one or more response handlers.
+      additionalProperties: false
       example:
-        fieldId: BeneficiaryAddress
-        answerNodeId: Transaction.PrimaryOwner.PersonName.Prefix
-        message: First name is required
-        sectionName: EntityOwners
+        triggers:
+        - FirstName
+        actions:
+        - type: http
+          verb: get
+          url: /market-connect/order-entry/v1/transaction/1125715/MCDPS
+          token: OEToken
+          payload:
+            type: none
+          responseHandlers:
+          - type: blueprint-modification
+            action: replace-whole
+            value:
+              type: response-query
+              kind: json-path
+              value: $.data
+    LayoutSettings:
+      type: object
+      properties:
+        size:
+          type: integer
+          description: The size of the field in a 12-column HTML grid that determines its rendered width (12 = full-width, 6 = half-width, 4 = one-third, 3 = quarter-width). Field column widths sum to 12 per row - e.g., two fields of 6 sit side-by-side, three fields of 4 share a row, four fields of 3 share a row.
+          format: int32
+      additionalProperties: false
     ErrorInfo:
       required:
       - code
@@ -1961,43 +2052,6 @@ components:
                 kind: json-path
                 value: $.data
         errors: []
-    SelectOption:
-      required:
-      - text
-      - value
-      type: object
-      properties:
-        text:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedText'
-          description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
-        value:
-          minLength: 1
-          type: string
-          description: The value representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
-      additionalProperties: false
-    PrefillOwner:
-      type: object
-      properties:
-        employee:
-          $ref: '#/components/schemas/PrefillEmployee'
-        party:
-          $ref: '#/components/schemas/PrefillParty'
-        partyIdentity:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillPartyIdentity'
-        questionAnswer:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillQuestionAnswer'
-        relationship:
-          $ref: '#/components/schemas/PrefillRelationship'
-      additionalProperties: false
     SubscriberActionPayload:
       type: object
       properties:
@@ -2020,478 +2074,6 @@ components:
           transactionId: '1125715'
           stepName: MCDPS
           fieldId: '531783'
-    PrefillPolicyholder:
-      type: object
-      properties:
-        employee:
-          $ref: '#/components/schemas/PrefillEmployee'
-        party:
-          $ref: '#/components/schemas/PrefillParty'
-        questionAnswer:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillQuestionAnswer'
-        relationship:
-          $ref: '#/components/schemas/PrefillRelationship'
-      additionalProperties: false
-    ValidationConditionGroup:
-      type: object
-      properties:
-        booleanOperator:
-          type:
-          - string
-          - 'null'
-          description: The boolean operator used to combine multiple conditions (e.g., "and"). Omitted when there is only one condition.
-        conditions:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/ValidationCondition'
-          description: Array of validation conditions with varying structures per condition type
-      additionalProperties: false
-      example:
-        booleanOperator: and
-        conditions:
-        - type: numberComparisonCondition
-          targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
-          value: 9999999999
-          operator: lessThanOrEqual
-        - type: numberComparisonCondition
-          targetNodeId: Transaction.Payments[0].MonetaryAmounts["PaymentAmount"].CurrencyAmount
-          value: 1
-          operator: greaterThanOrEqual
-    FieldGroupBlueprint:
-      required:
-      - id
-      - partName
-      type: object
-      properties:
-        id:
-          minLength: 1
-          type: string
-          description: The unique identifier for the field group
-        partName:
-          minLength: 1
-          type: string
-          description: An identifier (partName) for the field group
-        text:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedText'
-          description: The text associated with a field group, such as descriptions or related notes. Supports localization through language codes (e.g., en, fr).
-        title:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedText'
-          description: The title of the field group in multiple languages. Supports localization through language codes (e.g., en, fr).
-        isCustom:
-          type: boolean
-          description: Indicates whether this is a custom field group
-        fields:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/FieldBlueprint'
-          description: Array of fields (questions) within this field group
-        displayAsCard:
-          type: boolean
-          description: Indicates if this field group should be displayed as a card
-        copyable:
-          type:
-          - string
-          - 'null'
-          description: Role identifier controlling copy behavior. Use 'none' to disable copying, or a role name (e.g., 'owner', 'annuitant', 'insured', 'payor'). Multiple roles may be comma-separated.
-        repeatable:
-          allOf:
-          - $ref: '#/components/schemas/RepeatableBlueprint'
-          description: Repeat-instance metadata when the wizard field element or custom control declares IsRepeated.
-      additionalProperties: false
-    SectionBlueprint:
-      required:
-      - id
-      - partName
-      - title
-      type: object
-      properties:
-        id:
-          minLength: 1
-          type: string
-          description: The unique identifier for the section
-        sectionGroupKey:
-          type:
-          - string
-          - 'null'
-          description: A key used to group related sections within the blueprint
-        partName:
-          minLength: 1
-          type: string
-          description: An identifier (partName) for the section
-        title:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedText'
-          description: The section title in multiple languages. Supports localization through language codes (e.g., en, fr)
-        modules:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: An array of module names associated with this section
-        isCustom:
-          type: boolean
-          description: Indicates whether this section is custom
-        subsections:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/SubsectionBlueprint'
-          description: Array of subsections within this section
-        copyable:
-          type:
-          - string
-          - 'null'
-          description: Role identifier controlling copy behavior. Use 'none' to disable copying, or a role name (e.g., 'owner', 'annuitant', 'insured', 'payor'). Multiple roles may be comma-separated.
-        renderOn:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: An array of conditions that determine when a section is rendered
-        pdfDocuments:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: An array of PDF document identifiers where this section appears
-        platforms:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: An array of platforms where this section is available (e.g., D2C-only versus advisor-driven experiences)
-        visible:
-          allOf:
-          - $ref: '#/components/schemas/VisibilitySettings'
-          description: 'Visibility conditions for the section. When present, the section is only visible when all conditions are met. Example: { "booleanOperator": "AND", "conditions": [ { "type": "equality", "isEqual": true, "value": "NY", "targetNodeId": "SolicitationStateCode" } ] }'
-          example:
-            booleanOperator: AND
-            conditions:
-            - type: equality
-              isEqual: true
-              value: 'Yes'
-              targetNodeId: Transaction.SolicitationState
-        repeatable:
-          allOf:
-          - $ref: '#/components/schemas/RepeatableBlueprint'
-          description: Repeat-instance metadata when the wizard section declares IsRepeated.
-      additionalProperties: false
-    SelectOptionsApplicationContext:
-      type: object
-      properties:
-        tag:
-          type:
-          - string
-          - 'null'
-          description: Tag used to associate dataset values with a field
-        labelKey:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedText'
-          description: Localized label key for dataset items
-        valuePath:
-          type:
-          - string
-          - 'null'
-          description: Dataset value path
-      additionalProperties: false
-      example:
-        tag: '507602'
-        labelKey:
-          en: Name
-        valuePath: Value
-    QuestionData:
-      required:
-      - id
-      - type
-      - value
-      type: object
-      properties:
-        id:
-          minLength: 1
-          type: string
-          description: Must match the field key under `data` for this row (case-insensitive); inside collection rows, must match the leaf key in the item's `data` map.
-        type:
-          minLength: 1
-          enum:
-          - input
-          - dropdown
-          - radio
-          - checkbox
-          - checkboxgroup
-          - date
-          - phone
-          - email
-          - money
-          - number
-          - label
-          - information
-          - collection
-          - Person
-          - Address
-          - Hidden
-          type: string
-          description: 'Data-storage type for the question row. Must match the corresponding blueprint field type and be one of: input, dropdown, radio, checkbox, checkboxgroup, date, phone, email, money, number, label, information, collection, Person, Address, Hidden. Values are case-sensitive.'
-          example: input
-        questionText:
-          type:
-          - string
-          - 'null'
-          description: The title of the question shown to the user. This value should be kept in sync with the title property of the associated field
-        questionSubText:
-          type:
-          - string
-          - 'null'
-          description: The subtext shown to the user below the question title. This value should be kept in sync with the text property of the associated field
-        displayValue:
-          type:
-          - string
-          - 'null'
-          description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
-        value:
-          anyOf:
-          - type: string
-            description: String value for simple fields
-            example: PrimaryBeneficiary
-          - type: integer
-            description: Integer value for numeric fields
-            example: 123
-          - type: number
-            description: Float value for decimal fields
-            format: float
-            example: 123.45
-          - type: string
-            description: Date value for date fields (YYYY-MM-DD format)
-            format: date
-            example: '2024-01-15'
-          - type: string
-            description: DateTime value for date-time fields (ISO 8601 format)
-            format: date-time
-            example: '2024-01-15T10:30:00Z'
-          - type: boolean
-            description: Boolean value for true/false fields
-            example: true
-          - type: array
-            items:
-              type: string
-              example: Income_Replacement
-            description: Array of selected option codes for checkboxgroup fields
-          - type: array
-            items:
-              required:
-              - surrogateId
-              - type
-              - data
-              type: object
-              properties:
-                surrogateId:
-                  type: string
-                  description: 'The surrogate identifier for each set of answers in a collection. Example: a repeatable beneficiary collection with two beneficiaries will have two surrogate IDs.'
-                  example: 504490-1
-                type:
-                  enum:
-                  - collectionItem
-                  type: string
-                  description: Must be `collectionItem` for each element of a collection value array.
-                  example: collectionItem
-                data:
-                  type: object
-                  additionalProperties:
-                    required:
-                    - id
-                    - type
-                    - value
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        description: Must match the leaf property name under this collection item's `data` object (case-insensitive).
-                        example: 504490_FirstName
-                      type:
-                        enum:
-                        - input
-                        - dropdown
-                        - radio
-                        - checkbox
-                        - checkboxgroup
-                        - date
-                        - phone
-                        - email
-                        - money
-                        - number
-                        - label
-                        - information
-                        - collection
-                        - Person
-                        - Address
-                        - Hidden
-                        type: string
-                        description: 'Data-storage type for the question row. Must match the corresponding blueprint field type and be one of: input, dropdown, radio, checkbox, checkboxgroup, date, phone, email, money, number, label, information, collection, Person, Address, Hidden. Values are case-sensitive.'
-                        example: input
-                      questionText:
-                        type: string
-                        description: The title of the question shown to the user. This value should be kept in sync with the title property of the associated field
-                        example: First Name
-                      questionSubText:
-                        type: string
-                        description: The subtext shown to the user below the question title. This value should be kept in sync with the text property of the associated field
-                        example: ''
-                      displayValue:
-                        type: string
-                        description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
-                        example: ''
-                      value:
-                        anyOf:
-                        - type: string
-                          description: String value for simple fields
-                          example: ''
-                        - type: integer
-                          description: Integer value for numeric fields
-                          example: 123
-                        - type: number
-                          description: Float value for decimal fields
-                          example: 123.45
-                        - type: string
-                          description: Date value for date fields (YYYY-MM-DD format)
-                          format: date
-                          example: '2024-01-15'
-                        - type: string
-                          description: DateTime value for date-time fields (ISO 8601 format)
-                          format: date-time
-                          example: '2024-01-15T10:30:00.000Z'
-                        - type: boolean
-                          description: Boolean value for true/false fields
-                          example: true
-                        description: The actual value of the question (required on each nested question row; JSON null allowed when applicable).
-                  description: Dictionary containing question data for this collection item
-            description: Array of CollectionItem for collection type fields
-          description: The actual value of the question (required on each QuestionData row in `data`; JSON null is allowed for an empty optional answer). Can be a string, integer, number, float, date, date-time, boolean, or array of CollectionItem objects depending on the field type.
-        index:
-          type: integer
-          description: Zero-based row index for repeatable collection rows in transaction data lists; 0 for single-value fields.
-          format: int32
-        prefilled:
-          type: boolean
-          description: True when value is a prefill; omitted in JSON when false.
-      additionalProperties: false
-      description: One row of captured or echoed answer data. Must include id, type, and value (the JSON property `value` must be present on each row; use JSON null for an empty optional answer when applicable). On PUT, `id` must match the enclosing `data` field key (or the leaf key inside a collection item's `data`). `type` must be a QuestionData storage type (see QuestionDataStorageTypes); collection value rows use `collectionItem` on each CollectionItem.
-    PrefillParty:
-      type: object
-      properties:
-        address:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillAddress'
-        allocation:
-          $ref: '#/components/schemas/PrefillAllocation'
-        communication:
-          $ref: '#/components/schemas/PrefillCommunication'
-        communicationPreferenceCode:
-          type:
-          - string
-          - 'null'
-        languageCode:
-          type:
-          - string
-          - 'null'
-        legalEntityTypeCode:
-          type:
-          - string
-          - 'null'
-        nameBase:
-          $ref: '#/components/schemas/PrefillNameBase'
-        organization:
-          $ref: '#/components/schemas/PrefillOrganization'
-        partyIdentity:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillPartyIdentity'
-        partyRole:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillPartyRole'
-        person:
-          $ref: '#/components/schemas/PrefillPerson'
-        questionAnswer:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillQuestionAnswer'
-        relationship:
-          $ref: '#/components/schemas/PrefillRelationship'
-        suffix:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillUser:
-      type: object
-      properties:
-        username:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    LocalizedText:
-      type: object
-      properties:
-        en:
-          type:
-          - string
-          - 'null'
-          description: English text content
-      additionalProperties: false
-    RepeatableBlueprint:
-      type: object
-      properties:
-        repeatableAnswerNodeId:
-          type:
-          - string
-          - 'null'
-          description: Blueprint id this repeat block is bound to (matches SubsectionBlueprint.id or FieldGroupBlueprint.id).
-        addButtonText:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedText'
-          description: Localized label for the control that adds another row.
-        removeButtonText:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedText'
-          description: Localized label for removing a row.
-        minRepeatable:
-          type: integer
-          description: Minimum number of instances.
-          format: int32
-        maxRepeatable:
-          type: integer
-          description: Maximum number of instances.
-          format: int32
-        outputPath:
-          type:
-          - string
-          - 'null'
-          description: Optional binding path for persisted repeat instances.
-      additionalProperties: false
     FieldBlueprint:
       required:
       - fieldType
@@ -2683,6 +2265,89 @@ components:
           - 'null'
           description: Indicates the field is not displayed in the UI but is still present in the blueprint and data. Emitted as true when upstream BaseControlType is 15 (Hidden). Omitted for all other field types.
       additionalProperties: false
+    SectionBlueprint:
+      required:
+      - id
+      - partName
+      - title
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: The unique identifier for the section
+        sectionGroupKey:
+          type:
+          - string
+          - 'null'
+          description: A key used to group related sections within the blueprint
+        partName:
+          minLength: 1
+          type: string
+          description: An identifier (partName) for the section
+        title:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The section title in multiple languages. Supports localization through language codes (e.g., en, fr)
+        modules:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of module names associated with this section
+        isCustom:
+          type: boolean
+          description: Indicates whether this section is custom
+        subsections:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SubsectionBlueprint'
+          description: Array of subsections within this section
+        copyable:
+          type:
+          - string
+          - 'null'
+          description: Role identifier controlling copy behavior. Use 'none' to disable copying, or a role name (e.g., 'owner', 'annuitant', 'insured', 'payor'). Multiple roles may be comma-separated.
+        renderOn:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of conditions that determine when a section is rendered
+        pdfDocuments:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of PDF document identifiers where this section appears
+        platforms:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: An array of platforms where this section is available (e.g., D2C-only versus advisor-driven experiences)
+        visible:
+          allOf:
+          - $ref: '#/components/schemas/VisibilitySettings'
+          description: 'Visibility conditions for the section. When present, the section is only visible when all conditions are met. Example: { "booleanOperator": "AND", "conditions": [ { "type": "equality", "isEqual": true, "value": "NY", "targetNodeId": "SolicitationStateCode" } ] }'
+          example:
+            booleanOperator: AND
+            conditions:
+            - type: equality
+              isEqual: true
+              value: 'Yes'
+              targetNodeId: Transaction.SolicitationState
+        repeatable:
+          allOf:
+          - $ref: '#/components/schemas/RepeatableBlueprint'
+          description: Repeat-instance metadata when the wizard section declares IsRepeated.
+      additionalProperties: false
     StateCode:
       pattern: ^[A-Z]{2}$
       enum:
@@ -2746,7 +2411,122 @@ components:
       type: string
       description: US state, territory, or military mail code (2 characters). Uppercase letters only.
       example: NC
-    ValidationCondition:
+    PrefillAddress:
+      type: object
+      properties:
+        addressBase:
+          $ref: '#/components/schemas/PrefillAddressBase'
+        line3:
+          type:
+          - string
+          - 'null'
+        line4:
+          type:
+          - string
+          - 'null'
+        stateorprovince:
+          type:
+          - string
+          - 'null'
+        typeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    SubscriberResponseHandler:
+      type: object
+      properties:
+        type:
+          type:
+          - string
+          - 'null'
+          description: Handler kind. "context-modification" updates a context namespace; "blueprint-modification" applies the response to the rendered blueprint.
+        action:
+          type:
+          - string
+          - 'null'
+          description: 'Action to perform within the chosen handler kind. Examples: "update-namespace", "replace-whole".'
+        namespace:
+          type:
+          - string
+          - 'null'
+          description: Namespace to update for context-modification handlers. Omitted for handler types that do not use a namespace.
+        value:
+          allOf:
+          - $ref: '#/components/schemas/SubscriberResponseValue'
+          description: How to extract the value to apply from the upstream response.
+          example:
+            type: response-query
+            kind: json-path
+            value: $.data
+      additionalProperties: false
+      example:
+        type: blueprint-modification
+        action: replace-whole
+        value:
+          type: response-query
+          kind: json-path
+          value: $.data
+    PrefillLicense:
+      type: object
+      properties:
+        effectiveDate:
+          type:
+          - string
+          - 'null'
+        expirationDate:
+          type:
+          - string
+          - 'null'
+        issuingAuthority:
+          type:
+          - string
+          - 'null'
+        jurisdiction:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    VisibilitySettings:
+      type: object
+      properties:
+        booleanOperator:
+          type:
+          - string
+          - 'null'
+          description: The boolean operator for combining conditions
+        conditions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/VisibilityCondition'
+          description: Array of visibility conditions with varying structures per condition type
+      additionalProperties: false
+      example:
+        booleanOperator: AND
+        conditions:
+        - type: equality
+          isEqual: true
+          value: 'Yes'
+          targetNodeId: Transaction.SolicitationState
+    PrefillPolicyholder:
+      type: object
+      properties:
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+        relationship:
+          $ref: '#/components/schemas/PrefillRelationship'
+      additionalProperties: false
+    RenderCondition:
       required:
       - type
       - targetNodeId
@@ -2754,70 +2534,434 @@ components:
       properties:
         type:
           enum:
-          - matchesRegexCondition
-          - numberComparisonCondition
-          - characterCountInBetween
+          - equality
+          - range
+          - presence
           type: string
-          description: The kind of validation this condition performs.
-          example: matchesRegexCondition
+          description: Kind of comparison performed by the condition.
+          example: equality
+        isEqual:
+          type: boolean
+          description: When true the condition passes if the target value equals 'value'; when false the condition passes if it differs.
+          example: true
+        value:
+          type: string
+          description: The value to compare against the resolved target answer.
+          example: NY
         targetNodeId:
           type: string
-          description: The answer node identifier this condition evaluates.
-          example: Transaction.Beneficiaries[0].EmailAddresses["Home"].Address
-        regex:
-          type:
-          - string
-          - 'null'
-          description: Regex pattern. Only used when `type` is `matchesRegexCondition`.
-          example: ^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$
-        operator:
-          enum:
-          - lessThan
-          - lessThanOrEqual
-          - greaterThan
-          - greaterThanOrEqual
-          - equal
-          - notEqual
-          type:
-          - string
-          - 'null'
-          description: Comparison operator. Only used when `type` is `numberComparisonCondition`.
-          example: lessThanOrEqual
-        value:
-          anyOf:
-          - type: number
-            example: 9999999999
-          - type: integer
-            example: 1
-          - type: object
-            properties:
-              minLength:
-                type: integer
-                example: 0
-              maxLength:
-                type: integer
-                example: 128
-          description: Condition-specific value. Number for `numberComparisonCondition`; object `{ minLength, maxLength }` for `characterCountInBetween`. Absent for `matchesRegexCondition`.
-      description: 'Single validation condition inside a FieldValidationRule. The shape varies by `type`: `matchesRegexCondition` uses `regex`; `numberComparisonCondition` uses `value` + `operator`; `characterCountInBetween` uses `value: { minLength, maxLength }`.'
-    PrefillPhone:
+          description: The answer node identifier whose value is evaluated by this condition.
+          example: SolicitationStateCode
+      description: Single condition controlling whether a field/section is rendered.
+    PrefillProduct:
       type: object
       properties:
-        phoneNumber:
+        address:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillAddress'
+        carrierCode:
           type:
           - string
           - 'null'
-        phoneTypeCode:
+        cusip:
+          type:
+          - string
+          - 'null'
+        marketingName:
+          type:
+          - string
+          - 'null'
+        productCode:
+          type:
+          - string
+          - 'null'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+      additionalProperties: false
+    ValidationErrors:
+      type: object
+      properties:
+        fieldId:
+          type:
+          - string
+          - 'null'
+          description: ControlID as a string (numeric ids appear quoted). Omitted when fieldId is 0.
+        answerNodeId:
+          type:
+          - string
+          - 'null'
+          description: Answer node path from annuity NamedItem; matches FieldBlueprint.AnswerNodeId.
+        message:
+          type:
+          - string
+          - 'null'
+          description: The validation error message
+        sectionName:
+          type:
+          - string
+          - 'null'
+          description: The section/step name where the error occurred
+      additionalProperties: false
+      description: One validation message in API shape. Optional properties are omitted in JSON when null (e.g. fieldId is missing or 0).
+      example:
+        fieldId: BeneficiaryAddress
+        answerNodeId: Transaction.PrimaryOwner.PersonName.Prefix
+        message: First name is required
+        sectionName: EntityOwners
+    PrefillFlag:
+      type: object
+      properties:
+        indicator:
+          type:
+          - string
+          - 'null'
+        indicatorTypeCode:
           type:
           - string
           - 'null'
       additionalProperties: false
-    LayoutSettings:
+    PrefillInsured:
       type: object
       properties:
-        size:
+        employee:
+          $ref: '#/components/schemas/PrefillEmployee'
+        party:
+          $ref: '#/components/schemas/PrefillParty'
+      additionalProperties: false
+    PrefillClient:
+      type: object
+      properties:
+        accountNumber:
+          type:
+          - string
+          - 'null'
+        questionAnswer:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
+      additionalProperties: false
+    PrefillQuestionAnswer:
+      type: object
+      properties:
+        questionCode:
+          type:
+          - string
+          - 'null'
+        questionText:
+          type:
+          - string
+          - 'null'
+        answerCode:
+          type:
+          - string
+          - 'null'
+        answerText:
+          type:
+          - string
+          - 'null'
+        value:
+          type:
+          - number
+          - 'null'
+          format: double
+        accountDesignationCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PrefillPlanOption:
+      type: object
+      properties:
+        qualifiedPlanSubType:
+          type:
+          - string
+          - 'null'
+        qualifiedPlanTypeCode:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    RepeatableBlueprint:
+      type: object
+      properties:
+        repeatableAnswerNodeId:
+          type:
+          - string
+          - 'null'
+          description: Blueprint id this repeat block is bound to (matches SubsectionBlueprint.id or FieldGroupBlueprint.id).
+        addButtonText:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: Localized label for the control that adds another row.
+        removeButtonText:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: Localized label for removing a row.
+        minRepeatable:
           type: integer
-          description: The size of the field in a 12-column HTML grid that determines its rendered width (12 = full-width, 6 = half-width, 4 = one-third, 3 = quarter-width). Field column widths sum to 12 per row - e.g., two fields of 6 sit side-by-side, three fields of 4 share a row, four fields of 3 share a row.
+          description: Minimum number of instances.
           format: int32
+        maxRepeatable:
+          type: integer
+          description: Maximum number of instances.
+          format: int32
+        outputPath:
+          type:
+          - string
+          - 'null'
+          description: Optional binding path for persisted repeat instances.
+      additionalProperties: false
+    PrefillPartyIdentity:
+      type: object
+      properties:
+        license:
+          $ref: '#/components/schemas/PrefillLicense'
+        NPN:
+          type:
+          - string
+          - 'null'
+        typeCode:
+          type:
+          - string
+          - 'null'
+        typeId:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    QuestionData:
+      required:
+      - id
+      - type
+      - value
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: Must match the field key under `data` for this row (case-insensitive); inside collection rows, must match the leaf key in the item's `data` map.
+        type:
+          minLength: 1
+          enum:
+          - input
+          - dropdown
+          - radio
+          - checkbox
+          - checkboxgroup
+          - date
+          - phone
+          - email
+          - money
+          - number
+          - label
+          - information
+          - collection
+          - Person
+          - Address
+          - Hidden
+          type: string
+          description: 'Data-storage type for the question row. Must match the corresponding blueprint field type and be one of: input, dropdown, radio, checkbox, checkboxgroup, date, phone, email, money, number, label, information, collection, Person, Address, Hidden. Values are case-sensitive.'
+          example: input
+        questionText:
+          type:
+          - string
+          - 'null'
+          description: The title of the question shown to the user. This value should be kept in sync with the title property of the associated field
+        questionSubText:
+          type:
+          - string
+          - 'null'
+          description: The subtext shown to the user below the question title. This value should be kept in sync with the text property of the associated field
+        displayValue:
+          type:
+          - string
+          - 'null'
+          description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
+        value:
+          anyOf:
+          - type: string
+            description: String value for simple fields
+            example: PrimaryBeneficiary
+          - type: integer
+            description: Integer value for numeric fields
+            example: 123
+          - type: number
+            description: Float value for decimal fields
+            format: float
+            example: 123.45
+          - type: string
+            description: Date value for date fields (YYYY-MM-DD format)
+            format: date
+            example: '2024-01-15'
+          - type: string
+            description: DateTime value for date-time fields (ISO 8601 format)
+            format: date-time
+            example: '2024-01-15T10:30:00Z'
+          - type: boolean
+            description: Boolean value for true/false fields
+            example: true
+          - type: array
+            items:
+              type: string
+              example: Income_Replacement
+            description: Array of selected option codes for checkboxgroup fields
+          - type: array
+            items:
+              required:
+              - surrogateId
+              - type
+              - data
+              type: object
+              properties:
+                surrogateId:
+                  type: string
+                  description: 'The surrogate identifier for each set of answers in a collection. Example: a repeatable beneficiary collection with two beneficiaries will have two surrogate IDs.'
+                  example: 504490-1
+                type:
+                  enum:
+                  - collectionItem
+                  type: string
+                  description: Must be `collectionItem` for each element of a collection value array.
+                  example: collectionItem
+                data:
+                  type: object
+                  additionalProperties:
+                    required:
+                    - id
+                    - type
+                    - value
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Must match the leaf property name under this collection item's `data` object (case-insensitive).
+                        example: 504490_FirstName
+                      type:
+                        enum:
+                        - input
+                        - dropdown
+                        - radio
+                        - checkbox
+                        - checkboxgroup
+                        - date
+                        - phone
+                        - email
+                        - money
+                        - number
+                        - label
+                        - information
+                        - collection
+                        - Person
+                        - Address
+                        - Hidden
+                        type: string
+                        description: 'Data-storage type for the question row. Must match the corresponding blueprint field type and be one of: input, dropdown, radio, checkbox, checkboxgroup, date, phone, email, money, number, label, information, collection, Person, Address, Hidden. Values are case-sensitive.'
+                        example: input
+                      questionText:
+                        type: string
+                        description: The title of the question shown to the user. This value should be kept in sync with the title property of the associated field
+                        example: First Name
+                      questionSubText:
+                        type: string
+                        description: The subtext shown to the user below the question title. This value should be kept in sync with the text property of the associated field
+                        example: ''
+                      displayValue:
+                        type: string
+                        description: The display text representing the user's selected answer. For example, a country dropdown may display 'United States of America' to the user, while the blueprint stores the value as 'USA'
+                        example: ''
+                      value:
+                        anyOf:
+                        - type: string
+                          description: String value for simple fields
+                          example: ''
+                        - type: integer
+                          description: Integer value for numeric fields
+                          example: 123
+                        - type: number
+                          description: Float value for decimal fields
+                          example: 123.45
+                        - type: string
+                          description: Date value for date fields (YYYY-MM-DD format)
+                          format: date
+                          example: '2024-01-15'
+                        - type: string
+                          description: DateTime value for date-time fields (ISO 8601 format)
+                          format: date-time
+                          example: '2024-01-15T10:30:00.000Z'
+                        - type: boolean
+                          description: Boolean value for true/false fields
+                          example: true
+                        description: The actual value of the question (required on each nested question row; JSON null allowed when applicable).
+                  description: Dictionary containing question data for this collection item
+            description: Array of CollectionItem for collection type fields
+          description: The actual value of the question (required on each QuestionData row in `data`; JSON null is allowed for an empty optional answer). Can be a string, integer, number, float, date, date-time, boolean, or array of CollectionItem objects depending on the field type.
+        index:
+          type: integer
+          description: Zero-based row index for repeatable collection rows in transaction data lists; 0 for single-value fields.
+          format: int32
+        prefilled:
+          type: boolean
+          description: True when value is a prefill; omitted in JSON when false.
+      additionalProperties: false
+      description: One row of captured or echoed answer data. Must include id, type, and value (the JSON property `value` must be present on each row; use JSON null for an empty optional answer when applicable). On PUT, `id` must match the enclosing `data` field key (or the leaf key inside a collection item's `data`). `type` must be a QuestionData storage type (see QuestionDataStorageTypes); collection value rows use `collectionItem` on each CollectionItem.
+    PrefillMessageInformation:
+      type: object
+      properties:
+        businessPurposeTypeCode:
+          type:
+          - string
+          - 'null'
+        businessPurposeSubTypeCode:
+          type:
+          - string
+          - 'null'
+        sender:
+          type:
+          - string
+          - 'null'
+        receiver:
+          type:
+          - string
+          - 'null'
+        associatedFirmId:
+          type:
+          - string
+          - 'null'
+        trackingNumber:
+          type:
+          - string
+          - 'null'
+        effectiveDate:
+          type:
+          - string
+          - 'null'
+        reference:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillReference'
+        eSignature:
+          type:
+          - string
+          - 'null'
+        transactionNumber:
+          type:
+          - string
+          - 'null'
+        TransExternalTransactionId:
+          type:
+          - string
+          - 'null'
       additionalProperties: false
     PrefillRequest:
       type: object
@@ -2855,268 +2999,255 @@ components:
         product:
           $ref: '#/components/schemas/PrefillProduct'
       additionalProperties: false
-    PrefillUnderwritingDecision:
+    PrefillPolicy:
       type: object
       properties:
-        classCode:
+        duration:
+          $ref: '#/components/schemas/PrefillDuration'
+        effectiveDate:
           type:
           - string
           - 'null'
-      additionalProperties: false
-    PrefillDuration:
-      type: object
-      properties:
-        periodDescription:
+        faceAmount:
           type:
-          - string
+          - number
           - 'null'
-        unitCode:
-          type:
-          - string
-          - 'null'
-        unitCount:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillAgent:
-      type: object
-      properties:
-        party:
-          $ref: '#/components/schemas/PrefillParty'
-        partyIdentity:
+          format: double
+        flag:
           type:
           - array
           - 'null'
           items:
-            $ref: '#/components/schemas/PrefillPartyIdentity'
+            $ref: '#/components/schemas/PrefillFlag'
         questionAnswer:
           type:
           - array
           - 'null'
           items:
             $ref: '#/components/schemas/PrefillQuestionAnswer'
-        user:
-          $ref: '#/components/schemas/PrefillUser'
+        underwritingDecision:
+          $ref: '#/components/schemas/PrefillUnderwritingDecision'
       additionalProperties: false
-    PrefillLicense:
+    PrefillPlan:
       type: object
       properties:
-        effectiveDate:
+        accountDesignationCode:
           type:
           - string
           - 'null'
-        expirationDate:
-          type:
-          - string
-          - 'null'
-        issuingAuthority:
-          type:
-          - string
-          - 'null'
-        jurisdiction:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    SubscriberResponseValue:
-      type: object
-      properties:
-        type:
-          type:
-          - string
-          - 'null'
-          description: Value source kind. "response-query" extracts via a query expression on the response body.
-        kind:
-          type:
-          - string
-          - 'null'
-          description: Query language used to evaluate the value expression. Currently always "json-path".
-        value:
-          type:
-          - string
-          - 'null'
-          description: The query expression itself (e.g., "$.data" to grab the response's data branch).
-      additionalProperties: false
-      example:
-        type: response-query
-        kind: json-path
-        value: $.data
-    RenderCondition:
-      required:
-      - type
-      - targetNodeId
-      type: object
-      properties:
-        type:
-          enum:
-          - equality
-          - range
-          - presence
-          type: string
-          description: Kind of comparison performed by the condition.
-          example: equality
-        isEqual:
-          type: boolean
-          description: When true the condition passes if the target value equals 'value'; when false the condition passes if it differs.
-          example: true
-        value:
-          type: string
-          description: The value to compare against the resolved target answer.
-          example: NY
-        targetNodeId:
-          type: string
-          description: The answer node identifier whose value is evaluated by this condition.
-          example: SolicitationStateCode
-      description: Single condition controlling whether a field/section is rendered.
-    PrefillEmployee:
-      type: object
-      properties:
-        address:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillAddress'
-        companyName:
-          type:
-          - string
-          - 'null'
-        jobTitle:
-          type:
-          - string
-          - 'null'
-        occupationClassCode:
+        typeCode:
           type:
           - string
           - 'null'
         party:
-          $ref: '#/components/schemas/PrefillParty'
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillParty'
+        planOption:
+          $ref: '#/components/schemas/PrefillPlanOption'
         questionAnswer:
           type:
-          - string
+          - array
           - 'null'
-        statusCode:
-          type:
-          - string
-          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillQuestionAnswer'
       additionalProperties: false
-    Subscriber:
+    PrefillPerson:
       type: object
       properties:
-        triggers:
+        birthDate:
           type:
-          - array
+          - string
           - 'null'
-          items:
-            type: string
-          description: NamedItem identifiers of the form fields whose value change fires this subscriber.
-        conditions:
+        citizenship:
           type:
-          - array
+          - string
           - 'null'
-          items: {}
-          description: Optional conditions that must hold for the subscriber to execute. Omitted when not used.
-        actions:
+        citizenshipCode:
           type:
-          - array
+          - string
           - 'null'
-          items:
-            $ref: '#/components/schemas/SubscriberAction'
-          description: Actions executed when any of the triggers fire. Each action declares an HTTP call plus one or more response handlers.
+        dependentCount:
+          type:
+          - number
+          - 'null'
+          format: double
+        gender:
+          type:
+          - string
+          - 'null'
+        genderCode:
+          type:
+          - string
+          - 'null'
+        maritalstatus:
+          type:
+          - string
+          - 'null'
+        maritalStatusCode:
+          type:
+          - string
+          - 'null'
+        militaryStatusCode:
+          type:
+          - string
+          - 'null'
+        militarystatus:
+          type:
+          - string
+          - 'null'
+        residencyStatusCode:
+          type:
+          - string
+          - 'null'
+        residencystatus:
+          type:
+          - string
+          - 'null'
       additionalProperties: false
-      example:
-        triggers:
-        - FirstName
-        actions:
-        - type: http
-          verb: get
-          url: /market-connect/order-entry/v1/transaction/1125715/MCDPS
-          token: OEToken
-          payload:
-            type: none
-          responseHandlers:
-          - type: blueprint-modification
-            action: replace-whole
-            value:
-              type: response-query
-              kind: json-path
-              value: $.data
-    SubscriberResponseHandler:
+    Blueprint:
+      required:
+      - sectionBlueprints
+      - sectionGroupBlueprints
+      type: object
+      properties:
+        sectionBlueprints:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectionBlueprint'
+          description: An array of sections representing the hierarchical structure of an order entry blueprint, nested from sections to subsections, field groups, and individual fields
+        sectionGroupBlueprints:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SectionGroupBlueprint'
+          description: Map of section groups keyed by group identifier. Each value assigns sections to their corresponding group.
+      additionalProperties: false
+    SectionGroupBlueprint:
+      required:
+      - id
+      - title
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: The unique identifier for the section group
+        title:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedText'
+          description: The section group title in multiple languages. Supports localization through language codes (e.g., en, fr)
+        partName:
+          type:
+          - string
+          - 'null'
+          description: An identifier (partName) for the section group
+      additionalProperties: false
+    SubscriberAction:
       type: object
       properties:
         type:
           type:
           - string
           - 'null'
-          description: Handler kind. "context-modification" updates a context namespace; "blueprint-modification" applies the response to the rendered blueprint.
-        action:
+          description: The action transport. Currently always "http".
+        verb:
           type:
           - string
           - 'null'
-          description: 'Action to perform within the chosen handler kind. Examples: "update-namespace", "replace-whole".'
-        namespace:
+          description: HTTP verb to use (e.g., "get", "post").
+        url:
           type:
           - string
           - 'null'
-          description: Namespace to update for context-modification handlers. Omitted for handler types that do not use a namespace.
-        value:
+          description: 'Relative URL of the OE endpoint to call when the trigger fires. Three shapes are emitted: ''/market-connect/order-entry/v1/dataset'' (dataset refresh); ''/market-connect/order-entry/v1/transaction/{transactionId}/{stepName}'' (multi-step blueprint refresh); ''/market-connect/order-entry/v1/transaction/{transactionId}'' (single/enhanced blueprint refresh).'
+        token:
+          type:
+          - string
+          - 'null'
+          description: Bearer-token alias forwarded by the UI on the call. Always "OEToken" today.
+        payload:
           allOf:
-          - $ref: '#/components/schemas/SubscriberResponseValue'
-          description: How to extract the value to apply from the upstream response.
+          - $ref: '#/components/schemas/SubscriberActionPayload'
+          description: Request payload envelope. Use type "none" when no body is required.
           example:
-            type: response-query
-            kind: json-path
-            value: $.data
-      additionalProperties: false
-      example:
-        type: blueprint-modification
-        action: replace-whole
-        value:
-          type: response-query
-          kind: json-path
-          value: $.data
-    SubmitTransactionResponse:
-      required:
-      - message
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-          description: The unique identifier for the submitted transaction. Echoed back from the request.
-        message:
-          minLength: 1
-          type: string
-          description: Human-readable confirmation that the submit request was accepted.
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        message: Transaction submitted successfully
-    VisibilitySettings:
-      type: object
-      properties:
-        booleanOperator:
-          type:
-          - string
-          - 'null'
-          description: The boolean operator for combining conditions
-        conditions:
+            type: basic
+            payload:
+              transactionId: '1125715'
+              stepName: MCDPS
+              fieldId: '531783'
+        responseHandlers:
           type:
           - array
           - 'null'
           items:
-            $ref: '#/components/schemas/VisibilityCondition'
-          description: Array of visibility conditions with varying structures per condition type
+            $ref: '#/components/schemas/SubscriberResponseHandler'
+          description: One or more handlers that apply the upstream response back to the form.
       additionalProperties: false
       example:
-        booleanOperator: AND
-        conditions:
-        - type: equality
-          isEqual: true
-          value: 'Yes'
-          targetNodeId: Transaction.SolicitationState
+        type: http
+        verb: get
+        url: /market-connect/order-entry/v1/transaction/1064727
+        token: OEToken
+        payload:
+          type: none
+        responseHandlers:
+        - type: blueprint-modification
+          action: replace-whole
+          value:
+            type: response-query
+            kind: json-path
+            value: $.data
+    PrefillCommunication:
+      type: object
+      properties:
+        emailAddress:
+          type:
+          - string
+          - 'null'
+        phone:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPhone'
+      additionalProperties: false
+    LocalizedText:
+      type: object
+      properties:
+        en:
+          type:
+          - string
+          - 'null'
+          description: English text content
+      additionalProperties: false
+    PrefillUser:
+      type: object
+      properties:
+        username:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    TransactionDataQuestionRowsMap:
+      title: TransactionDataQuestionRowsMap
+      type: object
+      properties:
+        '259726':
+          $ref: '#/components/schemas/QuestionDataRows'
+      additionalProperties:
+        $ref: '#/components/schemas/QuestionDataRows'
+      description: Answers keyed by blueprint question id or composite collection field id. Named properties below are representative examples (same keys as the default example); any other field id is valid and uses the same value shape (see additionalProperties → QuestionDataRows → QuestionData). Each array entry is one row; use index for repeatable collection instances.
+      example:
+        '259726':
+        - id: '259726'
+          type: dropdown
+          questionText: Account designation
+          questionSubText: Account designation
+          displayValue: Owner
+          value: Owner
+          index: 0
     SubsectionBlueprint:
       required:
       - id
@@ -3181,134 +3312,162 @@ components:
           - $ref: '#/components/schemas/RepeatableBlueprint'
           description: Repeat-instance metadata when the wizard subsection or custom control declares IsRepeated.
       additionalProperties: false
-    PrefillPolicy:
+    PrefillDuration:
       type: object
       properties:
-        duration:
-          $ref: '#/components/schemas/PrefillDuration'
-        effectiveDate:
+        periodDescription:
           type:
           - string
           - 'null'
-        faceAmount:
+        unitCode:
           type:
-          - number
+          - string
           - 'null'
-          format: double
-        flag:
+        unitCount:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    ValidationCondition:
+      required:
+      - type
+      - targetNodeId
+      type: object
+      properties:
+        type:
+          enum:
+          - matchesRegexCondition
+          - numberComparisonCondition
+          - characterCountInBetween
+          type: string
+          description: The kind of validation this condition performs.
+          example: matchesRegexCondition
+        targetNodeId:
+          type: string
+          description: The answer node identifier this condition evaluates.
+          example: Transaction.Beneficiaries[0].EmailAddresses["Home"].Address
+        regex:
+          type:
+          - string
+          - 'null'
+          description: Regex pattern. Only used when `type` is `matchesRegexCondition`.
+          example: ^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$
+        operator:
+          enum:
+          - lessThan
+          - lessThanOrEqual
+          - greaterThan
+          - greaterThanOrEqual
+          - equal
+          - notEqual
+          type:
+          - string
+          - 'null'
+          description: Comparison operator. Only used when `type` is `numberComparisonCondition`.
+          example: lessThanOrEqual
+        value:
+          anyOf:
+          - type: number
+            example: 9999999999
+          - type: integer
+            example: 1
+          - type: object
+            properties:
+              minLength:
+                type: integer
+                example: 0
+              maxLength:
+                type: integer
+                example: 128
+          description: Condition-specific value. Number for `numberComparisonCondition`; object `{ minLength, maxLength }` for `characterCountInBetween`. Absent for `matchesRegexCondition`.
+      description: 'Single validation condition inside a FieldValidationRule. The shape varies by `type`: `matchesRegexCondition` uses `regex`; `numberComparisonCondition` uses `value` + `operator`; `characterCountInBetween` uses `value: { minLength, maxLength }`.'
+    PrefillPartyRole:
+      type: object
+      properties:
+        roleCode:
+          type:
+          - string
+          - 'null'
+        roleCodes:
           type:
           - array
           - 'null'
           items:
-            $ref: '#/components/schemas/PrefillFlag'
+            type: string
+      additionalProperties: false
+    SubmitTransactionResponse:
+      required:
+      - message
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+          description: The unique identifier for the submitted transaction. Echoed back from the request.
+        message:
+          minLength: 1
+          type: string
+          description: Human-readable confirmation that the submit request was accepted.
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        message: Transaction submitted successfully
+    PrefillParty:
+      type: object
+      properties:
+        address:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillAddress'
+        allocation:
+          $ref: '#/components/schemas/PrefillAllocation'
+        communication:
+          $ref: '#/components/schemas/PrefillCommunication'
+        communicationPreferenceCode:
+          type:
+          - string
+          - 'null'
+        languageCode:
+          type:
+          - string
+          - 'null'
+        legalEntityTypeCode:
+          type:
+          - string
+          - 'null'
+        nameBase:
+          $ref: '#/components/schemas/PrefillNameBase'
+        organization:
+          $ref: '#/components/schemas/PrefillOrganization'
+        partyIdentity:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPartyIdentity'
+        partyRole:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PrefillPartyRole'
+        person:
+          $ref: '#/components/schemas/PrefillPerson'
         questionAnswer:
           type:
           - array
           - 'null'
           items:
             $ref: '#/components/schemas/PrefillQuestionAnswer'
-        underwritingDecision:
-          $ref: '#/components/schemas/PrefillUnderwritingDecision'
-      additionalProperties: false
-    PrefillFlag:
-      type: object
-      properties:
-        indicator:
+        relationship:
+          $ref: '#/components/schemas/PrefillRelationship'
+        suffix:
           type:
           - string
           - 'null'
-        indicatorTypeCode:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillPartyIdentity:
-      type: object
-      properties:
-        license:
-          $ref: '#/components/schemas/PrefillLicense'
-        NPN:
-          type:
-          - string
-          - 'null'
-        typeCode:
-          type:
-          - string
-          - 'null'
-        typeId:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillCommunication:
-      type: object
-      properties:
-        emailAddress:
-          type:
-          - string
-          - 'null'
-        phone:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillPhone'
-      additionalProperties: false
-    PrefillClient:
-      type: object
-      properties:
-        accountNumber:
-          type:
-          - string
-          - 'null'
-        questionAnswer:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillQuestionAnswer'
-      additionalProperties: false
-    PrefillReference:
-      type: object
-      properties:
-        id:
-          type:
-          - string
-          - 'null'
-        description:
-          type:
-          - string
-          - 'null'
-        source:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillPlan:
-      type: object
-      properties:
-        accountDesignationCode:
-          type:
-          - string
-          - 'null'
-        typeCode:
-          type:
-          - string
-          - 'null'
-        party:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillParty'
-        planOption:
-          $ref: '#/components/schemas/PrefillPlanOption'
-        questionAnswer:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillQuestionAnswer'
       additionalProperties: false
     CreateTransactionRequest:
       required:
@@ -3353,32 +3512,33 @@ components:
           - $ref: '#/components/schemas/PrefillRequest'
           description: Optional ACORD-aligned prefill data to pre-populate party and product fields in the new transaction.
       additionalProperties: false
-    PrefillAllocation:
+    PrefillNameBase:
       type: object
       properties:
-        percent:
-          type:
-          - number
-          - 'null'
-          format: double
-        typeCode:
+        prefix:
           type:
           - string
           - 'null'
-      additionalProperties: false
-    PrefillRelationship:
-      type: object
-      properties:
-        relationshipToCode:
+        fullName:
           type:
           - string
           - 'null'
-        partyRole:
+        givenName:
           type:
-          - array
+          - string
           - 'null'
-          items:
-            $ref: '#/components/schemas/PrefillPartyRole'
+        otherGivenName:
+          type:
+          - string
+          - 'null'
+        suffix:
+          type:
+          - string
+          - 'null'
+        surname:
+          type:
+          - string
+          - 'null'
       additionalProperties: false
     PrefillIllustration:
       type: object
@@ -3391,166 +3551,6 @@ components:
           type:
           - string
           - 'null'
-      additionalProperties: false
-    VisibilityCondition:
-      required:
-      - type
-      - targetNodeId
-      type: object
-      properties:
-        type:
-          enum:
-          - equality
-          - range
-          - presence
-          type: string
-          description: Kind of comparison performed by the condition.
-          example: equality
-        isEqual:
-          type: boolean
-          description: When true the condition passes if the target value equals 'value'; when false the condition passes if it differs.
-          example: true
-        value:
-          type: string
-          description: The value to compare against the resolved target answer.
-          example: NY
-        targetNodeId:
-          type: string
-          description: The answer node identifier whose value is evaluated by this condition.
-          example: SolicitationStateCode
-      description: Single condition controlling whether a field/section is visible at runtime.
-    PrefillAddressBase:
-      type: object
-      properties:
-        line1:
-          type:
-          - string
-          - 'null'
-        line2:
-          type:
-          - string
-          - 'null'
-        city:
-          type:
-          - string
-          - 'null'
-        stateOrProvinceCode:
-          type:
-          - string
-          - 'null'
-        postalCode:
-          type:
-          - string
-          - 'null'
-        countryCode:
-          type:
-          - string
-          - 'null'
-        country:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillBeneficiary:
-      type: object
-      properties:
-        allocation:
-          $ref: '#/components/schemas/PrefillAllocation'
-        employee:
-          $ref: '#/components/schemas/PrefillEmployee'
-        legalEntityTypeCode:
-          type:
-          - string
-          - 'null'
-        party:
-          $ref: '#/components/schemas/PrefillParty'
-        relationship:
-          $ref: '#/components/schemas/PrefillRelationship'
-      additionalProperties: false
-    PrefillInsured:
-      type: object
-      properties:
-        employee:
-          $ref: '#/components/schemas/PrefillEmployee'
-        party:
-          $ref: '#/components/schemas/PrefillParty'
-      additionalProperties: false
-    QuestionDataRows:
-      title: QuestionDataRows
-      type: array
-      items:
-        $ref: '#/components/schemas/QuestionData'
-      description: All answer rows for one question or composite collection field id. Use `index` on each row for repeatable collection instances. Each row must include `id`, `type`, and `value` (see QuestionData schema).
-    PrefillPlanOption:
-      type: object
-      properties:
-        qualifiedPlanSubType:
-          type:
-          - string
-          - 'null'
-        qualifiedPlanTypeCode:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillAddress:
-      type: object
-      properties:
-        addressBase:
-          $ref: '#/components/schemas/PrefillAddressBase'
-        line3:
-          type:
-          - string
-          - 'null'
-        line4:
-          type:
-          - string
-          - 'null'
-        stateorprovince:
-          type:
-          - string
-          - 'null'
-        typeCode:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillQuestionAnswer:
-      type: object
-      properties:
-        questionCode:
-          type:
-          - string
-          - 'null'
-        questionText:
-          type:
-          - string
-          - 'null'
-        answerCode:
-          type:
-          - string
-          - 'null'
-        answerText:
-          type:
-          - string
-          - 'null'
-        value:
-          type:
-          - number
-          - 'null'
-          format: double
-        accountDesignationCode:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    PrefillAnnuitant:
-      type: object
-      properties:
-        employee:
-          $ref: '#/components/schemas/PrefillEmployee'
-        party:
-          $ref: '#/components/schemas/PrefillParty'
       additionalProperties: false
   securitySchemes:
     openIdConnect:

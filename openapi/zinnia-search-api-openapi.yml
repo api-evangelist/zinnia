@@ -12,7 +12,7 @@ tags:
 paths:
   /policy/v1/policies/search:
     post:
-      operationId: Policy Search
+      operationId: PolicySearch
       summary: Search Policies
       parameters:
       - name: sortBy
@@ -63,6 +63,8 @@ paths:
       - Auth0: []
       tags:
       - Search
+      x-operation-id-source: normalized
+      x-operation-id-original: Policy Search
 components:
   schemas:
     PolicyReferenceDataModel:

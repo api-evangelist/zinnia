@@ -316,52 +316,49 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
-    ProductPricingFundFee:
+    ProductPricingFeatureFee:
       type: object
       properties:
-        fundName:
+        featureName:
           type:
           - string
           - 'null'
-        percentageDisplay:
+        feeValues:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        riderModifiedChargeSchedule:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingYearCharge'
+      additionalProperties: false
+    ProductPricingFee:
+      type: object
+      properties:
+        feeTypeLabel:
           type:
           - string
           - 'null'
-        minPct:
+        feeName:
           type:
           - string
           - 'null'
-        maxPct:
+        feeValue:
           type:
           - string
           - 'null'
-        amountDisplay:
-          type:
-          - string
-          - 'null'
-        minAmt:
-          type:
-          - string
-          - 'null'
-        maxAmt:
-          type:
-          - string
-          - 'null'
-        isValueAdjusted:
+        isDefaultType:
           type: boolean
       additionalProperties: false
-    ProductPricingNetManagementFee:
-      type: object
-      properties:
-        fundName:
-          type:
-          - string
-          - 'null'
-        totalFeePercentage:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
+      example:
+        feeTypeLabel: 'Base M&E charges:'
+        feeName: M&E
+        feeValue: 0.90%
+        isDefaultType: false
     ErrorInfo:
       required:
       - code
@@ -412,29 +409,6 @@ components:
         description: Validation failed for field '$.fieldName'
         details: The request contains an unrecognized property. Only documented fields are allowed.
         timestamp: '2024-01-15T10:30:00.000Z'
-    ProductPricingFee:
-      type: object
-      properties:
-        feeTypeLabel:
-          type:
-          - string
-          - 'null'
-        feeName:
-          type:
-          - string
-          - 'null'
-        feeValue:
-          type:
-          - string
-          - 'null'
-        isDefaultType:
-          type: boolean
-      additionalProperties: false
-      example:
-        feeTypeLabel: 'Base M&E charges:'
-        feeName: M&E
-        feeValue: 0.90%
-        isDefaultType: false
     ProductPricingResponse:
       required:
       - transactionId
@@ -559,6 +533,85 @@ components:
         isSuccess: true
         message: Success
         status: Success
+    ProductPricingNetManagementFee:
+      type: object
+      properties:
+        fundName:
+          type:
+          - string
+          - 'null'
+        totalFeePercentage:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    ProductPricingFundFee:
+      type: object
+      properties:
+        fundName:
+          type:
+          - string
+          - 'null'
+        percentageDisplay:
+          type:
+          - string
+          - 'null'
+        minPct:
+          type:
+          - string
+          - 'null'
+        maxPct:
+          type:
+          - string
+          - 'null'
+        amountDisplay:
+          type:
+          - string
+          - 'null'
+        minAmt:
+          type:
+          - string
+          - 'null'
+        maxAmt:
+          type:
+          - string
+          - 'null'
+        isValueAdjusted:
+          type: boolean
+      additionalProperties: false
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+    ProductPricingYearCharge:
+      type: object
+      properties:
+        year:
+          type:
+          - string
+          - 'null'
+        charge:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
     ProductPricingData:
       type: object
       properties:
@@ -653,59 +706,6 @@ components:
         netManagementFees:
         - fundName: Sample Index Fund
           totalFeePercentage: 1.10%
-    ProductPricingFeatureFee:
-      type: object
-      properties:
-        featureName:
-          type:
-          - string
-          - 'null'
-        feeValues:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        riderModifiedChargeSchedule:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/ProductPricingYearCharge'
-      additionalProperties: false
-    ProductPricingYearCharge:
-      type: object
-      properties:
-        year:
-          type:
-          - string
-          - 'null'
-        charge:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
-    ErrorResponse:
-      required:
-      - errors
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
   securitySchemes:
     openIdConnect:
       type: openIdConnect

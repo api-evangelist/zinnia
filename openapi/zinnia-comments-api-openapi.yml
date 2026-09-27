@@ -717,225 +717,6 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
-    ErrorInfo:
-      required:
-      - code
-      - timestamp
-      type: object
-      properties:
-        code:
-          enum:
-          - VALIDATION_ERROR
-          - INVALID_TRANSACTION_ID
-          - INVALID_STEP_NAME
-          - TRANSACTION_CREATION_FAILED
-          - TRANSACTION_ID_NOT_FOUND
-          - SAVE_TRANSACTION_ERROR
-          - SAVE_TRANSACTION_FAILED
-          - INVALID_RESPONSE_FORMAT
-          - BUILD_BLUEPRINT_ERROR
-          - JSON_PARSE_ERROR
-          - TRANSFORMER_NULL_RESPONSE
-          - EMPTY_BLUEPRINT
-          - UNEXPECTED_ERROR
-          - SERVICE_ERROR
-          - UNAUTHORIZED
-          - FORBIDDEN
-          - NOT_FOUND
-          - RATE_LIMIT_EXCEEDED
-          - UPSTREAM_SERVICE_ERROR
-          - SERVICE_UNAVAILABLE
-          - UPSTREAM_TIMEOUT
-          - FIRST_STEP_SETUP_FAILED
-          - METHOD_NOT_ALLOWED
-          type: string
-          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
-        description:
-          type:
-          - string
-          - 'null'
-        details:
-          type:
-          - string
-          - 'null'
-        timestamp:
-          type: string
-          format: date-time
-      additionalProperties: false
-      example:
-        code: VALIDATION_ERROR
-        description: Validation failed for field '$.fieldName'
-        details: The request contains an unrecognized property. Only documented fields are allowed.
-        timestamp: '2024-01-15T10:30:00.000Z'
-    DeleteCommentResponse:
-      type: object
-      properties:
-        caseId:
-          type:
-          - string
-          - 'null'
-          description: Case identifier associated with the transaction. Populated on successful deletes.
-        isSuccess:
-          type: boolean
-          description: Indicates whether the operation was successful
-        message:
-          type:
-          - string
-          - 'null'
-          description: Human-readable message describing the result
-        status:
-          type:
-          - string
-          - 'null'
-          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
-      additionalProperties: false
-      example:
-        caseId: CA0000188538
-        isSuccess: true
-        message: Comment deleted successfully
-        status: Success
-    GetCommentsResponse:
-      type: object
-      properties:
-        caseId:
-          type:
-          - string
-          - 'null'
-          description: Case identifier associated with the transaction
-        data:
-          allOf:
-          - $ref: '#/components/schemas/CommentsData'
-          description: Comments data payload
-        isSuccess:
-          type: boolean
-          description: Indicates whether the operation was successful
-        message:
-          type:
-          - string
-          - 'null'
-          description: Human-readable message describing the result
-        status:
-          type:
-          - string
-          - 'null'
-          description: Status code of the operation
-      additionalProperties: false
-      example:
-        caseId: CASE-2026-001234
-        data:
-          comments:
-          - commentId: '54321'
-            commentSource: OrderEntryUI
-            commentText: Customer requested a follow-up call before submission.
-            createdDateTime: '2026-04-21T09:15:00Z'
-            lastUpdatedDateTime: '2026-04-21T09:15:00Z'
-            logonID: jdoe
-            statusAtStep: InProgress
-            statusDisplayName: In Progress
-            stepTitle: Owner Information
-            userName: Jane Doe
-          totalCount: 1
-          page: 1
-          pageSize: 20
-        isSuccess: true
-        message: Comments retrieved successfully.
-        status: Success
-    SaveCommentResponse:
-      type: object
-      properties:
-        caseId:
-          type:
-          - string
-          - 'null'
-          description: Case identifier associated with the transaction. Populated on successful saves.
-        isSuccess:
-          type: boolean
-          description: Indicates whether the operation was successful
-        message:
-          type:
-          - string
-          - 'null'
-          description: Human-readable message describing the result
-        status:
-          type:
-          - string
-          - 'null'
-          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
-      additionalProperties: false
-      example:
-        caseId: CA0000188538
-        isSuccess: true
-        message: Comment saved successfully.
-        status: Success
-    DeleteCommentRequest:
-      required:
-      - commentId
-      - transactionId
-      type: object
-      properties:
-        commentId:
-          minLength: 1
-          pattern: ^[1-9][0-9]*$
-          type: string
-          description: Unique identifier of the comment to delete (positive integer encoded as a string)
-        transactionId:
-          minLength: 1
-          pattern: ^[1-9][0-9]*$
-          type: string
-          description: Unique identifier of the transaction the comment belongs to (positive integer encoded as a string)
-      additionalProperties: false
-      example:
-        commentId: '54321'
-        transactionId: '1125715'
-    SaveCommentRequest:
-      required:
-      - commentText
-      - transactionId
-      type: object
-      properties:
-        appSubIndicator:
-          type:
-          - string
-          - 'null'
-          description: Indicator identifying whether the comment applies to the application or sub-application
-        commentSource:
-          type:
-          - string
-          - 'null'
-          description: Source system or user group that authored the comment
-        commentText:
-          minLength: 1
-          type: string
-          description: Free-form comment text
-        statusAtStep:
-          type:
-          - string
-          - 'null'
-          description: Status code of the transaction at the step the comment was added
-        statusDisplayName:
-          type:
-          - string
-          - 'null'
-          description: Display name for the status at the step the comment was added
-        stepTitle:
-          type:
-          - string
-          - 'null'
-          description: Title of the wizard step the comment was added on
-        transactionId:
-          minLength: 1
-          pattern: ^[1-9][0-9]*$
-          type: string
-          description: Unique identifier of the transaction the comment belongs to (positive integer encoded as a string)
-      additionalProperties: false
-      example:
-        appSubIndicator: App
-        commentSource: OrderEntryUI
-        commentText: Customer requested a follow-up call before submission.
-        statusAtStep: InProgress
-        statusDisplayName: In Progress
-        stepTitle: Owner Information
-        transactionId: '1125715'
     CommentItem:
       type: object
       properties:
@@ -990,6 +771,225 @@ components:
           - 'null'
           description: Name of the user who authored the comment
       additionalProperties: false
+    SaveCommentResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction. Populated on successful saves.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the operation was successful
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
+      additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Comment saved successfully.
+        status: Success
+    DeleteCommentRequest:
+      required:
+      - commentId
+      - transactionId
+      type: object
+      properties:
+        commentId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier of the comment to delete (positive integer encoded as a string)
+        transactionId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier of the transaction the comment belongs to (positive integer encoded as a string)
+      additionalProperties: false
+      example:
+        commentId: '54321'
+        transactionId: '1125715'
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
+    GetCommentsResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction
+        data:
+          allOf:
+          - $ref: '#/components/schemas/CommentsData'
+          description: Comments data payload
+        isSuccess:
+          type: boolean
+          description: Indicates whether the operation was successful
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation
+      additionalProperties: false
+      example:
+        caseId: CASE-2026-001234
+        data:
+          comments:
+          - commentId: '54321'
+            commentSource: OrderEntryUI
+            commentText: Customer requested a follow-up call before submission.
+            createdDateTime: '2026-04-21T09:15:00Z'
+            lastUpdatedDateTime: '2026-04-21T09:15:00Z'
+            logonID: jdoe
+            statusAtStep: InProgress
+            statusDisplayName: In Progress
+            stepTitle: Owner Information
+            userName: Jane Doe
+          totalCount: 1
+          page: 1
+          pageSize: 20
+        isSuccess: true
+        message: Comments retrieved successfully.
+        status: Success
+    DeleteCommentResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction. Populated on successful deletes.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the operation was successful
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
+      additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Comment deleted successfully
+        status: Success
+    SaveCommentRequest:
+      required:
+      - commentText
+      - transactionId
+      type: object
+      properties:
+        appSubIndicator:
+          type:
+          - string
+          - 'null'
+          description: Indicator identifying whether the comment applies to the application or sub-application
+        commentSource:
+          type:
+          - string
+          - 'null'
+          description: Source system or user group that authored the comment
+        commentText:
+          minLength: 1
+          type: string
+          description: Free-form comment text
+        statusAtStep:
+          type:
+          - string
+          - 'null'
+          description: Status code of the transaction at the step the comment was added
+        statusDisplayName:
+          type:
+          - string
+          - 'null'
+          description: Display name for the status at the step the comment was added
+        stepTitle:
+          type:
+          - string
+          - 'null'
+          description: Title of the wizard step the comment was added on
+        transactionId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier of the transaction the comment belongs to (positive integer encoded as a string)
+      additionalProperties: false
+      example:
+        appSubIndicator: App
+        commentSource: OrderEntryUI
+        commentText: Customer requested a follow-up call before submission.
+        statusAtStep: InProgress
+        statusDisplayName: In Progress
+        stepTitle: Owner Information
+        transactionId: '1125715'
     ErrorResponse:
       required:
       - errors

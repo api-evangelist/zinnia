@@ -120,6 +120,100 @@ paths:
       - Auth0: []
 components:
   schemas:
+    ProductV2Model:
+      type: object
+      properties:
+        id:
+          type: string
+          description: System-generated unique identifier (UUID)
+          example: 7b9f2b65-1b4a-4f4c-9d9d-6a7f5b6d9b1a
+        carrierCode:
+          type: string
+          description: Unique carrier code
+          example: EVGL
+        carrierName:
+          type: string
+          description: Carrier name
+          example: Everglades
+        cusip:
+          type:
+          - string
+          - 'null'
+          description: CUSIP identifier (9 characters)
+          example: 1234567AB
+        productName:
+          type: string
+          description: Primary product name
+          example: Term Life 20
+        marketingName:
+          type: string
+          description: Marketing name for the product
+          example: Everglades Term 20
+        legalName:
+          type: string
+          description: Full legal name of the product
+          example: Everglades Term Life Insurance – 20 Year Level Premium
+        version:
+          type: string
+          description: Version identifier
+          example: '1.0'
+        versionStartDate:
+          type: string
+          description: Version start date
+          example: '2025-01-01'
+        versionEndDate:
+          type: string
+          description: Version end date
+          example: '2099-01-01'
+        line:
+          type: string
+          description: Product line classification
+          enum:
+          - LIFE
+          - ANNUITY
+          example: LIFE
+        type:
+          type: string
+          description: Product type
+          enum:
+          - TERM
+          - UNIVERSAL_LIFE
+          example: TERM
+        planCode:
+          type: string
+          description: Plan code
+          example: EVGUL001
+        availableToSell:
+          type: boolean
+          description: Whether the product is available to sell at product level
+          example: true
+        distributors:
+          description: List of distributors authorized to sell this product
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/Distributor'
+        stateAvailability:
+          description: State-level availability records
+          type: array
+          items:
+            $ref: '#/components/schemas/StateAvailability'
+      required:
+      - id
+      - carrierCode
+      - carrierName
+      - productName
+      - marketingName
+      - legalName
+      - version
+      - versionStartDate
+      - versionEndDate
+      - line
+      - type
+      - planCode
+      - availableToSell
+      - stateAvailability
     ProductSearchRequestDto:
       type: object
       properties:
@@ -270,100 +364,6 @@ components:
           type: string
           description: Full state name
           example: New York
-    ProductV2Model:
-      type: object
-      properties:
-        id:
-          type: string
-          description: System-generated unique identifier (UUID)
-          example: 7b9f2b65-1b4a-4f4c-9d9d-6a7f5b6d9b1a
-        carrierCode:
-          type: string
-          description: Unique carrier code
-          example: EVGL
-        carrierName:
-          type: string
-          description: Carrier name
-          example: Everglades
-        cusip:
-          type:
-          - string
-          - 'null'
-          description: CUSIP identifier (9 characters)
-          example: 1234567AB
-        productName:
-          type: string
-          description: Primary product name
-          example: Term Life 20
-        marketingName:
-          type: string
-          description: Marketing name for the product
-          example: Everglades Term 20
-        legalName:
-          type: string
-          description: Full legal name of the product
-          example: Everglades Term Life Insurance – 20 Year Level Premium
-        version:
-          type: string
-          description: Version identifier
-          example: '1.0'
-        versionStartDate:
-          type: string
-          description: Version start date
-          example: '2025-01-01'
-        versionEndDate:
-          type: string
-          description: Version end date
-          example: '2099-01-01'
-        line:
-          type: string
-          description: Product line classification
-          enum:
-          - LIFE
-          - ANNUITY
-          example: LIFE
-        type:
-          type: string
-          description: Product type
-          enum:
-          - TERM
-          - UNIVERSAL_LIFE
-          example: TERM
-        planCode:
-          type: string
-          description: Plan code
-          example: EVGUL001
-        availableToSell:
-          type: boolean
-          description: Whether the product is available to sell at product level
-          example: true
-        distributors:
-          description: List of distributors authorized to sell this product
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/Distributor'
-        stateAvailability:
-          description: State-level availability records
-          type: array
-          items:
-            $ref: '#/components/schemas/StateAvailability'
-      required:
-      - id
-      - carrierCode
-      - carrierName
-      - productName
-      - marketingName
-      - legalName
-      - version
-      - versionStartDate
-      - versionEndDate
-      - line
-      - type
-      - planCode
-      - availableToSell
-      - stateAvailability
     Distributor:
       type: object
       properties:

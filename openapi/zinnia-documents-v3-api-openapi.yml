@@ -547,187 +547,15 @@ paths:
                     example: 'false'
 components:
   schemas:
-    MetadataResponse:
+    MetadataByIdResponse:
       type: object
       properties:
-        source:
-          type: string
-          description: Source system or origin of the document
-          example: Email
-        documentId:
-          type: string
-          description: Unique ID in EDS db
-          example: 670e23dfab593b4387210b81
-        formNumber:
-          type: string
-          description: Form number associated with the document
-          example: FORM123
-        fileType:
-          type: string
-          description: Type of file, e.g., pdf, doc, etc.
-          example: pdf
-        documentClassification:
-          type: string
-          description: Classification of the document, e.g., OUTBOUND or INBOUND
-          example: OUTBOUND
-          enum:
-          - OUTBOUND
-          - INBOUND
-        documentType:
-          type: string
-          description: Type of document indicating its purpose
-          example: NB Application
-        documentCategory:
-          type: string
-          description: Category of the document, such as New Business or Claim
-          example: New Business
-        documentTypeDescription:
-          type: string
-          description: Description of the document type
-          example: Deferred Annuity Application
-        documentStatus:
-          type: integer
-          description: Indicates the current status of the document. '1' for ACTIVE, '0' for INACTIVE.
-          format: int32
-          example: 1
-        version:
-          type: string
-          description: Version of the document
-          example: '1'
-        documentDate:
-          type: string
-          description: Date of the document
-          format: date-time
-          example: '2024-03-18T14:30:00.000Z'
-        zinniaLiveCaseId:
-          type: string
-          description: Zinnia Live Case ID
-          example: ZLC09876
-        planCode:
-          type: string
-          description: Plan code
-          example: '565'
-        policyNumber:
-          type: string
-          description: Policy number associated with the document
-          example: '23109168'
-        brokerMasterNumber:
-          type: string
-          description: Broker master number associated with the document
-          example: BKR123456
-        repMasterNumber:
-          type: string
-          description: Representative master number associated with the document
-          example: REP987654
-        agentExternalID:
-          type: string
-          description: External ID of the agent associated with the document
-          example: AGT12345
-        brokerExternalID:
-          type: string
-          description: External ID of the broker associated with the document
-          example: BRK12345
-        mailTrackingNumber:
-          type: string
-          description: Mail tracking number
-          example: TRK123456
-        deliveryMethod:
-          type: string
-          description: Delivery method
-          example: Email
-        emailFrom:
-          type: string
-          description: Email address
-          example: XHbN8@example.com
-        emailTo:
-          type: string
-          description: Email address
-          example: XHbN8@example.com
-        emailSubject:
-          type: string
-          description: Email subject
-          example: Deferred Annuity Application
-        appId:
-          type: string
-          description: Application ID
-          example: APP123456
-        mailShipDate:
-          type: string
-          description: Mail ship date
-          format: date-time
-          example: '2024-03-18T14:30:00.000Z'
-        participantAccountNumber:
-          type: string
-          description: Account number of the participant
-          example: '123456789'
-        sourceFileName:
-          type: string
-          description: Name of the file in source system
-          example: files/123456.pdf
-        displayName:
-          type: string
-          description: Display name of the document
-          example: Deferred Annuity Application
-        distributionChannel:
-          type: string
-          description: Distribution channel through which the document was delivered
-          example: Online Portal
-        periodYear:
-          type: integer
-          description: Year of the document period
-          format: int32
-          example: 2024
-        periodQuarter:
-          type: string
-          description: Quarter of the document period in Q1-Q4 format
-          example: Q2
-        documentNumber:
-          type: string
-          description: Document number associated with the document (if present) else document Id
-          example: 670e23dfab593b4387210b81 or 20241230-M-463066
-        documentVersions:
-          type: array
-          description: Previous versions of the document
-          items:
-            $ref: '#/components/schemas/MetadataResponse'
-        scenario:
-          type: string
-          description: Scenario
-          example: duplicate
-          enum:
-          - duplicate
-          - replace
-        linkedDocumentId:
-          type: string
-          description: Linked document ID
-          example: 693e23dfab593b4387210k92
-        importDate:
-          type: string
-          format: date-time
-          description: Document creation timestamp(in UTC timezone)
-          example: '2024-09-23T10:30:00.000Z'
-    DocumentUploadResponse:
-      type: object
-      properties:
-        documentId:
-          type: string
-          description: Unique ID
-          example: 670e23dfab593b4387210b81
+        metadata:
+          $ref: '#/components/schemas/MetadataResponse'
         correlationId:
           type: string
           description: Unique ID for correlating requests
           example: 123e4567-e89b-12d3-a456-426614174000
-        message:
-          type: string
-          description: Response message
-          example: Document uploaded successfully
-        statusCode:
-          type: integer
-          description: Status code of the response
-          format: int32
-          example: 200
-        success:
-          type: boolean
     MetadataSearchResponse:
       type: object
       properties:
@@ -849,170 +677,6 @@ components:
           type: string
           description: Binary data of the document
           example: wdvb2ekllkk189w0enjansle..
-        correlationId:
-          type: string
-          description: Unique ID for correlating requests
-          example: 123e4567-e89b-12d3-a456-426614174000
-    SearchDocumentResponse:
-      type: object
-      properties:
-        count:
-          type: integer
-          description: Number of total documents found matching the search criteria
-          format: int32
-          example: 100
-        documents:
-          type: array
-          items:
-            $ref: '#/components/schemas/MetadataSearchResponse'
-        correlationId:
-          type: string
-          description: Unique ID for correlating requests
-          example: 123e4567-e89b-12d3-a456-426614174000
-    Metadata:
-      required:
-      - docClassification
-      - fileType
-      - documentType
-      - documentTypeDescription
-      - docCategory
-      type: object
-      properties:
-        zinniaLiveCaseId:
-          type: string
-          description: Zinnia Live Case ID. Either of policy number, Application Id or ZL case Id is required.
-          example: ZLC09876
-        appId:
-          type: string
-          description: Application ID. Either of policy number, Application Id or ZL case Id is required.
-          example: EDJ041120240000000001
-        docClassification:
-          type: string
-          description: Document classification to identify document type
-          example: OUTBOUND
-          enum:
-          - OUTBOUND
-          - INBOUND
-        source:
-          type: string
-          description: Source of the document
-          example: Email
-        docCategory:
-          type: string
-          description: Document category
-          example: NEW_BUSINESS
-          enum:
-          - NEW_BUSINESS
-          - POST_ISSUE
-          - DEATH
-          - CORRESPONDENCE
-          - AGENT
-          - SUITABILITY
-        fileType:
-          type: string
-          description: File type
-          example: PDF
-        documentType:
-          type: string
-          enum:
-          - NB_STATE_REPLACEMENT
-          - NB_CONVERSION
-          - NB_APPLICATION
-          - COST_DISCLOSURE
-          - NON_CONTRACTUAL
-          - AGENT_REPORT
-          - ACCELERATED_BENEFIT_RIDER
-          - SURRENDER_COMPARISION
-          - CONSENT_PAPERLESS
-          - TERMS_OF_USE
-          - TERMS_CONDITIONS
-          - CHARITY_ELECTION_FORMS
-          - AUTHORIZATION_FORMS
-          - HIPPA
-          - HIV_CONSENT_FORM_ALL_STATE
-          - AMENDMENT
-          - DISCLOSURES
-          - NB_STATE_REPLACEMENT_NOTICE
-          - TRUSTEE_STATEMENT
-          - TERMS_OF_USE
-          - NOTICE_AND_CONSENT
-          - PRIVACY_POLICY
-          - GLBA_PRIVACY_NOTICE
-          - FCRA
-          - MIB_PRE_NOTICE
-          - ID_VERIFICATION_NOTICE
-          - HIPAA
-          - ACCELERATED_BENEFIT_RIDER
-          - BUYER_GUIDE
-          - ILLUSTRATION
-          - SUITABILITY
-          - APPLICATION
-          - SIGNED_APPLICATION
-          - REPLACEMENTS_ACKNOWLEDGEMENT
-          - 1035_EXCHANGE_SURRENDER
-          - EVIDENCE_DOCUMENT
-          - AMENDMENT
-          - ELECTRONIC_FUNDS_TRANSFER
-          - SUPPLEMENTAL_APPLICATION
-          - CONFORMING_ILLUSTRATION
-          - SIGNED_ILLUSTRATION
-          - OVERFLOW_ADDITIONAL_INFORMATION
-        documentDate:
-          type: string
-          description: Date of the document
-          format: date-time
-        documentTypeDescription:
-          type: string
-          description: Description of the document type. Refer the mapping sheet shared along with specification
-          example: Address Change Letter
-        planCode:
-          type: string
-          description: Plan code
-          example: '235'
-        policyNumber:
-          type: string
-          description: Policy number. Either of policy number, Application Id or ZL case Id is required.
-          example: '23576001'
-        pageCount:
-          type: integer
-          description: Total page count
-          format: int64
-          example: 5
-        docAccessLevel:
-          type: string
-          description: Specifies who can access the document based on their role.
-          example: CLIENT_COPY
-          enum:
-          - CLIENT_COPY
-          - AGENT_COPY
-        sourceFileName:
-          type: string
-          description: Source file name
-          example: 052725FTADHOCLETTERS_R_20485_1207637_711.pdf
-    DocumentUploadBadRequest:
-      type: object
-      properties:
-        correlationId:
-          type: string
-          description: Unique ID for correlating requests
-          example: 123e4567-e89b-12d3-a456-426614174000
-        message:
-          type: string
-          description: Error message
-          example: Invalid request payload
-        statusCode:
-          type: integer
-          description: Status code of the response
-          format: int32
-          example: 400
-        success:
-          type: boolean
-          example: false
-    MetadataByIdResponse:
-      type: object
-      properties:
-        metadata:
-          $ref: '#/components/schemas/MetadataResponse'
         correlationId:
           type: string
           description: Unique ID for correlating requests
@@ -1690,6 +1354,342 @@ components:
             example: MA98416687
         required:
         - zinniaLiveCaseId
+    MetadataResponse:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Source system or origin of the document
+          example: Email
+        documentId:
+          type: string
+          description: Unique ID in EDS db
+          example: 670e23dfab593b4387210b81
+        formNumber:
+          type: string
+          description: Form number associated with the document
+          example: FORM123
+        fileType:
+          type: string
+          description: Type of file, e.g., pdf, doc, etc.
+          example: pdf
+        documentClassification:
+          type: string
+          description: Classification of the document, e.g., OUTBOUND or INBOUND
+          example: OUTBOUND
+          enum:
+          - OUTBOUND
+          - INBOUND
+        documentType:
+          type: string
+          description: Type of document indicating its purpose
+          example: NB Application
+        documentCategory:
+          type: string
+          description: Category of the document, such as New Business or Claim
+          example: New Business
+        documentTypeDescription:
+          type: string
+          description: Description of the document type
+          example: Deferred Annuity Application
+        documentStatus:
+          type: integer
+          description: Indicates the current status of the document. '1' for ACTIVE, '0' for INACTIVE.
+          format: int32
+          example: 1
+        version:
+          type: string
+          description: Version of the document
+          example: '1'
+        documentDate:
+          type: string
+          description: Date of the document
+          format: date-time
+          example: '2024-03-18T14:30:00.000Z'
+        zinniaLiveCaseId:
+          type: string
+          description: Zinnia Live Case ID
+          example: ZLC09876
+        planCode:
+          type: string
+          description: Plan code
+          example: '565'
+        policyNumber:
+          type: string
+          description: Policy number associated with the document
+          example: '23109168'
+        brokerMasterNumber:
+          type: string
+          description: Broker master number associated with the document
+          example: BKR123456
+        repMasterNumber:
+          type: string
+          description: Representative master number associated with the document
+          example: REP987654
+        agentExternalID:
+          type: string
+          description: External ID of the agent associated with the document
+          example: AGT12345
+        brokerExternalID:
+          type: string
+          description: External ID of the broker associated with the document
+          example: BRK12345
+        mailTrackingNumber:
+          type: string
+          description: Mail tracking number
+          example: TRK123456
+        deliveryMethod:
+          type: string
+          description: Delivery method
+          example: Email
+        emailFrom:
+          type: string
+          description: Email address
+          example: XHbN8@example.com
+        emailTo:
+          type: string
+          description: Email address
+          example: XHbN8@example.com
+        emailSubject:
+          type: string
+          description: Email subject
+          example: Deferred Annuity Application
+        appId:
+          type: string
+          description: Application ID
+          example: APP123456
+        mailShipDate:
+          type: string
+          description: Mail ship date
+          format: date-time
+          example: '2024-03-18T14:30:00.000Z'
+        participantAccountNumber:
+          type: string
+          description: Account number of the participant
+          example: '123456789'
+        sourceFileName:
+          type: string
+          description: Name of the file in source system
+          example: files/123456.pdf
+        displayName:
+          type: string
+          description: Display name of the document
+          example: Deferred Annuity Application
+        distributionChannel:
+          type: string
+          description: Distribution channel through which the document was delivered
+          example: Online Portal
+        periodYear:
+          type: integer
+          description: Year of the document period
+          format: int32
+          example: 2024
+        periodQuarter:
+          type: string
+          description: Quarter of the document period in Q1-Q4 format
+          example: Q2
+        documentNumber:
+          type: string
+          description: Document number associated with the document (if present) else document Id
+          example: 670e23dfab593b4387210b81 or 20241230-M-463066
+        documentVersions:
+          type: array
+          description: Previous versions of the document
+          items:
+            $ref: '#/components/schemas/MetadataResponse'
+        scenario:
+          type: string
+          description: Scenario
+          example: duplicate
+          enum:
+          - duplicate
+          - replace
+        linkedDocumentId:
+          type: string
+          description: Linked document ID
+          example: 693e23dfab593b4387210k92
+        importDate:
+          type: string
+          format: date-time
+          description: Document creation timestamp(in UTC timezone)
+          example: '2024-09-23T10:30:00.000Z'
+    SearchDocumentResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of total documents found matching the search criteria
+          format: int32
+          example: 100
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetadataSearchResponse'
+        correlationId:
+          type: string
+          description: Unique ID for correlating requests
+          example: 123e4567-e89b-12d3-a456-426614174000
+    DocumentUploadBadRequest:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          description: Unique ID for correlating requests
+          example: 123e4567-e89b-12d3-a456-426614174000
+        message:
+          type: string
+          description: Error message
+          example: Invalid request payload
+        statusCode:
+          type: integer
+          description: Status code of the response
+          format: int32
+          example: 400
+        success:
+          type: boolean
+          example: false
+    Metadata:
+      required:
+      - docClassification
+      - fileType
+      - documentType
+      - documentTypeDescription
+      - docCategory
+      type: object
+      properties:
+        zinniaLiveCaseId:
+          type: string
+          description: Zinnia Live Case ID. Either of policy number, Application Id or ZL case Id is required.
+          example: ZLC09876
+        appId:
+          type: string
+          description: Application ID. Either of policy number, Application Id or ZL case Id is required.
+          example: EDJ041120240000000001
+        docClassification:
+          type: string
+          description: Document classification to identify document type
+          example: OUTBOUND
+          enum:
+          - OUTBOUND
+          - INBOUND
+        source:
+          type: string
+          description: Source of the document
+          example: Email
+        docCategory:
+          type: string
+          description: Document category
+          example: NEW_BUSINESS
+          enum:
+          - NEW_BUSINESS
+          - POST_ISSUE
+          - DEATH
+          - CORRESPONDENCE
+          - AGENT
+          - SUITABILITY
+        fileType:
+          type: string
+          description: File type
+          example: PDF
+        documentType:
+          type: string
+          enum:
+          - NB_STATE_REPLACEMENT
+          - NB_CONVERSION
+          - NB_APPLICATION
+          - COST_DISCLOSURE
+          - NON_CONTRACTUAL
+          - AGENT_REPORT
+          - ACCELERATED_BENEFIT_RIDER
+          - SURRENDER_COMPARISION
+          - CONSENT_PAPERLESS
+          - TERMS_OF_USE
+          - TERMS_CONDITIONS
+          - CHARITY_ELECTION_FORMS
+          - AUTHORIZATION_FORMS
+          - HIPPA
+          - HIV_CONSENT_FORM_ALL_STATE
+          - AMENDMENT
+          - DISCLOSURES
+          - NB_STATE_REPLACEMENT_NOTICE
+          - TRUSTEE_STATEMENT
+          - TERMS_OF_USE
+          - NOTICE_AND_CONSENT
+          - PRIVACY_POLICY
+          - GLBA_PRIVACY_NOTICE
+          - FCRA
+          - MIB_PRE_NOTICE
+          - ID_VERIFICATION_NOTICE
+          - HIPAA
+          - ACCELERATED_BENEFIT_RIDER
+          - BUYER_GUIDE
+          - ILLUSTRATION
+          - SUITABILITY
+          - APPLICATION
+          - SIGNED_APPLICATION
+          - REPLACEMENTS_ACKNOWLEDGEMENT
+          - 1035_EXCHANGE_SURRENDER
+          - EVIDENCE_DOCUMENT
+          - AMENDMENT
+          - ELECTRONIC_FUNDS_TRANSFER
+          - SUPPLEMENTAL_APPLICATION
+          - CONFORMING_ILLUSTRATION
+          - SIGNED_ILLUSTRATION
+          - OVERFLOW_ADDITIONAL_INFORMATION
+        documentDate:
+          type: string
+          description: Date of the document
+          format: date-time
+        documentTypeDescription:
+          type: string
+          description: Description of the document type. Refer the mapping sheet shared along with specification
+          example: Address Change Letter
+        planCode:
+          type: string
+          description: Plan code
+          example: '235'
+        policyNumber:
+          type: string
+          description: Policy number. Either of policy number, Application Id or ZL case Id is required.
+          example: '23576001'
+        pageCount:
+          type: integer
+          description: Total page count
+          format: int64
+          example: 5
+        docAccessLevel:
+          type: string
+          description: Specifies who can access the document based on their role.
+          example: CLIENT_COPY
+          enum:
+          - CLIENT_COPY
+          - AGENT_COPY
+        sourceFileName:
+          type: string
+          description: Source file name
+          example: 052725FTADHOCLETTERS_R_20485_1207637_711.pdf
+    DocumentUploadResponse:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: Unique ID
+          example: 670e23dfab593b4387210b81
+        correlationId:
+          type: string
+          description: Unique ID for correlating requests
+          example: 123e4567-e89b-12d3-a456-426614174000
+        message:
+          type: string
+          description: Response message
+          example: Document uploaded successfully
+        statusCode:
+          type: integer
+          description: Status code of the response
+          format: int32
+          example: 200
+        success:
+          type: boolean
   securitySchemes:
     basic:
       type: http

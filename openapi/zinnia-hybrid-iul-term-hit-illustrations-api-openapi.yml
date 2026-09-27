@@ -73,6 +73,648 @@ paths:
       - Hybrid-IUL-Term (HIT) Illustrations
 components:
   schemas:
+    IUL-Shared-Properties:
+      title: IUL Shared Properties
+      description: Properties shared between IUL and HIT products
+      type: object
+      properties:
+        conversion:
+          $ref: '#/components/schemas/Conversion'
+        lumpSumDeposits:
+          description: Additional one-time payments that take place at specified points in time
+          type: array
+          items:
+            type: object
+            required:
+            - amount
+            properties:
+              amount:
+                description: lump sum deposit amount
+                type: number
+                format: double
+                example: 100000
+              duration:
+                description: contract year of the lump sum deposit. If not specified, '1' (first year) is assumed.
+                type: number
+                format: integer
+                example: 65
+              month:
+                description: lump sum deposit month. If not specified, '1' (January) is assumed.
+                type: number
+                format: integer
+                example: 12
+        fundAllocations:
+          description: Fund allocations
+          type: array
+          items:
+            type: object
+            properties:
+              allocationPercent:
+                type: number
+                format: integer
+                description: Allocation percent
+                example: 50
+              fundId:
+                type: string
+                description: Fund id
+                example: SPX
+              illustratedRate:
+                description: Assumed rate of return to use for illustrative purposes
+                type: number
+                format: double
+                example: 0.3
+            required:
+            - allocationPercent
+            - fundId
+        distributions:
+          $ref: '#/components/schemas/Distributions'
+        exchanges:
+          type: object
+          properties:
+            internal:
+              $ref: '#/components/schemas/Exchange'
+            external:
+              $ref: '#/components/schemas/Exchange'
+      required:
+      - fundAllocations
+    Non-Insured-Party:
+      title: Non-Insured Party
+      description: 'Represents a party with a roleCode other than `INSURED`
+
+        '
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Party-Base'
+      properties:
+        roleCode:
+          $ref: '#/components/schemas/Party-Role'
+      required:
+      - roleCode
+    PropertyCollection-Loan:
+      title: Loan Property Collection
+      description: Reusable collection of loan-related properties
+      type: object
+      properties:
+        loan:
+          type: object
+          properties:
+            amount:
+              type: number
+              format: double
+              description: Loan amount
+              example: 0
+            interestCreditedAmount:
+              type: number
+              format: double
+              description: Loan interest credited amount
+              example: 0
+            interestDueAmount:
+              type: number
+              format: double
+              description: Loan interest due amount
+              example: 0
+            payoffAmount:
+              type: number
+              format: double
+              description: Loan payoff amount
+              example: 0
+            maximumLoanAmount:
+              type: number
+              format: double
+              description: Maximum loan amount
+              example: 0
+        netAccountValue:
+          type: number
+          format: double
+          example: 0.104742
+        netDeathBenefitAmount:
+          type: number
+          format: double
+          example: 250000.104742
+        netSurrenderValue:
+          type: number
+          format: double
+          example: 0.104742
+        policyNetOutlayAmount:
+          type: number
+          format: double
+          example: 397.2
+        premiumOutlayAmount:
+          type: number
+          format: double
+          example: 397.2
+    Schedule-FaceAmount:
+      title: Face Amount Schedule
+      allOf:
+      - $ref: '#/components/schemas/Schedule-Base'
+      properties:
+        sequence:
+          items:
+            title: Face Amount Schedule Entry
+            properties:
+              value:
+                example: 250000
+                oneOf:
+                - type: number
+                  format: double
+                - title: Face Amount Option
+                  type: string
+                  enum:
+                  - SOLVE_FOR_TARGET_CASH_VALUE
+                  - MINIMUM_NON_MEC
+            required:
+            - value
+    Schedule-Premium:
+      title: Premium Schedule
+      allOf:
+      - $ref: '#/components/schemas/Schedule-Base'
+      properties:
+        sequence:
+          items:
+            title: Premium Schedule Entry
+            properties:
+              value:
+                example: 25000
+                oneOf:
+                - type: number
+                  format: double
+                - title: Premium Option
+                  type: string
+                  enum:
+                  - SOLVE_FOR_TARGET_CASH_VALUE
+                  - MINIMUM_PREMIUM
+                  - TARGET_PREMIUM
+                  - GUIDELINE_MAXIMUM_PREMIUM
+                  - GUIDELINE_LEVEL_PREMIUM
+                  - LEVEL_NON_MEC
+            required:
+            - value
+    Exchange:
+      title: Exchange
+      description: 1035 Exchange - exchanging another policy for this one
+      type: object
+      required:
+      - amount
+      - basis
+      - isModifiedEndowmentContract
+      properties:
+        amount:
+          type: number
+          format: double
+          description: The value of the exchanged policy
+          example: 5000
+        basis:
+          type: number
+          format: double
+          description: How much can be exchanged without incurring additional taxes
+          example: 5000
+        isModifiedEndowmentContract:
+          type: boolean
+          description: Whether the policy being exchanged for this one is a MEC
+          example: true
+        carryoverLoan:
+          type: number
+          format: double
+          description: How much loan is being carried in as part of this exchange
+          example: 5000
+    IUL-Shared-Options:
+      title: IUL Shared Options
+      description: Options shared between IUL and HIT products
+      type: object
+      properties:
+        doli:
+          type: string
+          description: DOLI
+          example: GPT
+          enum:
+          - GPT
+          - CVAT
+        deathBenefitOption:
+          $ref: '#/components/schemas/Schedule-DBO'
+        dumpInAmount:
+          type: number
+          format: double
+          description: Dump in amount
+          example: 5432.62
+        juvenileReclassification:
+          description: Indicates that a rating class change will occur for a juvenile upon reaching adulthood
+          type: boolean
+          example: true
+        preventModifiedEndowmentContract:
+          type: boolean
+          example: true
+          description: Whether the selected solve should attempt to prevent this policy from being a MEC
+        illustrationBasis:
+          type: string
+          enum:
+          - CURRENT
+          - ASSUMED
+          - GUARANTEED
+          example: CURRENT
+          description: Which scenario's premium to use as the basis for the other scenarios
+      required:
+      - doli
+    Distributions:
+      title: Distributions
+      description: Distributions
+      type: object
+      required:
+      - frequency
+      - sequence
+      properties:
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+        sequence:
+          description: Sequence
+          type: array
+          items:
+            type: object
+            title: Sequence
+            description: Distribution sequence
+            properties:
+              amountType:
+                type: string
+                description: Amount type
+                example: AMOUNT
+                enum:
+                - NONE
+                - AMOUNT
+                - PERCENTANGE
+                - MAX
+                - FREE_WITHDRAWAL_AMOUNT
+                - WITHDRAWA_LUNTIL_BASIS
+                - EARNINGS_ONLY
+                - PRORATA
+                - MODIFIED_EARNINGS_ONLY
+              requestedAmount:
+                type: number
+                format: double
+                description: Requested amount
+                example: 10000
+              funding:
+                type: string
+                description: Funding
+                example: LOAN
+                enum:
+                - LOAN
+                - WITHDRAWAL
+                - SWITCH_AT_BASIS
+              from:
+                $ref: '#/components/schemas/Distribution-Sequence-FromThrough'
+              through:
+                $ref: '#/components/schemas/Distribution-Sequence-FromThrough'
+        loanInterestOption:
+          description: Specifies how loan interest is processed; BORROW indicates that the interest is added into the loan amount, CASH indicates that the loan is paid and does not accumulate.
+          type: string
+          example: BORROW
+          enum:
+          - BORROW
+          - CASH
+    Illustration-Inputs-New-Business-Base:
+      title: New Business Base
+      description: Properties for new business scenarios
+      type: object
+      properties:
+        jurisdiction:
+          type: string
+          description: US state code.https://en.wikipedia.org/wiki/ISO_3166-2:US
+          enum:
+          - AK
+          - AL
+          - AR
+          - AS
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - GU
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MP
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - PR
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UM
+          - UT
+          - VA
+          - VI
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+        planCode:
+          type: string
+          description: Plan code
+          example: EG123
+      required:
+      - jurisdiction
+      - planCode
+    Party-Base:
+      title: Party
+      type: object
+      description: Fundamental party object - see schema for specific role
+      required:
+      - partyId
+      - partyTypeCode
+      discriminator:
+        propertyName: roleCode
+      properties:
+        partyId:
+          type: string
+          format: uuid
+          description: Party id
+          example: 95f5ece9-e40b-450b-ad39-daa217894e69
+        partyTypeCode:
+          example: INDIVIDUAL
+          type: string
+          description: Party type
+          enum:
+          - INDIVIDUAL
+          - ORGANIZATION
+          - TRUST
+        gender:
+          type: string
+          description: Gender
+          example: MALE
+          enum:
+          - MALE
+          - FEMALE
+          - UNISEX
+          - OTHER
+        dateOfBirth:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd")
+          example: '1990-05-13'
+        firstName:
+          type: string
+          description: First Name
+          example: John
+        middleName:
+          type: string
+          description: Middle Name or Initial
+          example: Frederick
+        lastName:
+          type: string
+          description: Last name
+          example: Doe
+        suffix:
+          type: string
+          description: Name Suffix
+          example: Jr.
+        address:
+          type: object
+          description: Address
+          properties:
+            addressLine1:
+              type: string
+              description: Address line 1
+              example: 123 Charter Oak
+            addressLine2:
+              type: string
+              description: Address line 2
+              example: Suite 456
+            city:
+              type: string
+              description: Address city
+              example: Manchester
+            state:
+              type: string
+              enum:
+              - AL
+              - AK
+              - AZ
+              - AR
+              - CA
+              - CO
+              - CT
+              - DC
+              - DE
+              - FL
+              - GA
+              - HI
+              - ID
+              - IL
+              - IN
+              - IA
+              - KS
+              - KY
+              - LA
+              - ME
+              - MD
+              - MA
+              - MI
+              - MN
+              - MS
+              - MO
+              - MT
+              - NE
+              - NV
+              - NH
+              - NJ
+              - NM
+              - NY
+              - NC
+              - ND
+              - OH
+              - OK
+              - OR
+              - PA
+              - RI
+              - SC
+              - SD
+              - TN
+              - TX
+              - UT
+              - VT
+              - VA
+              - WA
+              - WV
+              - WI
+              - WY
+              description: US state code.https://en.wikipedia.org/wiki/ISO_3166-2:US
+              example: CT
+            zipCode:
+              type: string
+              description: Zip Code. Max char allowed is 9.
+              maxLength: 9
+              example: '123456'
+        email:
+          type: string
+          format: email
+          description: Email
+          example: person@example.com
+        phoneType:
+          type: string
+          description: Phone type
+          example: HOME
+          enum:
+          - MOBILE
+          - HOME
+          - BUSINESS
+          - CLAIMCENTER
+          - CUSTOMERSERVICE
+          - CORPORATEOFFICE
+          - FAX
+          - UNKNOWN
+          - OTHER
+        phone:
+          type: string
+          description: Phone
+          example: '1238675309'
+        identification:
+          type: object
+          description: Identification
+          properties:
+            identificationType:
+              type: string
+              description: Identification type
+              example: PASSPORT
+              enum:
+              - PASSPORT
+              - STATEPHOTOID
+              - DRIVERLICENSENUMBER
+              - SSN
+              - TIN
+              - OTHER
+              - EXTERNAL
+            identificationKey:
+              type: string
+              description: Identification key
+              example: ECN
+            identificationDescription:
+              type: string
+              description: Identification description
+              example: ECN
+            identificationValue:
+              type: string
+              description: Identification value
+              example: ECN
+    Distribution-Sequence-FromThrough:
+      title: From/Through Entry in a Distribution Sequence
+      type: object
+      description: From/Through
+      properties:
+        offset:
+          type: number
+          format: integer
+          description: Offset
+          example: 1
+        basis:
+          type: string
+          description: Basis
+          example: AGE
+          enum:
+          - AGE
+          - DURATION
+          - RETIREMENT
+    Coverage-Collection-V4:
+      title: Coverages
+      description: A collection of benefits
+      type: array
+      items:
+        title: Coverage
+        description: A benefit conferred to a group of one or more participants
+        type: object
+        properties:
+          coverageId:
+            type: string
+            description: Coverage id
+            example: BASE_COVERAGE
+            enum:
+            - BASE_COVERAGE
+            - Rider_ABRTRM
+            - Rider_CTR
+            - Rider_ABRCHR
+            - Rider_ADR
+            - Rider_WPR
+            - Rider_CGR
+            - Rider_GIBR
+            - Rider_OPR
+            - Rider_OWDR
+            - Rider_WDR
+            - Rider_NHR
+            - Rider_ABRCRI
+            - Rider_OWP
+          riderYears:
+            type: number
+            format: integer
+            example: 10
+            description: Rider years
+          currentAmount:
+            type: number
+            format: double
+            example: 1000
+            description: Current amount
+          participants:
+            $ref: '#/components/schemas/Participant-Collection-V4'
+        required:
+        - coverageId
+    Illustration-Response-HIT:
+      title: Illustration Response for Hybrid-IUL/Term
+      description: Illustration Response for Hybrid-IUL/Term product
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Response-Base'
+      properties:
+        assumed:
+          $ref: '#/components/schemas/Scenario-HIT'
+        guaranteed:
+          $ref: '#/components/schemas/Scenario-HIT'
+        midpoint:
+          $ref: '#/components/schemas/Scenario-HIT'
+        assumedCap:
+          $ref: '#/components/schemas/Scenario-HIT'
+        assumedFixed:
+          $ref: '#/components/schemas/Scenario-HIT'
+        assumedPar:
+          $ref: '#/components/schemas/Scenario-HIT'
+    Illustration-Response-Base:
+      title: Illustration Response
+      description: Fundamental Illustration response schema. See the schema for a specific product
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the illustration request.
+          example: ed13083d-d6b3-463d-a569-56b532d00fcd
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
     Single-Year-Values-IUL:
       title: Single-Year values for IUL
       description: A single-year slice of data that varies annually - these values are specific to IUL products
@@ -270,445 +912,6 @@ components:
               type: number
               format: double
               example: 0
-    Party-Base:
-      title: Party
-      type: object
-      description: Fundamental party object - see schema for specific role
-      required:
-      - partyId
-      - partyTypeCode
-      discriminator:
-        propertyName: roleCode
-      properties:
-        partyId:
-          type: string
-          format: uuid
-          description: Party id
-          example: 95f5ece9-e40b-450b-ad39-daa217894e69
-        partyTypeCode:
-          example: INDIVIDUAL
-          type: string
-          description: Party type
-          enum:
-          - INDIVIDUAL
-          - ORGANIZATION
-          - TRUST
-        gender:
-          type: string
-          description: Gender
-          example: MALE
-          enum:
-          - MALE
-          - FEMALE
-          - UNISEX
-          - OTHER
-        dateOfBirth:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd")
-          example: '1990-05-13'
-        firstName:
-          type: string
-          description: First Name
-          example: John
-        middleName:
-          type: string
-          description: Middle Name or Initial
-          example: Frederick
-        lastName:
-          type: string
-          description: Last name
-          example: Doe
-        suffix:
-          type: string
-          description: Name Suffix
-          example: Jr.
-        address:
-          type: object
-          description: Address
-          properties:
-            addressLine1:
-              type: string
-              description: Address line 1
-              example: 123 Charter Oak
-            addressLine2:
-              type: string
-              description: Address line 2
-              example: Suite 456
-            city:
-              type: string
-              description: Address city
-              example: Manchester
-            state:
-              type: string
-              enum:
-              - AL
-              - AK
-              - AZ
-              - AR
-              - CA
-              - CO
-              - CT
-              - DC
-              - DE
-              - FL
-              - GA
-              - HI
-              - ID
-              - IL
-              - IN
-              - IA
-              - KS
-              - KY
-              - LA
-              - ME
-              - MD
-              - MA
-              - MI
-              - MN
-              - MS
-              - MO
-              - MT
-              - NE
-              - NV
-              - NH
-              - NJ
-              - NM
-              - NY
-              - NC
-              - ND
-              - OH
-              - OK
-              - OR
-              - PA
-              - RI
-              - SC
-              - SD
-              - TN
-              - TX
-              - UT
-              - VT
-              - VA
-              - WA
-              - WV
-              - WI
-              - WY
-              description: US state code.https://en.wikipedia.org/wiki/ISO_3166-2:US
-              example: CT
-            zipCode:
-              type: string
-              description: Zip Code. Max char allowed is 9.
-              maxLength: 9
-              example: '123456'
-        email:
-          type: string
-          format: email
-          description: Email
-          example: person@example.com
-        phoneType:
-          type: string
-          description: Phone type
-          example: HOME
-          enum:
-          - MOBILE
-          - HOME
-          - BUSINESS
-          - CLAIMCENTER
-          - CUSTOMERSERVICE
-          - CORPORATEOFFICE
-          - FAX
-          - UNKNOWN
-          - OTHER
-        phone:
-          type: string
-          description: Phone
-          example: '1238675309'
-        identification:
-          type: object
-          description: Identification
-          properties:
-            identificationType:
-              type: string
-              description: Identification type
-              example: PASSPORT
-              enum:
-              - PASSPORT
-              - STATEPHOTOID
-              - DRIVERLICENSENUMBER
-              - SSN
-              - TIN
-              - OTHER
-              - EXTERNAL
-            identificationKey:
-              type: string
-              description: Identification key
-              example: ECN
-            identificationDescription:
-              type: string
-              description: Identification description
-              example: ECN
-            identificationValue:
-              type: string
-              description: Identification value
-              example: ECN
-    Participant-Collection-V4:
-      title: Participants
-      description: A collection of unique participants
-      type: array
-      items:
-        title: Participant
-        description: An entity with a stake in a policy
-        type: object
-        properties:
-          issueAge:
-            type: number
-            format: integer
-            description: Issue age
-            example: 30
-          participantId:
-            type: string
-            description: Participant id (UUID)
-            example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
-          underwritingClass:
-            type: string
-            description: Underwriting class
-            example: ULTRANONTOBACCO
-            enum:
-            - ULTRANONTOBACCO
-            - ELITENONTOBACCO
-            - PREFERREDNONTOBACCO
-            - STANDARDNONTOBACCO
-            - STANDARDTOBACCO
-            - STANDARDAGGREGATE
-            - SUBSTANDARDNONTOBACCO
-            - SUBSTANDARDTOBACCO
-            - STANDARDPLUSNONTOBACCO
-            - PREFERREDTOBACCO
-            - STANDARDCONVERSIONNONTOBACCO
-            - STANDARDCONVERSIONTOBACCO
-            - STANDARDPLUSBLEND
-            - STANDARDPLUSTOBACCO
-            - STANDARDBLEND
-            - SUBSTANDARDBLEND
-            - PREFERREDSELECTNONTOBACCO
-            - PREFERREDSELECTBLEND
-            - PREFERREDSELECTTOBACCO
-            - PREFERREDBLEND
-          subStandardRating:
-            type: string
-            description: Substandard rating
-            example: TABLEA
-            enum:
-            - TABLEA
-            - TABLEB
-            - TABLEC
-            - TABLED
-            - TABLEE
-            - TABLEF
-            - TABLEG
-            - TABLEH
-            - TABLEI
-            - TABLEJ
-            - TABLEK
-            - TABLEL
-            - TABLEM
-            - TABLEN
-            - TABLEO
-            - TABLEP
-            - NONETABLE
-          flatExtra:
-            type: array
-            description: Flat extra
-            items:
-              $ref: '#/components/schemas/Flat-Extra'
-        required:
-        - issueAge
-        - participantId
-      uniqueItems: true
-    PropertyCollection-Withdrawal:
-      title: Withdrawal Property Collection
-      description: Reusable collection of withdrawal-related properties
-      type: object
-      properties:
-        cumulativeWithdrawalAmount:
-          type: number
-          format: double
-          description: Cumulative withdrawal amount
-          example: 0
-        maximumWithdrawalAmount:
-          type: number
-          format: double
-          description: Maximum withdrawal amount
-          example: 0
-        withdrawalAmount:
-          type: number
-          format: double
-          description: Withdrawal amount
-          example: 0
-    Message:
-      title: Message
-      description: A structured signal
-      type: object
-      properties:
-        code:
-          type: integer
-        severity:
-          type: string
-          enum:
-          - INFO
-          - WARNING
-          - ERROR
-        text:
-          type: string
-        returnTo:
-          type: string
-      required:
-      - code
-      - text
-    Non-Insured-Party:
-      title: Non-Insured Party
-      description: 'Represents a party with a roleCode other than `INSURED`
-
-        '
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Party-Base'
-      properties:
-        roleCode:
-          $ref: '#/components/schemas/Party-Role'
-      required:
-      - roleCode
-    Options-HIT:
-      title: Options for Hybrid-IUL/Term
-      type: object
-      description: Options for the illustration request.
-      allOf:
-      - $ref: '#/components/schemas/Options-Base'
-      - $ref: '#/components/schemas/IUL-Shared-Options'
-      properties:
-        fixedModalPayment:
-          type: number
-          format: double
-          description: Fixed payment per pay period
-          example: 500
-        savingsPaymentIncluded:
-          type: boolean
-          description: Whether or not savings payment is included
-          example: true
-        savingsPaymentOption:
-          type: string
-          description: How savings payment is calculated
-          example: FIXED
-          enum:
-          - EXTRA_OVER_COVERAGE
-          - MAXIMIZE_SAVINGS_INCENTIVE
-          - FIXED
-          - SCHEDULE_BY_MODE
-        savingsFixedAmount:
-          type: number
-          format: double
-          description: Fixed payment amout for savings payment
-          example: 500
-        savingsScheduleByMode:
-          allOf:
-          - $ref: '#/components/schemas/Schedule-Base'
-          description: Schedule for savings payment
-        postFixedCostPeriodPaymentDurationOption:
-          description: Post fixed-cost-period payment duration option
-          type: string
-          example: YEARS
-          enum:
-          - AGE
-          - YEARS
-        postFixedCostPeriodPaymentDuration:
-          description: Post fixed-cost-period payment duration
-          type: number
-          format: integer
-          minimum: 0
-          example: 10
-        postFixedCostPremiumOption:
-          type: string
-          description: Post fixed-cost-period premium option
-          example: COVER_CHARGES
-          enum:
-          - COVER_CHARGES
-          - MINIMUM_AFTER_CHARGES
-          - SCHEDULE_BY_MODE
-          - SOLVE_FOR_LEVEL
-        postFixedCostPremiumSchedule:
-          allOf:
-          - $ref: '#/components/schemas/Schedule-Base'
-          description: Schedule for post-fixed-cost-period premium
-    Illustration-Response-Base:
-      title: Illustration Response
-      description: Fundamental Illustration response schema. See the schema for a specific product
-      properties:
-        id:
-          type: string
-          description: The unique identifier for the illustration request.
-          example: ed13083d-d6b3-463d-a569-56b532d00fcd
-        messages:
-          type: array
-          items:
-            $ref: '#/components/schemas/Message'
-    Schedule-Premium:
-      title: Premium Schedule
-      allOf:
-      - $ref: '#/components/schemas/Schedule-Base'
-      properties:
-        sequence:
-          items:
-            title: Premium Schedule Entry
-            properties:
-              value:
-                example: 25000
-                oneOf:
-                - type: number
-                  format: double
-                - title: Premium Option
-                  type: string
-                  enum:
-                  - SOLVE_FOR_TARGET_CASH_VALUE
-                  - MINIMUM_PREMIUM
-                  - TARGET_PREMIUM
-                  - GUIDELINE_MAXIMUM_PREMIUM
-                  - GUIDELINE_LEVEL_PREMIUM
-                  - LEVEL_NON_MEC
-            required:
-            - value
-    Scenario-HIT:
-      title: Scenario Results for Hybrid-IUL/Term
-      description: Outputs for Hybrid-IUL/Term product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Scenario-Base'
-      - $ref: '#/components/schemas/IUL-Shared-Scenario-Properties'
-      properties:
-        fixedCostPeriod:
-          type: number
-          format: integer
-          example: 65
-        fixedCostPeriodSavingsPremium:
-          type: number
-          format: double
-          description: Fixed cost period savings premium
-          example: 250
-        fixedCostPeriodSavingsModalPremium:
-          type: number
-          format: double
-          description: Fixed cost period savings modal premium
-          example: 20.83
-        fixedCostPeriodChildRiderPremium:
-          type: number
-          format: double
-          description: Fixed cost period child rider premium
-          example: 50
-        fixedCostPeriodChildRiderModalPremium:
-          type: number
-          format: double
-          description: Fixed cost period child rider modal premium
-          example: 4.17
     Scenario-Base:
       title: Base Scenario Results
       description: Fundamental outputs that apply across all products. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
@@ -914,374 +1117,6 @@ components:
           type: number
           format: double
           example: 110.04
-    Party-Role:
-      title: Party Role
-      example: OWNER
-      type: string
-      description: The role of a given party
-      enum:
-      - OWNER
-      - PRIMARYBENEFICIARY
-      - CONTINGENTBENEFICIARY
-      - INSURED
-      - PAYOR
-      - PAYEE
-      - AGENT
-      - PRIMARYWRITINGAGENT
-      - PRIMARYSERVICINGAGENT
-      - ADDITIONALSERVICINGAGENT
-      - ADDITIONALWRITINGAGENT
-      - THIRDPARTYDESIGNEE
-      - JOINTOWNER
-      - COVERAGEINSURED
-      - ASSIGNEE
-      - ANNUITANT
-      - EXCHANGECOMPANY
-      - JOINTANNUITANT
-      - GRANTOR
-      - TRUSTEE
-      - POWEROFATTORNEY
-      - AUTHORIZEDSIGNATORY
-      - OTHERINTERESTEDPARTY
-      - CONTINGENTOWNER
-    Flat-Extra:
-      title: Flat Extra
-      type: object
-      properties:
-        type:
-          type: string
-          description: Type of flat extra
-          example: PERMANENT
-          enum:
-          - PERMANENT
-          - TEMPORARY
-        amount:
-          type: number
-          format: double
-          description: Amount
-          example: 1000
-        duration:
-          type: number
-          format: integer
-          description: Duration
-          example: 12
-        durationType:
-          type: string
-          description: Duration type
-          example: YEARS
-          enum:
-          - YEARS
-          - MONTHS
-        startDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd")
-          example: '2025-05-13'
-    Illustration-Response-HIT:
-      title: Illustration Response for Hybrid-IUL/Term
-      description: Illustration Response for Hybrid-IUL/Term product
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Response-Base'
-      properties:
-        assumed:
-          $ref: '#/components/schemas/Scenario-HIT'
-        guaranteed:
-          $ref: '#/components/schemas/Scenario-HIT'
-        midpoint:
-          $ref: '#/components/schemas/Scenario-HIT'
-        assumedCap:
-          $ref: '#/components/schemas/Scenario-HIT'
-        assumedFixed:
-          $ref: '#/components/schemas/Scenario-HIT'
-        assumedPar:
-          $ref: '#/components/schemas/Scenario-HIT'
-    Conversion:
-      title: Conversion
-      description: Specifies what type of conversion is occurring
-      type: object
-      properties:
-        conversionType:
-          type: string
-          description: Type of conversion
-          example: STANDARD
-          enum:
-          - NONE
-          - STANDARD
-          - PREMIUM_CREDIT
-        isSourceMEC:
-          type: boolean
-          description: Conversion MEC indicator - Indicates the source policy being converted was already in MEC status
-          example: true
-        conversionCredit:
-          type: number
-          format: double
-          description: Amount to be credited to new policy on conversion
-          example: 5000
-      required:
-      - conversionType
-      - isSourceMEC
-    Schedule-DBO:
-      title: Death Benefit Option Schedule
-      allOf:
-      - $ref: '#/components/schemas/Schedule-Base'
-      properties:
-        sequence:
-          items:
-            title: Death Benefit Option Schedule Entry
-            properties:
-              value:
-                example: LEVEL
-                oneOf:
-                - title: Death Benefit Option
-                  type: string
-                  enum:
-                  - LEVEL
-                  - INCREASING
-                  - RETURN_OF_PREMIUM
-          required:
-          - value
-    Illustration-Inputs-HIT:
-      title: Illustration Request for Hybrid-IUL/Term
-      description: Illustration Request for Hybrid-IUL/Term product
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Inputs-Projection-Base'
-      - $ref: '#/components/schemas/Illustration-Inputs-New-Business-Base'
-      - $ref: '#/components/schemas/IUL-Shared-Properties'
-      - type: object
-        properties:
-          options:
-            $ref: '#/components/schemas/Options-HIT'
-    PropertyCollection-Loan:
-      title: Loan Property Collection
-      description: Reusable collection of loan-related properties
-      type: object
-      properties:
-        loan:
-          type: object
-          properties:
-            amount:
-              type: number
-              format: double
-              description: Loan amount
-              example: 0
-            interestCreditedAmount:
-              type: number
-              format: double
-              description: Loan interest credited amount
-              example: 0
-            interestDueAmount:
-              type: number
-              format: double
-              description: Loan interest due amount
-              example: 0
-            payoffAmount:
-              type: number
-              format: double
-              description: Loan payoff amount
-              example: 0
-            maximumLoanAmount:
-              type: number
-              format: double
-              description: Maximum loan amount
-              example: 0
-        netAccountValue:
-          type: number
-          format: double
-          example: 0.104742
-        netDeathBenefitAmount:
-          type: number
-          format: double
-          example: 250000.104742
-        netSurrenderValue:
-          type: number
-          format: double
-          example: 0.104742
-        policyNetOutlayAmount:
-          type: number
-          format: double
-          example: 397.2
-        premiumOutlayAmount:
-          type: number
-          format: double
-          example: 397.2
-    Schedule-Base:
-      title: Generic Schedule
-      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
-      type: object
-      properties:
-        frequency:
-          $ref: '#/components/schemas/Frequency'
-        basis:
-          description: Specifies how to interpret the from and through properties for each entry.
-          type: string
-          example: AGE
-          enum:
-          - AGE
-          - DURATION
-          - RETIREMENT
-        sequence:
-          description: Collection of entries describing the changes in value over time
-          type: array
-          items:
-            title: Schedule Entry
-            description: Represents a limited time period for which a value is constant.
-            type: object
-            properties:
-              from:
-                description: starting point for the value, inclusive
-                type: integer
-                minimum: 1
-                example: 1
-              through:
-                description: ending point for the value, inclusive
-                type: integer
-                minimum: 1
-                example: 10
-            required:
-            - from
-            - through
-          minItems: 1
-      required:
-      - sequence
-    Frequency:
-      type: string
-      description: Frequency
-      example: DAILY
-      enum:
-      - DAILY
-      - EVERYTWOWEEKS
-      - MONTHLY
-      - SEMIANNUAL
-      - QUARTERLY
-      - ANNUAL
-      - SINGLEPAYMENT
-    Illustration-Inputs-Projection-Base:
-      title: Projection Base
-      description: Base for projection scenarios
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Inputs-Base'
-      - type: object
-        properties:
-          coverages:
-            $ref: '#/components/schemas/Coverage-Collection-V4'
-          parties:
-            type: array
-            description: Must have at least one party representing the Insured participant
-            items:
-              anyOf:
-              - $ref: '#/components/schemas/Non-Insured-Party'
-              - $ref: '#/components/schemas/Insured'
-            minItems: 1
-            uniqueItems: true
-          options:
-            $ref: '#/components/schemas/Options-Base'
-        required:
-        - coverages
-        - parties
-    Schedule-FaceAmount:
-      title: Face Amount Schedule
-      allOf:
-      - $ref: '#/components/schemas/Schedule-Base'
-      properties:
-        sequence:
-          items:
-            title: Face Amount Schedule Entry
-            properties:
-              value:
-                example: 250000
-                oneOf:
-                - type: number
-                  format: double
-                - title: Face Amount Option
-                  type: string
-                  enum:
-                  - SOLVE_FOR_TARGET_CASH_VALUE
-                  - MINIMUM_NON_MEC
-            required:
-            - value
-    IUL-Shared-Properties:
-      title: IUL Shared Properties
-      description: Properties shared between IUL and HIT products
-      type: object
-      properties:
-        conversion:
-          $ref: '#/components/schemas/Conversion'
-        lumpSumDeposits:
-          description: Additional one-time payments that take place at specified points in time
-          type: array
-          items:
-            type: object
-            required:
-            - amount
-            properties:
-              amount:
-                description: lump sum deposit amount
-                type: number
-                format: double
-                example: 100000
-              duration:
-                description: contract year of the lump sum deposit. If not specified, '1' (first year) is assumed.
-                type: number
-                format: integer
-                example: 65
-              month:
-                description: lump sum deposit month. If not specified, '1' (January) is assumed.
-                type: number
-                format: integer
-                example: 12
-        fundAllocations:
-          description: Fund allocations
-          type: array
-          items:
-            type: object
-            properties:
-              allocationPercent:
-                type: number
-                format: integer
-                description: Allocation percent
-                example: 50
-              fundId:
-                type: string
-                description: Fund id
-                example: SPX
-              illustratedRate:
-                description: Assumed rate of return to use for illustrative purposes
-                type: number
-                format: double
-                example: 0.3
-            required:
-            - allocationPercent
-            - fundId
-        distributions:
-          $ref: '#/components/schemas/Distributions'
-        exchanges:
-          type: object
-          properties:
-            internal:
-              $ref: '#/components/schemas/Exchange'
-            external:
-              $ref: '#/components/schemas/Exchange'
-      required:
-      - fundAllocations
-    Distribution-Sequence-FromThrough:
-      title: From/Through Entry in a Distribution Sequence
-      type: object
-      description: From/Through
-      properties:
-        offset:
-          type: number
-          format: integer
-          description: Offset
-          example: 1
-        basis:
-          type: string
-          description: Basis
-          example: AGE
-          enum:
-          - AGE
-          - DURATION
-          - RETIREMENT
     Single-Year-Values-Base:
       title: Single-Year Values
       description: A single-year slice of data that varies annually - these values apply to any scenario and any product
@@ -1346,6 +1181,237 @@ components:
           type: number
           format: double
           example: 0.102552
+    Frequency:
+      type: string
+      description: Frequency
+      example: DAILY
+      enum:
+      - DAILY
+      - EVERYTWOWEEKS
+      - MONTHLY
+      - SEMIANNUAL
+      - QUARTERLY
+      - ANNUAL
+      - SINGLEPAYMENT
+    Flat-Extra:
+      title: Flat Extra
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of flat extra
+          example: PERMANENT
+          enum:
+          - PERMANENT
+          - TEMPORARY
+        amount:
+          type: number
+          format: double
+          description: Amount
+          example: 1000
+        duration:
+          type: number
+          format: integer
+          description: Duration
+          example: 12
+        durationType:
+          type: string
+          description: Duration type
+          example: YEARS
+          enum:
+          - YEARS
+          - MONTHS
+        startDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd")
+          example: '2025-05-13'
+    Illustration-Inputs-Projection-Base:
+      title: Projection Base
+      description: Base for projection scenarios
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Inputs-Base'
+      - type: object
+        properties:
+          coverages:
+            $ref: '#/components/schemas/Coverage-Collection-V4'
+          parties:
+            type: array
+            description: Must have at least one party representing the Insured participant
+            items:
+              anyOf:
+              - $ref: '#/components/schemas/Non-Insured-Party'
+              - $ref: '#/components/schemas/Insured'
+            minItems: 1
+            uniqueItems: true
+          options:
+            $ref: '#/components/schemas/Options-Base'
+        required:
+        - coverages
+        - parties
+    Participant-Collection-V4:
+      title: Participants
+      description: A collection of unique participants
+      type: array
+      items:
+        title: Participant
+        description: An entity with a stake in a policy
+        type: object
+        properties:
+          issueAge:
+            type: number
+            format: integer
+            description: Issue age
+            example: 30
+          participantId:
+            type: string
+            description: Participant id (UUID)
+            example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+          underwritingClass:
+            type: string
+            description: Underwriting class
+            example: ULTRANONTOBACCO
+            enum:
+            - ULTRANONTOBACCO
+            - ELITENONTOBACCO
+            - PREFERREDNONTOBACCO
+            - STANDARDNONTOBACCO
+            - STANDARDTOBACCO
+            - STANDARDAGGREGATE
+            - SUBSTANDARDNONTOBACCO
+            - SUBSTANDARDTOBACCO
+            - STANDARDPLUSNONTOBACCO
+            - PREFERREDTOBACCO
+            - STANDARDCONVERSIONNONTOBACCO
+            - STANDARDCONVERSIONTOBACCO
+            - STANDARDPLUSBLEND
+            - STANDARDPLUSTOBACCO
+            - STANDARDBLEND
+            - SUBSTANDARDBLEND
+            - PREFERREDSELECTNONTOBACCO
+            - PREFERREDSELECTBLEND
+            - PREFERREDSELECTTOBACCO
+            - PREFERREDBLEND
+          subStandardRating:
+            type: string
+            description: Substandard rating
+            example: TABLEA
+            enum:
+            - TABLEA
+            - TABLEB
+            - TABLEC
+            - TABLED
+            - TABLEE
+            - TABLEF
+            - TABLEG
+            - TABLEH
+            - TABLEI
+            - TABLEJ
+            - TABLEK
+            - TABLEL
+            - TABLEM
+            - TABLEN
+            - TABLEO
+            - TABLEP
+            - NONETABLE
+          flatExtra:
+            type: array
+            description: Flat extra
+            items:
+              $ref: '#/components/schemas/Flat-Extra'
+        required:
+        - issueAge
+        - participantId
+      uniqueItems: true
+    Schedule-DBO:
+      title: Death Benefit Option Schedule
+      allOf:
+      - $ref: '#/components/schemas/Schedule-Base'
+      properties:
+        sequence:
+          items:
+            title: Death Benefit Option Schedule Entry
+            properties:
+              value:
+                example: LEVEL
+                oneOf:
+                - title: Death Benefit Option
+                  type: string
+                  enum:
+                  - LEVEL
+                  - INCREASING
+                  - RETURN_OF_PREMIUM
+          required:
+          - value
+    Schedule-Base:
+      title: Generic Schedule
+      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
+      type: object
+      properties:
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+        basis:
+          description: Specifies how to interpret the from and through properties for each entry.
+          type: string
+          example: AGE
+          enum:
+          - AGE
+          - DURATION
+          - RETIREMENT
+        sequence:
+          description: Collection of entries describing the changes in value over time
+          type: array
+          items:
+            title: Schedule Entry
+            description: Represents a limited time period for which a value is constant.
+            type: object
+            properties:
+              from:
+                description: starting point for the value, inclusive
+                type: integer
+                minimum: 1
+                example: 1
+              through:
+                description: ending point for the value, inclusive
+                type: integer
+                minimum: 1
+                example: 10
+            required:
+            - from
+            - through
+          minItems: 1
+      required:
+      - sequence
+    Insured:
+      title: Insured Party
+      description: 'Represents a party with roleCode: `Insured`
+
+        '
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Party-Base'
+      properties:
+        roleCode:
+          type: string
+          enum:
+          - INSURED
+          example: INSURED
+      required:
+      - lastName
+      - gender
+      - roleCode
+    Illustration-Inputs-HIT:
+      title: Illustration Request for Hybrid-IUL/Term
+      description: Illustration Request for Hybrid-IUL/Term product
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Inputs-Projection-Base'
+      - $ref: '#/components/schemas/Illustration-Inputs-New-Business-Base'
+      - $ref: '#/components/schemas/IUL-Shared-Properties'
+      - type: object
+        properties:
+          options:
+            $ref: '#/components/schemas/Options-HIT'
     Illustration-Inputs-Base:
       title: Illustration Request
       description: Fundamental Illustration request schema. See the schema for a specific product
@@ -1407,30 +1473,26 @@ components:
       required:
       - calculationType
       - illustrationRequestDate
-    Insured:
-      title: Insured Party
-      description: 'Represents a party with roleCode: `Insured`
-
-        '
+    Message:
+      title: Message
+      description: A structured signal
       type: object
-      allOf:
-      - $ref: '#/components/schemas/Party-Base'
       properties:
-        roleCode:
+        code:
+          type: integer
+        severity:
           type: string
           enum:
-          - INSURED
-          example: INSURED
+          - INFO
+          - WARNING
+          - ERROR
+        text:
+          type: string
+        returnTo:
+          type: string
       required:
-      - lastName
-      - gender
-      - roleCode
-    Date-Field:
-      type: string
-      format: date
-      pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-      description: Date (with pattern "yyyy-mm-dd")
-      example: '2025-05-13'
+      - code
+      - text
     IUL-Shared-Scenario-Properties:
       title: IUL Shared Scenario Properties
       description: Scenario properties shared between IUL and HIT products
@@ -1863,6 +1925,36 @@ components:
           type: number
           format: integer
           example: 0
+    Party-Role:
+      title: Party Role
+      example: OWNER
+      type: string
+      description: The role of a given party
+      enum:
+      - OWNER
+      - PRIMARYBENEFICIARY
+      - CONTINGENTBENEFICIARY
+      - INSURED
+      - PAYOR
+      - PAYEE
+      - AGENT
+      - PRIMARYWRITINGAGENT
+      - PRIMARYSERVICINGAGENT
+      - ADDITIONALSERVICINGAGENT
+      - ADDITIONALWRITINGAGENT
+      - THIRDPARTYDESIGNEE
+      - JOINTOWNER
+      - COVERAGEINSURED
+      - ASSIGNEE
+      - ANNUITANT
+      - EXCHANGECOMPANY
+      - JOINTANNUITANT
+      - GRANTOR
+      - TRUSTEE
+      - POWEROFATTORNEY
+      - AUTHORIZEDSIGNATORY
+      - OTHERINTERESTEDPARTY
+      - CONTINGENTOWNER
     Options-Base:
       title: Options
       description: Fundamental Options schema. Some products may have product-specific Options.
@@ -1967,186 +2059,105 @@ components:
           format: double
           description: Target cash value amount
           example: 10000
-    Coverage-Collection-V4:
-      title: Coverages
-      description: A collection of benefits
-      type: array
-      items:
-        title: Coverage
-        description: A benefit conferred to a group of one or more participants
-        type: object
-        properties:
-          coverageId:
-            type: string
-            description: Coverage id
-            example: BASE_COVERAGE
-            enum:
-            - BASE_COVERAGE
-            - Rider_ABRTRM
-            - Rider_CTR
-            - Rider_ABRCHR
-            - Rider_ADR
-            - Rider_WPR
-            - Rider_CGR
-            - Rider_GIBR
-            - Rider_OPR
-            - Rider_OWDR
-            - Rider_WDR
-            - Rider_NHR
-            - Rider_ABRCRI
-            - Rider_OWP
-          riderYears:
-            type: number
-            format: integer
-            example: 10
-            description: Rider years
-          currentAmount:
-            type: number
-            format: double
-            example: 1000
-            description: Current amount
-          participants:
-            $ref: '#/components/schemas/Participant-Collection-V4'
-        required:
-        - coverageId
-    IUL-Shared-Options:
-      title: IUL Shared Options
-      description: Options shared between IUL and HIT products
+    Scenario-HIT:
+      title: Scenario Results for Hybrid-IUL/Term
+      description: Outputs for Hybrid-IUL/Term product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
       type: object
+      allOf:
+      - $ref: '#/components/schemas/Scenario-Base'
+      - $ref: '#/components/schemas/IUL-Shared-Scenario-Properties'
       properties:
-        doli:
-          type: string
-          description: DOLI
-          example: GPT
-          enum:
-          - GPT
-          - CVAT
-        deathBenefitOption:
-          $ref: '#/components/schemas/Schedule-DBO'
-        dumpInAmount:
+        fixedCostPeriod:
+          type: number
+          format: integer
+          example: 65
+        fixedCostPeriodSavingsPremium:
           type: number
           format: double
-          description: Dump in amount
-          example: 5432.62
-        juvenileReclassification:
-          description: Indicates that a rating class change will occur for a juvenile upon reaching adulthood
-          type: boolean
-          example: true
-        preventModifiedEndowmentContract:
-          type: boolean
-          example: true
-          description: Whether the selected solve should attempt to prevent this policy from being a MEC
-        illustrationBasis:
-          type: string
-          enum:
-          - CURRENT
-          - ASSUMED
-          - GUARANTEED
-          example: CURRENT
-          description: Which scenario's premium to use as the basis for the other scenarios
-      required:
-      - doli
-    Exchange:
-      title: Exchange
-      description: 1035 Exchange - exchanging another policy for this one
+          description: Fixed cost period savings premium
+          example: 250
+        fixedCostPeriodSavingsModalPremium:
+          type: number
+          format: double
+          description: Fixed cost period savings modal premium
+          example: 20.83
+        fixedCostPeriodChildRiderPremium:
+          type: number
+          format: double
+          description: Fixed cost period child rider premium
+          example: 50
+        fixedCostPeriodChildRiderModalPremium:
+          type: number
+          format: double
+          description: Fixed cost period child rider modal premium
+          example: 4.17
+    Options-HIT:
+      title: Options for Hybrid-IUL/Term
       type: object
-      required:
-      - amount
-      - basis
-      - isModifiedEndowmentContract
+      description: Options for the illustration request.
+      allOf:
+      - $ref: '#/components/schemas/Options-Base'
+      - $ref: '#/components/schemas/IUL-Shared-Options'
       properties:
-        amount:
+        fixedModalPayment:
           type: number
           format: double
-          description: The value of the exchanged policy
-          example: 5000
-        basis:
-          type: number
-          format: double
-          description: How much can be exchanged without incurring additional taxes
-          example: 5000
-        isModifiedEndowmentContract:
+          description: Fixed payment per pay period
+          example: 500
+        savingsPaymentIncluded:
           type: boolean
-          description: Whether the policy being exchanged for this one is a MEC
+          description: Whether or not savings payment is included
           example: true
-        carryoverLoan:
+        savingsPaymentOption:
+          type: string
+          description: How savings payment is calculated
+          example: FIXED
+          enum:
+          - EXTRA_OVER_COVERAGE
+          - MAXIMIZE_SAVINGS_INCENTIVE
+          - FIXED
+          - SCHEDULE_BY_MODE
+        savingsFixedAmount:
           type: number
           format: double
-          description: How much loan is being carried in as part of this exchange
-          example: 5000
-    Illustration-Inputs-New-Business-Base:
-      title: New Business Base
-      description: Properties for new business scenarios
-      type: object
-      properties:
-        jurisdiction:
+          description: Fixed payment amout for savings payment
+          example: 500
+        savingsScheduleByMode:
+          allOf:
+          - $ref: '#/components/schemas/Schedule-Base'
+          description: Schedule for savings payment
+        postFixedCostPeriodPaymentDurationOption:
+          description: Post fixed-cost-period payment duration option
           type: string
-          description: US state code.https://en.wikipedia.org/wiki/ISO_3166-2:US
+          example: YEARS
           enum:
-          - AK
-          - AL
-          - AR
-          - AS
-          - AZ
-          - CA
-          - CO
-          - CT
-          - DC
-          - DE
-          - FL
-          - GA
-          - GU
-          - HI
-          - IA
-          - ID
-          - IL
-          - IN
-          - KS
-          - KY
-          - LA
-          - MA
-          - MD
-          - ME
-          - MI
-          - MN
-          - MO
-          - MP
-          - MS
-          - MT
-          - NC
-          - ND
-          - NE
-          - NH
-          - NJ
-          - NM
-          - NV
-          - NY
-          - OH
-          - OK
-          - OR
-          - PA
-          - PR
-          - RI
-          - SC
-          - SD
-          - TN
-          - TX
-          - UM
-          - UT
-          - VA
-          - VI
-          - VT
-          - WA
-          - WI
-          - WV
-          - WY
-        planCode:
+          - AGE
+          - YEARS
+        postFixedCostPeriodPaymentDuration:
+          description: Post fixed-cost-period payment duration
+          type: number
+          format: integer
+          minimum: 0
+          example: 10
+        postFixedCostPremiumOption:
           type: string
-          description: Plan code
-          example: EG123
-      required:
-      - jurisdiction
-      - planCode
+          description: Post fixed-cost-period premium option
+          example: COVER_CHARGES
+          enum:
+          - COVER_CHARGES
+          - MINIMUM_AFTER_CHARGES
+          - SCHEDULE_BY_MODE
+          - SOLVE_FOR_LEVEL
+        postFixedCostPremiumSchedule:
+          allOf:
+          - $ref: '#/components/schemas/Schedule-Base'
+          description: Schedule for post-fixed-cost-period premium
+    Date-Field:
+      type: string
+      format: date
+      pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+      description: Date (with pattern "yyyy-mm-dd")
+      example: '2025-05-13'
     Output-Coverage-Values:
       title: Output Coverage Values
       description: Result values relevant to a specific coverage
@@ -2201,62 +2212,51 @@ components:
           type: boolean
           example: true
           description: indicates that this coverage was actually used in producing the quote
-    Distributions:
-      title: Distributions
-      description: Distributions
+    PropertyCollection-Withdrawal:
+      title: Withdrawal Property Collection
+      description: Reusable collection of withdrawal-related properties
       type: object
-      required:
-      - frequency
-      - sequence
       properties:
-        frequency:
-          $ref: '#/components/schemas/Frequency'
-        sequence:
-          description: Sequence
-          type: array
-          items:
-            type: object
-            title: Sequence
-            description: Distribution sequence
-            properties:
-              amountType:
-                type: string
-                description: Amount type
-                example: AMOUNT
-                enum:
-                - NONE
-                - AMOUNT
-                - PERCENTANGE
-                - MAX
-                - FREE_WITHDRAWAL_AMOUNT
-                - WITHDRAWA_LUNTIL_BASIS
-                - EARNINGS_ONLY
-                - PRORATA
-                - MODIFIED_EARNINGS_ONLY
-              requestedAmount:
-                type: number
-                format: double
-                description: Requested amount
-                example: 10000
-              funding:
-                type: string
-                description: Funding
-                example: LOAN
-                enum:
-                - LOAN
-                - WITHDRAWAL
-                - SWITCH_AT_BASIS
-              from:
-                $ref: '#/components/schemas/Distribution-Sequence-FromThrough'
-              through:
-                $ref: '#/components/schemas/Distribution-Sequence-FromThrough'
-        loanInterestOption:
-          description: Specifies how loan interest is processed; BORROW indicates that the interest is added into the loan amount, CASH indicates that the loan is paid and does not accumulate.
+        cumulativeWithdrawalAmount:
+          type: number
+          format: double
+          description: Cumulative withdrawal amount
+          example: 0
+        maximumWithdrawalAmount:
+          type: number
+          format: double
+          description: Maximum withdrawal amount
+          example: 0
+        withdrawalAmount:
+          type: number
+          format: double
+          description: Withdrawal amount
+          example: 0
+    Conversion:
+      title: Conversion
+      description: Specifies what type of conversion is occurring
+      type: object
+      properties:
+        conversionType:
           type: string
-          example: BORROW
+          description: Type of conversion
+          example: STANDARD
           enum:
-          - BORROW
-          - CASH
+          - NONE
+          - STANDARD
+          - PREMIUM_CREDIT
+        isSourceMEC:
+          type: boolean
+          description: Conversion MEC indicator - Indicates the source policy being converted was already in MEC status
+          example: true
+        conversionCredit:
+          type: number
+          format: double
+          description: Amount to be credited to new policy on conversion
+          example: 5000
+      required:
+      - conversionType
+      - isSourceMEC
   securitySchemes:
     Auth0:
       type: openIdConnect

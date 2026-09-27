@@ -200,19 +200,87 @@ components:
             status: 500
             error: Internal Server Error
   schemas:
-    EligibilityErrorResponse:
+    RestrictedTransactionResult:
       type: object
-      description: Error envelope returned by eligibility endpoints on 4xx/5xx responses.
+      description: A transaction affected by a restriction type, with its blocking status.
       properties:
-        status:
-          type: integer
-          example: 401
-        error:
+        type:
           type: string
-          example: Unauthorized
+          description: Transaction type code.
+          example: FullSurrender
+        status:
+          type: string
+          description: How the transaction is blocked (e.g. Unavailable, CarrierApprovalNeeded).
+          example: Unavailable
+    EligibilityRequest:
+      type: object
+      description: 'Optional request body shared by all four eligibility endpoints. planCode and policyNumber are supplied as path parameters, not in the body.
+
+        '
+      properties:
+        items:
+          type: array
+          description: 'Subject identifiers to evaluate. Semantics depend on the endpoint: transaction/cancellation — transaction type codes (e.g. FullSurrender); capabilities — capability codes (e.g. ViewPolicy); restrictions — restriction type codes (e.g. DIVORCE, OVERPAYMENT). When absent or empty, all subjects configured for the plan are evaluated.
+
+            '
+          items:
+            type: string
+          example:
+          - FullSurrender
+          - PartialWithdrawalOneTime
+    EligibilityReason:
+      type: object
+      description: Structured reason for a non-passing or indeterminate section.
+      properties:
+        code:
+          type: string
+          description: Machine-readable reason code.
+          example: INSUFFICIENT_PERMISSIONS
         message:
           type: string
-          example: partyId claim could not be extracted
+          description: Human-readable explanation.
+          example: Caller does not hold the required permissions for this transaction
+    EligibilitySubjectResult:
+      type: object
+      description: 'Composed eligibility result for a single evaluated subject. Null fields are omitted from the JSON response (@JsonInclude NON_NULL). Three shapes exist: evaluated (sections present), notAvailable (subject absent from product-transactions), or notConfigured (subject absent from transactions-params).
+
+        '
+      required:
+      - eligibilityItem
+      - eligible
+      properties:
+        eligibilityItem:
+          type: string
+          description: Subject identifier evaluated (transaction type, capability code, or restriction type code).
+          example: FullSurrender
+        eligible:
+          type: boolean
+          description: 'true only when policyEligibility=ELIGIBLE AND userEligibility=ELIGIBLE AND restriction is not RESTRICTED/HARD_RESTRICTED. SOFT_RESTRICTED does not fail eligibility. Any COULD_NOT_DETERMINE section forces eligible=false.
+
+            '
+        restrictedTransactions:
+          type: array
+          description: 'Populated only for eligibilityType=restrictions and only when eligible=true. Lists the transactions affected by this restriction type and their blocking status. Absent for all other eligibility types.
+
+            '
+          items:
+            $ref: '#/components/schemas/RestrictedTransactionResult'
+        policyEligibility:
+          $ref: '#/components/schemas/EligibilitySectionResult'
+        userEligibility:
+          $ref: '#/components/schemas/EligibilitySectionResult'
+        restriction:
+          $ref: '#/components/schemas/EligibilitySectionResult'
+        notAvailable:
+          type: boolean
+          description: True when the subject is absent from product-transactions for this plan.
+        notConfigured:
+          type: boolean
+          description: True when the subject has no entry in transactions-params.
+        message:
+          type: string
+          description: Human-readable explanation accompanying notAvailable or notConfigured.
+          example: Transaction Not Configured
     EligibilitySectionResult:
       type: object
       description: 'One evaluation section of a per-subject result (policyEligibility, userEligibility, or restriction).
@@ -266,71 +334,19 @@ components:
           - WRITE
         reason:
           $ref: '#/components/schemas/EligibilityReason'
-    EligibilityReason:
+    EligibilityErrorResponse:
       type: object
-      description: Structured reason for a non-passing or indeterminate section.
+      description: Error envelope returned by eligibility endpoints on 4xx/5xx responses.
       properties:
-        code:
-          type: string
-          description: Machine-readable reason code.
-          example: INSUFFICIENT_PERMISSIONS
-        message:
-          type: string
-          description: Human-readable explanation.
-          example: Caller does not hold the required permissions for this transaction
-    RestrictedTransactionResult:
-      type: object
-      description: A transaction affected by a restriction type, with its blocking status.
-      properties:
-        type:
-          type: string
-          description: Transaction type code.
-          example: FullSurrender
         status:
+          type: integer
+          example: 401
+        error:
           type: string
-          description: How the transaction is blocked (e.g. Unavailable, CarrierApprovalNeeded).
-          example: Unavailable
-    EligibilitySubjectResult:
-      type: object
-      description: 'Composed eligibility result for a single evaluated subject. Null fields are omitted from the JSON response (@JsonInclude NON_NULL). Three shapes exist: evaluated (sections present), notAvailable (subject absent from product-transactions), or notConfigured (subject absent from transactions-params).
-
-        '
-      required:
-      - eligibilityItem
-      - eligible
-      properties:
-        eligibilityItem:
-          type: string
-          description: Subject identifier evaluated (transaction type, capability code, or restriction type code).
-          example: FullSurrender
-        eligible:
-          type: boolean
-          description: 'true only when policyEligibility=ELIGIBLE AND userEligibility=ELIGIBLE AND restriction is not RESTRICTED/HARD_RESTRICTED. SOFT_RESTRICTED does not fail eligibility. Any COULD_NOT_DETERMINE section forces eligible=false.
-
-            '
-        restrictedTransactions:
-          type: array
-          description: 'Populated only for eligibilityType=restrictions and only when eligible=true. Lists the transactions affected by this restriction type and their blocking status. Absent for all other eligibility types.
-
-            '
-          items:
-            $ref: '#/components/schemas/RestrictedTransactionResult'
-        policyEligibility:
-          $ref: '#/components/schemas/EligibilitySectionResult'
-        userEligibility:
-          $ref: '#/components/schemas/EligibilitySectionResult'
-        restriction:
-          $ref: '#/components/schemas/EligibilitySectionResult'
-        notAvailable:
-          type: boolean
-          description: True when the subject is absent from product-transactions for this plan.
-        notConfigured:
-          type: boolean
-          description: True when the subject has no entry in transactions-params.
+          example: Unauthorized
         message:
           type: string
-          description: Human-readable explanation accompanying notAvailable or notConfigured.
-          example: Transaction Not Configured
+          example: partyId claim could not be extracted
     EligibilityResponse:
       type: object
       description: Top-level eligibility response envelope. Shared by all four endpoints.
@@ -353,22 +369,6 @@ components:
           description: One entry per evaluated subject.
           items:
             $ref: '#/components/schemas/EligibilitySubjectResult'
-    EligibilityRequest:
-      type: object
-      description: 'Optional request body shared by all four eligibility endpoints. planCode and policyNumber are supplied as path parameters, not in the body.
-
-        '
-      properties:
-        items:
-          type: array
-          description: 'Subject identifiers to evaluate. Semantics depend on the endpoint: transaction/cancellation — transaction type codes (e.g. FullSurrender); capabilities — capability codes (e.g. ViewPolicy); restrictions — restriction type codes (e.g. DIVORCE, OVERPAYMENT). When absent or empty, all subjects configured for the plan are evaluated.
-
-            '
-          items:
-            type: string
-          example:
-          - FullSurrender
-          - PartialWithdrawalOneTime
   securitySchemes:
     Auth0:
       type: openIdConnect
