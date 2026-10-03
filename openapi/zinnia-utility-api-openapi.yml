@@ -65,6 +65,13 @@ paths:
       - Utility
 components:
   schemas:
+    Age-Calculation-Method:
+      type: string
+      enum:
+      - AGE_LAST
+      - AGE_NEAREST
+      description: Age calculation method - AGE_LAST for age at last birthday, AGE_NEAREST for age at nearest birthday
+      example: AGE_LAST
     Age-Calculation-Request:
       type: object
       required:
@@ -95,13 +102,6 @@ components:
           type: integer
           description: Number of months since last birthday
           example: 0
-    Age-Calculation-Method:
-      type: string
-      enum:
-      - AGE_LAST
-      - AGE_NEAREST
-      description: Age calculation method - AGE_LAST for age at last birthday, AGE_NEAREST for age at nearest birthday
-      example: AGE_LAST
   securitySchemes:
     Auth0:
       type: openIdConnect

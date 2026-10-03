@@ -67,6 +67,32 @@ paths:
       x-operation-id-original: Policy Search
 components:
   schemas:
+    PolicySearchResponse:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 121
+        count:
+          type: number
+          example: 1
+        next:
+          type: string
+          example: /policy/v1/policies/search?offset=10&limit=10
+        previous:
+          type: string
+          example: ''
+        results:
+          description: array of policy reference data
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyReferenceDataModel'
+      required:
+      - total
+      - count
+      - next
+      - previous
+      - results
     PolicyReferenceDataModel:
       type: object
       properties:
@@ -208,32 +234,6 @@ components:
           format: date
           description: End date for issue date range query in YYYY-MM-DD format
           example: '2024-12-31'
-    PolicySearchResponse:
-      type: object
-      properties:
-        total:
-          type: number
-          example: 121
-        count:
-          type: number
-          example: 1
-        next:
-          type: string
-          example: /policy/v1/policies/search?offset=10&limit=10
-        previous:
-          type: string
-          example: ''
-        results:
-          description: array of policy reference data
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyReferenceDataModel'
-      required:
-      - total
-      - count
-      - next
-      - previous
-      - results
   securitySchemes:
     Auth0:
       type: openIdConnect

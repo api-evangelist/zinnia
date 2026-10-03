@@ -214,6 +214,35 @@ components:
       - planCode
       - availableToSell
       - stateAvailability
+    PaginatedProductsResponse:
+      type: object
+      properties:
+        count:
+          type: number
+          description: Total number of records matching the search
+          example: 121
+        next:
+          type:
+          - string
+          - 'null'
+          description: URL to the next page, if any
+          example: /product/v2/products/search?offset=10&limit=10
+        previous:
+          type:
+          - string
+          - 'null'
+          description: URL to the previous page, if any
+          example: ''
+        results:
+          description: Array of products matching the search criteria
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductV2Model'
+      required:
+      - count
+      - next
+      - previous
+      - results
     ProductSearchRequestDto:
       type: object
       properties:
@@ -310,35 +339,20 @@ components:
         availableToSell:
           type: boolean
           description: Product-level availability filter
-    PaginatedProductsResponse:
+    ErrorResponse:
       type: object
       properties:
-        count:
-          type: number
-          description: Total number of records matching the search
-          example: 121
-        next:
-          type:
-          - string
-          - 'null'
-          description: URL to the next page, if any
-          example: /product/v2/products/search?offset=10&limit=10
-        previous:
-          type:
-          - string
-          - 'null'
-          description: URL to the previous page, if any
-          example: ''
-        results:
-          description: Array of products matching the search criteria
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductV2Model'
+        message:
+          type: string
+          description: Human-readable error description
+          example: Invalid orderByDirection. Must be "ASC" or "DESC".
+        timestamp:
+          type: string
+          description: ISO 8601 formatted timestamp of the error occurrence
+          example: '2025-12-09T16:03:00Z'
       required:
-      - count
-      - next
-      - previous
-      - results
+      - message
+      - timestamp
     StateAvailability:
       type: object
       properties:
@@ -388,20 +402,6 @@ components:
       - distributorName
       - startDate
       - endDate
-    ErrorResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          description: Human-readable error description
-          example: Invalid orderByDirection. Must be "ASC" or "DESC".
-        timestamp:
-          type: string
-          description: ISO 8601 formatted timestamp of the error occurrence
-          example: '2025-12-09T16:03:00Z'
-      required:
-      - message
-      - timestamp
   securitySchemes:
     Auth0:
       type: openIdConnect

@@ -245,6 +245,67 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+    ReviewerActionResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - integer
+          - 'null'
+          description: Case identifier returned by the upstream service when available.
+          format: int64
+        isSuccess:
+          type: boolean
+          description: True when the reviewer action completed successfully.
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable outcome message.
+        status:
+          type:
+          - string
+          - 'null'
+          description: High-level status string returned to the client.
+      additionalProperties: false
+    ReviewerActionRequest:
+      required:
+      - action
+      - transactionId
+      type: object
+      properties:
+        action:
+          minLength: 1
+          type: string
+          description: 'Review outcome: Approved, Declined, or Terminate.'
+        transactionId:
+          maximum: 2147483647
+          minimum: 1
+          type: integer
+          description: Order-entry transaction (instance) identifier.
+          format: int32
+      additionalProperties: false
     ErrorInfo:
       required:
       - code
@@ -295,67 +356,6 @@ components:
         description: Validation failed for field '$.fieldName'
         details: The request contains an unrecognized property. Only documented fields are allowed.
         timestamp: '2024-01-15T10:30:00.000Z'
-    ReviewerActionResponse:
-      type: object
-      properties:
-        caseId:
-          type:
-          - integer
-          - 'null'
-          description: Case identifier returned by the upstream service when available.
-          format: int64
-        isSuccess:
-          type: boolean
-          description: True when the reviewer action completed successfully.
-        message:
-          type:
-          - string
-          - 'null'
-          description: Human-readable outcome message.
-        status:
-          type:
-          - string
-          - 'null'
-          description: High-level status string returned to the client.
-      additionalProperties: false
-    ReviewerActionRequest:
-      required:
-      - action
-      - transactionId
-      type: object
-      properties:
-        action:
-          minLength: 1
-          type: string
-          description: 'Review outcome: Approved, Declined, or Terminate.'
-        transactionId:
-          maximum: 2147483647
-          minimum: 1
-          type: integer
-          description: Order-entry transaction (instance) identifier.
-          format: int32
-      additionalProperties: false
-    ErrorResponse:
-      required:
-      - errors
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
   securitySchemes:
     openIdConnect:
       type: openIdConnect

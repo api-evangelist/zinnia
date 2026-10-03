@@ -107,71 +107,6 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    ProductDataModel:
-      type: object
-      properties:
-        productId:
-          type: string
-          description: Zinnia generated unique ID generated to uniquely identify the product in our product master database
-          example: UUID
-        carrierProductId:
-          type: string
-          description: Carrier generated unique ID, which may be used to communicate across integrations.
-          example: EVGL-PROD-001
-        productMarketingName:
-          type: string
-          description: Carrier generated marketing name for the product
-          example: Everglades Term Life
-          enum:
-          - Everglades Term Life
-          - Everglades Return of Premium Term
-          - Everglades Index Universal Life
-        carrier:
-          type: string
-          description: Unique carrier key used in enterprise APIs
-          example: EVGL
-        productLine:
-          type: string
-          description: Product line category
-          example: LIFE
-          enum:
-          - LIFE
-          - ANNUITY
-        productType:
-          type: string
-          description: Product type category
-          example: TERM
-          enum:
-          - INDEX_UNIVERSAL_LIFE
-          - UNIVERSAL_LIFE
-          - TERM
-        planCode:
-          type: string
-          description: Plan code for the product (multiple can exist for a single product)
-          example: EVGUL001
-        termLength:
-          type: array
-          description: Term length in years
-          example:
-          - 10
-          - 20
-          - 30
-          items:
-            type: number
-            enum:
-            - 1
-            - 5
-            - 10
-            - 15
-            - 20
-            - 25
-            - 30
-            - 35
-            - 40
-        availableToSell:
-          type: boolean
-          description: Indicates if the product is available to sell
-          example: true
     ProductModelDB:
       type: object
       properties:
@@ -240,6 +175,71 @@ components:
         id:
           type: string
           description: Database generated unique ID
+    ProductDataModel:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: Zinnia generated unique ID generated to uniquely identify the product in our product master database
+          example: UUID
+        carrierProductId:
+          type: string
+          description: Carrier generated unique ID, which may be used to communicate across integrations.
+          example: EVGL-PROD-001
+        productMarketingName:
+          type: string
+          description: Carrier generated marketing name for the product
+          example: Everglades Term Life
+          enum:
+          - Everglades Term Life
+          - Everglades Return of Premium Term
+          - Everglades Index Universal Life
+        carrier:
+          type: string
+          description: Unique carrier key used in enterprise APIs
+          example: EVGL
+        productLine:
+          type: string
+          description: Product line category
+          example: LIFE
+          enum:
+          - LIFE
+          - ANNUITY
+        productType:
+          type: string
+          description: Product type category
+          example: TERM
+          enum:
+          - INDEX_UNIVERSAL_LIFE
+          - UNIVERSAL_LIFE
+          - TERM
+        planCode:
+          type: string
+          description: Plan code for the product (multiple can exist for a single product)
+          example: EVGUL001
+        termLength:
+          type: array
+          description: Term length in years
+          example:
+          - 10
+          - 20
+          - 30
+          items:
+            type: number
+            enum:
+            - 1
+            - 5
+            - 10
+            - 15
+            - 20
+            - 25
+            - 30
+            - 35
+            - 40
+        availableToSell:
+          type: boolean
+          description: Indicates if the product is available to sell
+          example: true
   securitySchemes:
     Auth0:
       type: openIdConnect

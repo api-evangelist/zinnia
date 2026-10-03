@@ -155,123 +155,6 @@ paths:
       - Auth0: []
 components:
   schemas:
-    ViAmounts:
-      type: object
-      nullable: true
-      description: 'VI-derived amount values for withdrawal rule evaluation.
-
-        Contains real-time policy values from VI 21209 response.
-
-        '
-      properties:
-        interestOnlyAmount:
-          type: number
-          format: decimal
-          nullable: true
-          description: Interest-only withdrawal amount
-          example: 500
-        rmdAmount:
-          type: number
-          format: decimal
-          nullable: true
-          description: Required Minimum Distribution amount
-          example: 1000
-        riderFreeAmount:
-          type: number
-          format: decimal
-          nullable: true
-          description: Rider free amount
-          example: 200
-        freeAvailableAmount:
-          type: number
-          format: decimal
-          nullable: true
-          description: Free available amount (surrenderValueWithoutMarketValueAdjustment)
-          example: 300
-        surrenderFreeAmountATD:
-          type: number
-          format: decimal
-          nullable: true
-          description: Surrender-free amount year-to-date
-          example: 400
-        surrenderValue:
-          type: number
-          format: decimal
-          nullable: true
-          description: Total surrender value
-          example: 10000
-        policyValue:
-          type: number
-          format: decimal
-          nullable: true
-          description: Total policy value
-          example: 50000
-    ViFund:
-      type: object
-      description: VI-derived fund information with withdrawal eligibility
-      properties:
-        fundCode:
-          type: string
-          description: Fund identifier (ProductCode)
-          example: ABAF
-        fundKey:
-          type: string
-          description: Fund key (SubAccountKey)
-          example: SUB123
-        fundName:
-          type: string
-          description: Fund name
-          example: LVIP American Balanced Allocation Fund
-        withdrawalsAllowed:
-          type: boolean
-          nullable: true
-          description: Whether withdrawals are allowed from this fund
-          example: true
-        totalValue:
-          type: number
-          format: decimal
-          nullable: true
-          description: Total value of the fund
-          example: 5000
-        availableFundsAmount:
-          type: number
-          format: decimal
-          nullable: true
-          description: Available funds amount
-          example: 4500
-        numberOfUnits:
-          type: number
-          format: decimal
-          nullable: true
-          description: Number of units held
-          example: 100.25
-        fundRestrictReason:
-          type: string
-          nullable: true
-          description: Fund restriction reason if any
-          example: null
-        isTransferSendAllowed:
-          type: boolean
-          nullable: true
-          description: Whether transfer send is allowed
-          example: true
-        isTransferDestinationAllowed:
-          type: boolean
-          nullable: true
-          description: Whether fund can be a transfer destination
-          example: true
-    CodeDisplayName:
-      type: object
-      description: Generic code/displayName object
-      properties:
-        code:
-          type: string
-          description: Code value
-          example: WD
-        displayName:
-          type: string
-          description: Display name
-          example: Withdrawal
     EffectiveDateDuration:
       type: object
       description: Effective date duration with min/max values in days
@@ -476,6 +359,27 @@ components:
           $ref: '#/components/schemas/CodeDisplayName'
         arrangementSubType:
           $ref: '#/components/schemas/CodeDisplayName'
+    CodeDisplayName:
+      type: object
+      description: Generic code/displayName object
+      properties:
+        code:
+          type: string
+          description: Code value
+          example: WD
+        displayName:
+          type: string
+          description: Display name
+          example: Withdrawal
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
     PPFAIntegratedDataResponse:
       type: object
       properties:
@@ -604,15 +508,111 @@ components:
           description: VI-derived fund information with withdrawal eligibility
           items:
             $ref: '#/components/schemas/ViFund'
-    ErrorResponse:
+    ViAmounts:
       type: object
+      nullable: true
+      description: 'VI-derived amount values for withdrawal rule evaluation.
+
+        Contains real-time policy values from VI 21209 response.
+
+        '
       properties:
-        status:
-          type: integer
-          example: 404
-        message:
+        interestOnlyAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Interest-only withdrawal amount
+          example: 500
+        rmdAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Required Minimum Distribution amount
+          example: 1000
+        riderFreeAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Rider free amount
+          example: 200
+        freeAvailableAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Free available amount (surrenderValueWithoutMarketValueAdjustment)
+          example: 300
+        surrenderFreeAmountATD:
+          type: number
+          format: decimal
+          nullable: true
+          description: Surrender-free amount year-to-date
+          example: 400
+        surrenderValue:
+          type: number
+          format: decimal
+          nullable: true
+          description: Total surrender value
+          example: 10000
+        policyValue:
+          type: number
+          format: decimal
+          nullable: true
+          description: Total policy value
+          example: 50000
+    ViFund:
+      type: object
+      description: VI-derived fund information with withdrawal eligibility
+      properties:
+        fundCode:
           type: string
-          example: 'Invalid or missing request field: correlationId'
+          description: Fund identifier (ProductCode)
+          example: ABAF
+        fundKey:
+          type: string
+          description: Fund key (SubAccountKey)
+          example: SUB123
+        fundName:
+          type: string
+          description: Fund name
+          example: LVIP American Balanced Allocation Fund
+        withdrawalsAllowed:
+          type: boolean
+          nullable: true
+          description: Whether withdrawals are allowed from this fund
+          example: true
+        totalValue:
+          type: number
+          format: decimal
+          nullable: true
+          description: Total value of the fund
+          example: 5000
+        availableFundsAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Available funds amount
+          example: 4500
+        numberOfUnits:
+          type: number
+          format: decimal
+          nullable: true
+          description: Number of units held
+          example: 100.25
+        fundRestrictReason:
+          type: string
+          nullable: true
+          description: Fund restriction reason if any
+          example: null
+        isTransferSendAllowed:
+          type: boolean
+          nullable: true
+          description: Whether transfer send is allowed
+          example: true
+        isTransferDestinationAllowed:
+          type: boolean
+          nullable: true
+          description: Whether fund can be a transfer destination
+          example: true
   securitySchemes:
     Auth0:
       type: openIdConnect

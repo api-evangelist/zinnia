@@ -347,6 +347,39 @@ paths:
       x-summary-source: derived
 components:
   schemas:
+    OdataError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          $ref: '#/components/schemas/Message'
+        innererror:
+          $ref: '#/components/schemas/InnerError'
+      required:
+      - code
+      - message
+      - innererror
+    InnerError:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        stacktrace:
+          type: string
+      required:
+      - message
+      - type
+      - stacktrace
+    InlineResponse4001:
+      type: object
+      properties:
+        odataError:
+          $ref: '#/components/schemas/OdataError'
+      required:
+      - odataError
     Document:
       type: object
       properties:
@@ -445,43 +478,6 @@ components:
       - businessUnit
       - productCategory
       - deliveryMethod
-    InlineResponse4001:
-      type: object
-      properties:
-        odataError:
-          $ref: '#/components/schemas/OdataError'
-      required:
-      - odataError
-    Recipient:
-      type: string
-      enum:
-      - Agent
-      - Client
-    InnerError:
-      type: object
-      properties:
-        message:
-          type: string
-        type:
-          type: string
-        stacktrace:
-          type: string
-      required:
-      - message
-      - type
-      - stacktrace
-    InlineResponse200:
-      type: object
-      properties:
-        count:
-          type: number
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentMetadata'
-      required:
-      - count
-      - items
     InlineResponse404:
       type: object
       properties:
@@ -489,52 +485,6 @@ components:
           type: string
       required:
       - message
-    InlineResponse401:
-      type: object
-      properties:
-        message:
-          type: string
-      required:
-      - message
-    InlineResponse400:
-      type: object
-      properties:
-        xCorrelationId:
-          type: string
-        status:
-          type: number
-        errorDesc:
-          type: string
-        errorDetailedDesc:
-          type: string
-      required:
-      - xCorrelationId
-      - status
-      - errorDesc
-      - errorDetailedDesc
-    OdataError:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          $ref: '#/components/schemas/Message'
-        innererror:
-          $ref: '#/components/schemas/InnerError'
-      required:
-      - code
-      - message
-      - innererror
-    DownloadDocumentResponse:
-      type: object
-      properties:
-        fileExtension:
-          type: string
-        binaryData:
-          type: string
-      required:
-      - fileExtension
-      - binaryData
     DocumentMetadata:
       type: object
       properties:
@@ -610,6 +560,27 @@ components:
       - attachmentType
       - periodYear
       - periodQuarter
+    InlineResponse400:
+      type: object
+      properties:
+        xCorrelationId:
+          type: string
+        status:
+          type: number
+        errorDesc:
+          type: string
+        errorDetailedDesc:
+          type: string
+      required:
+      - xCorrelationId
+      - status
+      - errorDesc
+      - errorDetailedDesc
+    Recipient:
+      type: string
+      enum:
+      - Agent
+      - Client
     Message:
       type: object
       properties:
@@ -620,6 +591,35 @@ components:
       required:
       - lang
       - value
+    InlineResponse401:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    InlineResponse200:
+      type: object
+      properties:
+        count:
+          type: number
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentMetadata'
+      required:
+      - count
+      - items
+    DownloadDocumentResponse:
+      type: object
+      properties:
+        fileExtension:
+          type: string
+        binaryData:
+          type: string
+      required:
+      - fileExtension
+      - binaryData
   securitySchemes:
     basic:
       type: http

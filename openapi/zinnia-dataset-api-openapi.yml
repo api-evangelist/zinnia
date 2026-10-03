@@ -341,26 +341,6 @@ components:
           description: Identifier of the dataset instance returned by the upstream service. Present for success and most failures; absent for low-level exceptions.
           format: int64
       additionalProperties: false
-    DatasetRequest:
-      required:
-      - fieldId
-      - stepName
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-          description: Unique identifier of the transaction (positive integer as a string).
-        stepName:
-          minLength: 1
-          type: string
-          description: Name of the wizard step containing the dependent control.
-        fieldId:
-          minLength: 1
-          type: string
-          description: Identifier of the field (control) whose dataset is being requested.
-      additionalProperties: {}
     ErrorResponse:
       required:
       - errors
@@ -382,6 +362,26 @@ components:
           description: Unauthorized access
           details: The request requires authentication
           timestamp: '2025-01-16T13:21:19.4355657Z'
+    DatasetRequest:
+      required:
+      - fieldId
+      - stepName
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+          description: Unique identifier of the transaction (positive integer as a string).
+        stepName:
+          minLength: 1
+          type: string
+          description: Name of the wizard step containing the dependent control.
+        fieldId:
+          minLength: 1
+          type: string
+          description: Identifier of the field (control) whose dataset is being requested.
+      additionalProperties: {}
   securitySchemes:
     openIdConnect:
       type: openIdConnect

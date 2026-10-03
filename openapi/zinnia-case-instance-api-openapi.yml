@@ -761,6 +761,252 @@ paths:
                 $ref: '#/components/schemas/ServerErrorResponse'
 components:
   schemas:
+    ServerErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 500
+        timestamp:
+          type: integer
+          format: int64
+          example: 1681395423438
+        errorId:
+          type: string
+          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+        message:
+          type: string
+          example: Failed to process request
+    IdentifierInstance:
+      type: object
+      description: An object representing an identifier and its corresponding value.
+      properties:
+        identifier:
+          type: string
+          description: The type of identifier.
+        value:
+          type: string
+          description: The value of the identifier.
+    TaskLinkInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A Unique identifier of Task in Task Management
+        taskType:
+          type: string
+          description: Business friendly type for Task
+        label:
+          type: string
+          description: Business friendly Label for Task
+        assignee:
+          type: string
+          description: User currently assigned to the task
+        status:
+          type: string
+          description: Status of Task (STATUS DISCUSSION IN PROGRESS)
+          enum:
+          - OPEN
+          - CLOSED
+          - NEW
+          - COMPLETED
+          - COMPLETE
+        taskName:
+          type: string
+          description: task name of the task
+        queue:
+          type: string
+          description: Queue to which the task is assigned
+        createdAt:
+          type: string
+          description: Timestamp when the Task was created
+        updatedAt:
+          type: string
+          description: Timestamp when the Task was last updated
+        eventRef:
+          type: array
+          items:
+            type: string
+            description: List of Events associated with Note Instance
+        externalTaskId:
+          type: string
+          description: The identifier how an external system understand it for example used to map onbase taskId
+        notesIdList:
+          type: array
+          items:
+            type: string
+          description: List of Note identifiers associated to Task
+    AccessDeniedResponse:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int64
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+      example:
+        timestamp: 1681395423438
+        status: 403
+        error: Access Denied
+        message: 'User is not authorized for the carrier : CarrierName_2'
+        path: API Path
+    CaseCreateRequestV2:
+      type: object
+      properties:
+        correlationid:
+          type: string
+          description: The correlationId associated with the case.
+          example: 218d8992-3783-42ac-b59a-66cbc36adaab
+        source:
+          type: string
+          description: The source associated with the case.
+          example: Zinnia.OnBase
+        carrier:
+          type: string
+          description: The carrier associated with the case.
+          example: CarrierName_1
+        specversion:
+          type: string
+          description: The specversion associated with the case.
+          example: V1
+        type:
+          type: string
+          description: The type associated with the case.
+          example: CaseCreated
+        datacontenttype:
+          type: string
+          description: The datacontenttype associated with the case.
+          example: application/json
+        dataschema:
+          type: string
+          description: The dataschema associated with the case.
+          example: jsondata
+        subject:
+          type: string
+          description: The subject associated with the case.
+          example: subject
+        sourcelocator:
+          type: string
+          description: The sourcelocator associated with the case.
+          example: sourcelocator
+        data:
+          type: string
+          description: The data associated with the case.
+          example: '[{"clientCode":"CarrierName_1","documentHandle":"206426781","documentType":"Incoming Transfer","documentNumber":"20240801-EM-426781","caseId":"156779803","caseStatus":"CP - New","contractNumber":"","caseCreatedOn":"2024-08-01T15:57:18-05:00","caseUpdatedOn":"2024-08-01T15:57:18-05:00","transactionType":"INCOMING TRANSFER","processType":"New Business","batchID":"13326094","productName":"CarrierName_1MUTUAL STABLE VOYAGE","correlationId":"e18d8992-3783-42ac-b59a-66cbc36adaab"}]'
+        dataBase64:
+          type: string
+          description: The dataBase64 associated with the case.
+          example: jsondata
+        identifiers:
+          type: array
+          description: A list of identifiers associated with the case.
+          items:
+            $ref: '#/components/schemas/IdentifierInstance'
+    ExceptionAdditionalData:
+      type: object
+      description: Additional data related to the Exception.
+      properties:
+        id:
+          type: string
+          description: A identifier of Exception Addtional Attribute.
+          example: severity
+        label:
+          type: string
+          description: The label for Exception Addtional Attribute.
+          example: SEVERITY
+        value:
+          type: string
+          description: The value of Exception Addtional Attribute.
+          example: Medium
+        dataType:
+          type: string
+          description: The data type of Exception Addtional Attribute.
+          example: STRING
+        entityType:
+          type: string
+          description: The Entity Type of Exception Addtional Attribute.
+          example: INCIDENT_ENTITY
+        source:
+          type: string
+          description: The Source of Exception Addtional Attribute.
+          example: Zinnia.BPMTransactions
+    CaseAdditionalDataNB:
+      type: object
+      properties:
+        policyNumber:
+          type: string
+          example: '12345678'
+        requestSubType:
+          type: string
+          example: NB Purchase w APP
+        owners:
+          type: array
+          items:
+            type: object
+            properties:
+              firstName:
+                type: string
+                example: Utkarsh
+              lastName:
+                type: string
+                example: Jain
+              middleName:
+                type: string
+                example: Kumar
+              fullName:
+                type: string
+                example: Utkarsh Kumar Jain
+              ssn:
+                type: string
+                example: 045678387
+    StageInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the stage instance.
+        label:
+          type: string
+          description: Business Friendly label for the stage instance.
+        stageStatus:
+          type: string
+          description: Current status of the stage instance.
+          enum:
+          - IN_PROGRESS
+          - EXCEPTION
+          - COMPLETED
+          - NOT_STARTED
+        mappedTasks:
+          type: array
+          description: List of identifiers for tasks mapped to this stage (RESERVED FOR FUTURE SCOPE).
+          items:
+            type: string
+        mappedNotes:
+          type: array
+          description: List of identifiers for notes mapped to this stage (RESERVED FOR FUTURE SCOPE).
+          items:
+            type: string
+        steps:
+          type: array
+          description: List of step instances that make up this stage.
+          items:
+            $ref: '#/components/schemas/StepInstance'
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the stage instance was created.
+    AdditionalDataInstance:
+      type: object
+      additionalProperties:
+        type: string
     StepInstance:
       type: object
       properties:
@@ -836,352 +1082,6 @@ components:
           type: string
           format: date-time
           description: Timestamp when the step instance was last updated.
-    CaseCreateRequestV2:
-      type: object
-      properties:
-        correlationid:
-          type: string
-          description: The correlationId associated with the case.
-          example: 218d8992-3783-42ac-b59a-66cbc36adaab
-        source:
-          type: string
-          description: The source associated with the case.
-          example: Zinnia.OnBase
-        carrier:
-          type: string
-          description: The carrier associated with the case.
-          example: CarrierName_1
-        specversion:
-          type: string
-          description: The specversion associated with the case.
-          example: V1
-        type:
-          type: string
-          description: The type associated with the case.
-          example: CaseCreated
-        datacontenttype:
-          type: string
-          description: The datacontenttype associated with the case.
-          example: application/json
-        dataschema:
-          type: string
-          description: The dataschema associated with the case.
-          example: jsondata
-        subject:
-          type: string
-          description: The subject associated with the case.
-          example: subject
-        sourcelocator:
-          type: string
-          description: The sourcelocator associated with the case.
-          example: sourcelocator
-        data:
-          type: string
-          description: The data associated with the case.
-          example: '[{"clientCode":"CarrierName_1","documentHandle":"206426781","documentType":"Incoming Transfer","documentNumber":"20240801-EM-426781","caseId":"156779803","caseStatus":"CP - New","contractNumber":"","caseCreatedOn":"2024-08-01T15:57:18-05:00","caseUpdatedOn":"2024-08-01T15:57:18-05:00","transactionType":"INCOMING TRANSFER","processType":"New Business","batchID":"13326094","productName":"CarrierName_1MUTUAL STABLE VOYAGE","correlationId":"e18d8992-3783-42ac-b59a-66cbc36adaab"}]'
-        dataBase64:
-          type: string
-          description: The dataBase64 associated with the case.
-          example: jsondata
-        identifiers:
-          type: array
-          description: A list of identifiers associated with the case.
-          items:
-            $ref: '#/components/schemas/IdentifierInstance'
-    ValidationResponse:
-      type: object
-      properties:
-        statusCode:
-          type: integer
-          format: int32
-          example: 400
-        timestamp:
-          type: string
-          format: date-time
-        errorId:
-          type: string
-          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
-        message:
-          type: string
-          example: Template validation fails with errors
-        error:
-          type: array
-          items:
-            type: string
-            example: Stage [0] Step [1] mandatory attribute label missing
-    IdentifierInstance:
-      type: object
-      description: An object representing an identifier and its corresponding value.
-      properties:
-        identifier:
-          type: string
-          description: The type of identifier.
-        value:
-          type: string
-          description: The value of the identifier.
-    DocumentInstance:
-      type: object
-      properties:
-        id:
-          type: string
-          example: '12345'
-        name:
-          type: string
-          example: Identity_Document.pdf
-        documentNumber:
-          type: string
-          example: '119299808'
-        source:
-          type: string
-          example: onbase
-        url:
-          type: string
-          example: http://dev.onbase.com/document/12345
-        updatedAt:
-          type: string
-          example: 09-April-2023
-        fileType:
-          type: string
-          example: NB Fix
-        documentUploadDate:
-          type: string
-          example: '2024-10-04T13:16:45-05:00'
-        additionalData:
-          $ref: '#/components/schemas/AdditionalDataInstance'
-        eventRef:
-          type: array
-          items:
-            type: string
-            example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
-    StageInstance:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the stage instance.
-        label:
-          type: string
-          description: Business Friendly label for the stage instance.
-        stageStatus:
-          type: string
-          description: Current status of the stage instance.
-          enum:
-          - IN_PROGRESS
-          - EXCEPTION
-          - COMPLETED
-          - NOT_STARTED
-        mappedTasks:
-          type: array
-          description: List of identifiers for tasks mapped to this stage (RESERVED FOR FUTURE SCOPE).
-          items:
-            type: string
-        mappedNotes:
-          type: array
-          description: List of identifiers for notes mapped to this stage (RESERVED FOR FUTURE SCOPE).
-          items:
-            type: string
-        steps:
-          type: array
-          description: List of step instances that make up this stage.
-          items:
-            $ref: '#/components/schemas/StepInstance'
-        createdAt:
-          type: string
-          format: date-time
-          description: Timestamp when the stage instance was created.
-    ExceptionInstance:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Unique Identifier for Exception Instance
-        status:
-          type: string
-          enum:
-          - NEW
-          - RESOLVED
-          description: Status of Exception Instance
-        exceptionRefId:
-          type: string
-          description: The exceptionRefId of the exception.
-          example: NB.EM.068
-        exceptionType:
-          type: string
-          description: The exceptionType of the exception.
-          example: Business Exception
-        category:
-          type: string
-          description: Category of Exception
-        reason:
-          type: string
-          description: Short description of Exception
-        detailedReason:
-          type: string
-          description: Detailed description of Exception
-        updatedAt:
-          type: string
-          description: Last updated timestamp of Exception
-        taskIdList:
-          type: array
-          items:
-            type: string
-          uniqueItems: true
-          description: List of Task Identifier associated with Exception Instance
-        additionalData:
-          $ref: '#/components/schemas/AdditionalDataInstance'
-        exceptionAdditionalData:
-          type: array
-          description: Exception Additional Data
-          items:
-            $ref: '#/components/schemas/ExceptionAdditionalData'
-        eventRef:
-          type: array
-          items:
-            type: string
-          description: List of Events associated with Exception Instance
-    ExceptionAdditionalData:
-      type: object
-      description: Additional data related to the Exception.
-      properties:
-        id:
-          type: string
-          description: A identifier of Exception Addtional Attribute.
-          example: severity
-        label:
-          type: string
-          description: The label for Exception Addtional Attribute.
-          example: SEVERITY
-        value:
-          type: string
-          description: The value of Exception Addtional Attribute.
-          example: Medium
-        dataType:
-          type: string
-          description: The data type of Exception Addtional Attribute.
-          example: STRING
-        entityType:
-          type: string
-          description: The Entity Type of Exception Addtional Attribute.
-          example: INCIDENT_ENTITY
-        source:
-          type: string
-          description: The Source of Exception Addtional Attribute.
-          example: Zinnia.BPMTransactions
-    CaseAdditionalDataWD:
-      type: object
-      properties:
-        policyNumber:
-          type: string
-          example: '12345678'
-        ownerName:
-          type: string
-          example: John
-        ssn:
-          type: string
-          example: xxxx-xxx-1245
-    AdditionalDataInstance:
-      type: object
-      additionalProperties:
-        type: string
-    AccessDeniedResponse:
-      type: object
-      properties:
-        timestamp:
-          type: integer
-          format: int64
-        status:
-          type: integer
-          format: int32
-        error:
-          type: string
-        message:
-          type: string
-        path:
-          type: string
-      example:
-        timestamp: 1681395423438
-        status: 403
-        error: Access Denied
-        message: 'User is not authorized for the carrier : CarrierName_2'
-        path: API Path
-    ServerErrorResponse:
-      type: object
-      properties:
-        statusCode:
-          type: integer
-          format: int32
-          example: 500
-        timestamp:
-          type: integer
-          format: int64
-          example: 1681395423438
-        errorId:
-          type: string
-          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
-        message:
-          type: string
-          example: Failed to process request
-    CaseAdditionalDataNB:
-      type: object
-      properties:
-        policyNumber:
-          type: string
-          example: '12345678'
-        requestSubType:
-          type: string
-          example: NB Purchase w APP
-        owners:
-          type: array
-          items:
-            type: object
-            properties:
-              firstName:
-                type: string
-                example: Utkarsh
-              lastName:
-                type: string
-                example: Jain
-              middleName:
-                type: string
-                example: Kumar
-              fullName:
-                type: string
-                example: Utkarsh Kumar Jain
-              ssn:
-                type: string
-                example: 045678387
-    NoteInstance:
-      type: object
-      properties:
-        id:
-          type: string
-          description: A unique identifier of Note
-        note:
-          type: string
-          description: The Text content of Note
-        author:
-          type: string
-          description: Author of note
-        internal:
-          type: boolean
-          description: Indicates whether the item is internal or not.
-        createdAt:
-          type: string
-          description: The timestamp of Note been created
-        updatedAt:
-          type: string
-          example: 09-April-2023
-          description: The timestamp of Note been updated
-        desc:
-          type: string
-          description: Description of note
-        additionalData:
-          $ref: '#/components/schemas/AdditionalDataInstance'
-        eventRef:
-          type: array
-          items:
-            type: string
-          description: List of Events associated with Note Instance
     CaseInstance:
       type: object
       properties:
@@ -1402,52 +1302,152 @@ components:
           type: integer
           format: int32
           description: Total count of technical exceptions on the case
-    TaskLinkInstance:
+    ValidationResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 400
+        timestamp:
+          type: string
+          format: date-time
+        errorId:
+          type: string
+          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
+        message:
+          type: string
+          example: Template validation fails with errors
+        error:
+          type: array
+          items:
+            type: string
+            example: Stage [0] Step [1] mandatory attribute label missing
+    DocumentInstance:
       type: object
       properties:
         id:
           type: string
-          description: A Unique identifier of Task in Task Management
-        taskType:
+          example: '12345'
+        name:
           type: string
-          description: Business friendly type for Task
-        label:
+          example: Identity_Document.pdf
+        documentNumber:
           type: string
-          description: Business friendly Label for Task
-        assignee:
+          example: '119299808'
+        source:
           type: string
-          description: User currently assigned to the task
-        status:
+          example: onbase
+        url:
           type: string
-          description: Status of Task (STATUS DISCUSSION IN PROGRESS)
-          enum:
-          - OPEN
-          - CLOSED
-          - NEW
-          - COMPLETED
-          - COMPLETE
-        taskName:
-          type: string
-          description: task name of the task
-        queue:
-          type: string
-          description: Queue to which the task is assigned
-        createdAt:
-          type: string
-          description: Timestamp when the Task was created
+          example: http://dev.onbase.com/document/12345
         updatedAt:
           type: string
-          description: Timestamp when the Task was last updated
+          example: 09-April-2023
+        fileType:
+          type: string
+          example: NB Fix
+        documentUploadDate:
+          type: string
+          example: '2024-10-04T13:16:45-05:00'
+        additionalData:
+          $ref: '#/components/schemas/AdditionalDataInstance'
         eventRef:
           type: array
           items:
             type: string
-            description: List of Events associated with Note Instance
-        externalTaskId:
+            example: 15ea7582-262f-4dfe-8a60-1e8b8e763fd4
+    CaseAdditionalDataWD:
+      type: object
+      properties:
+        policyNumber:
           type: string
-          description: The identifier how an external system understand it for example used to map onbase taskId
-        notesIdList:
+          example: '12345678'
+        ownerName:
+          type: string
+          example: John
+        ssn:
+          type: string
+          example: xxxx-xxx-1245
+    ExceptionInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique Identifier for Exception Instance
+        status:
+          type: string
+          enum:
+          - NEW
+          - RESOLVED
+          description: Status of Exception Instance
+        exceptionRefId:
+          type: string
+          description: The exceptionRefId of the exception.
+          example: NB.EM.068
+        exceptionType:
+          type: string
+          description: The exceptionType of the exception.
+          example: Business Exception
+        category:
+          type: string
+          description: Category of Exception
+        reason:
+          type: string
+          description: Short description of Exception
+        detailedReason:
+          type: string
+          description: Detailed description of Exception
+        updatedAt:
+          type: string
+          description: Last updated timestamp of Exception
+        taskIdList:
           type: array
           items:
             type: string
-          description: List of Note identifiers associated to Task
+          uniqueItems: true
+          description: List of Task Identifier associated with Exception Instance
+        additionalData:
+          $ref: '#/components/schemas/AdditionalDataInstance'
+        exceptionAdditionalData:
+          type: array
+          description: Exception Additional Data
+          items:
+            $ref: '#/components/schemas/ExceptionAdditionalData'
+        eventRef:
+          type: array
+          items:
+            type: string
+          description: List of Events associated with Exception Instance
+    NoteInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier of Note
+        note:
+          type: string
+          description: The Text content of Note
+        author:
+          type: string
+          description: Author of note
+        internal:
+          type: boolean
+          description: Indicates whether the item is internal or not.
+        createdAt:
+          type: string
+          description: The timestamp of Note been created
+        updatedAt:
+          type: string
+          example: 09-April-2023
+          description: The timestamp of Note been updated
+        desc:
+          type: string
+          description: Description of note
+        additionalData:
+          $ref: '#/components/schemas/AdditionalDataInstance'
+        eventRef:
+          type: array
+          items:
+            type: string
+          description: List of Events associated with Note Instance

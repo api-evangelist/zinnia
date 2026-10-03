@@ -717,6 +717,83 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
+    SaveCommentResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction. Populated on successful saves.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the operation was successful
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
+      additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Comment saved successfully.
+        status: Success
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
     CommentItem:
       type: object
       properties:
@@ -771,103 +848,33 @@ components:
           - 'null'
           description: Name of the user who authored the comment
       additionalProperties: false
-    SaveCommentResponse:
+    CommentsData:
       type: object
       properties:
-        caseId:
+        comments:
           type:
-          - string
+          - array
           - 'null'
-          description: Case identifier associated with the transaction. Populated on successful saves.
-        isSuccess:
-          type: boolean
-          description: Indicates whether the operation was successful
-        message:
+          items:
+            $ref: '#/components/schemas/CommentItem'
+          description: List of comments for the current page
+        totalCount:
+          type: integer
+          description: Total number of comments for the transaction across all pages
+          format: int32
+        page:
           type:
-          - string
+          - integer
           - 'null'
-          description: Human-readable message describing the result
-        status:
+          description: Current page number (1-based). Present when pagination query parameters are supplied.
+          format: int32
+        pageSize:
           type:
-          - string
+          - integer
           - 'null'
-          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
+          description: Number of comments per page. Present when pagination query parameters are supplied.
+          format: int32
       additionalProperties: false
-      example:
-        caseId: CA0000188538
-        isSuccess: true
-        message: Comment saved successfully.
-        status: Success
-    DeleteCommentRequest:
-      required:
-      - commentId
-      - transactionId
-      type: object
-      properties:
-        commentId:
-          minLength: 1
-          pattern: ^[1-9][0-9]*$
-          type: string
-          description: Unique identifier of the comment to delete (positive integer encoded as a string)
-        transactionId:
-          minLength: 1
-          pattern: ^[1-9][0-9]*$
-          type: string
-          description: Unique identifier of the transaction the comment belongs to (positive integer encoded as a string)
-      additionalProperties: false
-      example:
-        commentId: '54321'
-        transactionId: '1125715'
-    ErrorInfo:
-      required:
-      - code
-      - timestamp
-      type: object
-      properties:
-        code:
-          enum:
-          - VALIDATION_ERROR
-          - INVALID_TRANSACTION_ID
-          - INVALID_STEP_NAME
-          - TRANSACTION_CREATION_FAILED
-          - TRANSACTION_ID_NOT_FOUND
-          - SAVE_TRANSACTION_ERROR
-          - SAVE_TRANSACTION_FAILED
-          - INVALID_RESPONSE_FORMAT
-          - BUILD_BLUEPRINT_ERROR
-          - JSON_PARSE_ERROR
-          - TRANSFORMER_NULL_RESPONSE
-          - EMPTY_BLUEPRINT
-          - UNEXPECTED_ERROR
-          - SERVICE_ERROR
-          - UNAUTHORIZED
-          - FORBIDDEN
-          - NOT_FOUND
-          - RATE_LIMIT_EXCEEDED
-          - UPSTREAM_SERVICE_ERROR
-          - SERVICE_UNAVAILABLE
-          - UPSTREAM_TIMEOUT
-          - FIRST_STEP_SETUP_FAILED
-          - METHOD_NOT_ALLOWED
-          type: string
-          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
-        description:
-          type:
-          - string
-          - 'null'
-        details:
-          type:
-          - string
-          - 'null'
-        timestamp:
-          type: string
-          format: date-time
-      additionalProperties: false
-      example:
-        code: VALIDATION_ERROR
-        description: Validation failed for field '$.fieldName'
-        details: The request contains an unrecognized property. Only documented fields are allowed.
-        timestamp: '2024-01-15T10:30:00.000Z'
     GetCommentsResponse:
       type: object
       properties:
@@ -914,33 +921,27 @@ components:
         isSuccess: true
         message: Comments retrieved successfully.
         status: Success
-    DeleteCommentResponse:
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
       type: object
       properties:
-        caseId:
-          type:
-          - string
-          - 'null'
-          description: Case identifier associated with the transaction. Populated on successful deletes.
-        isSuccess:
-          type: boolean
-          description: Indicates whether the operation was successful
-        message:
-          type:
-          - string
-          - 'null'
-          description: Human-readable message describing the result
-        status:
-          type:
-          - string
-          - 'null'
-          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
       additionalProperties: false
       example:
-        caseId: CA0000188538
-        isSuccess: true
-        message: Comment deleted successfully
-        status: Success
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
     SaveCommentRequest:
       required:
       - commentText
@@ -990,54 +991,53 @@ components:
         statusDisplayName: In Progress
         stepTitle: Owner Information
         transactionId: '1125715'
-    ErrorResponse:
+    DeleteCommentRequest:
       required:
-      - errors
+      - commentId
       - transactionId
       type: object
       properties:
+        commentId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier of the comment to delete (positive integer encoded as a string)
         transactionId:
           minLength: 1
+          pattern: ^[1-9][0-9]*$
           type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
+          description: Unique identifier of the transaction the comment belongs to (positive integer encoded as a string)
       additionalProperties: false
       example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
-    CommentsData:
+        commentId: '54321'
+        transactionId: '1125715'
+    DeleteCommentResponse:
       type: object
       properties:
-        comments:
+        caseId:
           type:
-          - array
+          - string
           - 'null'
-          items:
-            $ref: '#/components/schemas/CommentItem'
-          description: List of comments for the current page
-        totalCount:
-          type: integer
-          description: Total number of comments for the transaction across all pages
-          format: int32
-        page:
+          description: Case identifier associated with the transaction. Populated on successful deletes.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the operation was successful
+        message:
           type:
-          - integer
+          - string
           - 'null'
-          description: Current page number (1-based). Present when pagination query parameters are supplied.
-          format: int32
-        pageSize:
+          description: Human-readable message describing the result
+        status:
           type:
-          - integer
+          - string
           - 'null'
-          description: Number of comments per page. Present when pagination query parameters are supplied.
-          format: int32
+          description: Status code of the operation (e.g., "Success", "ValidationError", "Failure")
       additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Comment deleted successfully
+        status: Success
   securitySchemes:
     openIdConnect:
       type: openIdConnect

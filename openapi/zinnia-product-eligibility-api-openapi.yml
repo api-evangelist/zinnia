@@ -138,6 +138,25 @@ paths:
                 timestamp: '2025-10-06T14:35:07.364Z'
 components:
   schemas:
+    EligibleTransactionType:
+      type: object
+      properties:
+        transactionTypeCode:
+          type: string
+          description: Transaction type code as string
+          example: '105'
+        transactionTypeDisplayName:
+          type: string
+          example: Withdrawal (one time only)
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
     EligibleTransactionsResponse:
       type: object
       properties:
@@ -152,25 +171,6 @@ components:
           description: List of eligible transaction types
           items:
             $ref: '#/components/schemas/EligibleTransactionType'
-    ErrorResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 404
-        message:
-          type: string
-          example: 'Invalid or missing request field: correlationId'
-    EligibleTransactionType:
-      type: object
-      properties:
-        transactionTypeCode:
-          type: string
-          description: Transaction type code as string
-          example: '105'
-        transactionTypeDisplayName:
-          type: string
-          example: Withdrawal (one time only)
   securitySchemes:
     Auth0:
       type: openIdConnect

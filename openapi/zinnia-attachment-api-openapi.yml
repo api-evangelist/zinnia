@@ -547,6 +547,93 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
+    IngestAttachmentDocumentRequest:
+      required:
+      - action
+      - documentId
+      - sourceSystem
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier for the Order Entry transaction (positive integer encoded as a string).
+        documentId:
+          minLength: 1
+          type: string
+          description: Electronic document service (EDS) identifier for the uploaded or deleted file.
+        sourceSystem:
+          minLength: 1
+          enum:
+          - AnnuityNet
+          - LifeSpeed
+          type: string
+          description: Originating source system identifier (for example, AnnuityNet or LifeSpeed).
+        action:
+          minLength: 1
+          enum:
+          - added
+          - deleted
+          type: string
+          description: 'Document lifecycle action. Allowed values: added, deleted.'
+      additionalProperties: false
+      example:
+        transactionId: '123456'
+        documentId: 6a3c4358bd44a9000c8d140e
+        sourceSystem: AnnuityNet
+        action: added
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
     AttachmentResponse:
       required:
       - carrierCode
@@ -696,219 +783,6 @@ components:
         isSuccess: true
         message: Attachment document ingested successfully.
         status: Success
-    ErrorInfo:
-      required:
-      - code
-      - timestamp
-      type: object
-      properties:
-        code:
-          enum:
-          - VALIDATION_ERROR
-          - INVALID_TRANSACTION_ID
-          - INVALID_STEP_NAME
-          - TRANSACTION_CREATION_FAILED
-          - TRANSACTION_ID_NOT_FOUND
-          - SAVE_TRANSACTION_ERROR
-          - SAVE_TRANSACTION_FAILED
-          - INVALID_RESPONSE_FORMAT
-          - BUILD_BLUEPRINT_ERROR
-          - JSON_PARSE_ERROR
-          - TRANSFORMER_NULL_RESPONSE
-          - EMPTY_BLUEPRINT
-          - UNEXPECTED_ERROR
-          - SERVICE_ERROR
-          - UNAUTHORIZED
-          - FORBIDDEN
-          - NOT_FOUND
-          - RATE_LIMIT_EXCEEDED
-          - UPSTREAM_SERVICE_ERROR
-          - SERVICE_UNAVAILABLE
-          - UPSTREAM_TIMEOUT
-          - FIRST_STEP_SETUP_FAILED
-          - METHOD_NOT_ALLOWED
-          type: string
-          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
-        description:
-          type:
-          - string
-          - 'null'
-        details:
-          type:
-          - string
-          - 'null'
-        timestamp:
-          type: string
-          format: date-time
-      additionalProperties: false
-      example:
-        code: VALIDATION_ERROR
-        description: Validation failed for field '$.fieldName'
-        details: The request contains an unrecognized property. Only documented fields are allowed.
-        timestamp: '2024-01-15T10:30:00.000Z'
-    DocumentRule:
-      type: object
-      properties:
-        conditions:
-          type:
-          - string
-          - 'null'
-          description: Conditions under which the rule applies
-        key:
-          type:
-          - string
-          - 'null'
-          description: Rule key
-        message:
-          type:
-          - string
-          - 'null'
-          description: Rule message shown to the user
-        value:
-          type:
-          - string
-          - 'null'
-          description: Rule value
-      additionalProperties: false
-    IngestAttachmentDocumentRequest:
-      required:
-      - action
-      - documentId
-      - sourceSystem
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          pattern: ^[1-9][0-9]*$
-          type: string
-          description: Unique identifier for the Order Entry transaction (positive integer encoded as a string).
-        documentId:
-          minLength: 1
-          type: string
-          description: Electronic document service (EDS) identifier for the uploaded or deleted file.
-        sourceSystem:
-          minLength: 1
-          enum:
-          - AnnuityNet
-          - LifeSpeed
-          type: string
-          description: Originating source system identifier (for example, AnnuityNet or LifeSpeed).
-        action:
-          minLength: 1
-          enum:
-          - added
-          - deleted
-          type: string
-          description: 'Document lifecycle action. Allowed values: added, deleted.'
-      additionalProperties: false
-      example:
-        transactionId: '123456'
-        documentId: 6a3c4358bd44a9000c8d140e
-        sourceSystem: AnnuityNet
-        action: added
-    RequiredDocument:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - string
-          - 'null'
-          description: Attachment type code
-        displayName:
-          type:
-          - string
-          - 'null'
-          description: Display name shown to the user
-        documentType:
-          type:
-          - string
-          - 'null'
-          description: Document type code
-        formType:
-          type:
-          - string
-          - 'null'
-          description: Form type code
-        message:
-          type:
-          - string
-          - 'null'
-          description: Instructional message for the required document
-      additionalProperties: false
-    AdditionalDocumentType:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of attachment type codes
-        documentType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of document type codes
-        formType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of form type codes
-      additionalProperties: false
-    AttachmentDocument:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - string
-          - 'null'
-          description: Attachment type code when applicable; otherwise null.
-        documentType:
-          type:
-          - string
-          - 'null'
-          description: Document type label or code.
-        fileName:
-          type:
-          - string
-          - 'null'
-          description: Original file name as uploaded.
-        formType:
-          type:
-          - string
-          - 'null'
-          description: Form type code when applicable; otherwise null.
-        uploadDate:
-          type:
-          - string
-          - 'null'
-          description: Upload timestamp as returned by the attachment service.
-        documentId:
-          type:
-          - string
-          - 'null'
-          description: Electronic document service (EDS) identifier for the uploaded file.
-        documentSize:
-          type:
-          - integer
-          - 'null'
-          description: Size of the uploaded file in bytes.
-          format: int64
-      additionalProperties: false
-      example:
-        documentType: ESIGNATURE
-        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
-        uploadDate: 04/06/2026 11:22:05 PM
-        documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-        documentSize: 9000000
-        attachmentType: null
-        formType: null
     AttachmentData:
       type: object
       properties:
@@ -980,6 +854,79 @@ components:
           documentType: APPLICATION
           formType: APP_FULL
           message: Upload the fully signed application prior to submission.
+    AttachmentDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code when applicable; otherwise null.
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type label or code.
+        fileName:
+          type:
+          - string
+          - 'null'
+          description: Original file name as uploaded.
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code when applicable; otherwise null.
+        uploadDate:
+          type:
+          - string
+          - 'null'
+          description: Upload timestamp as returned by the attachment service.
+        documentId:
+          type:
+          - string
+          - 'null'
+          description: Electronic document service (EDS) identifier for the uploaded file.
+        documentSize:
+          type:
+          - integer
+          - 'null'
+          description: Size of the uploaded file in bytes.
+          format: int64
+      additionalProperties: false
+      example:
+        documentType: ESIGNATURE
+        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+        uploadDate: 04/06/2026 11:22:05 PM
+        documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        documentSize: 9000000
+        attachmentType: null
+        formType: null
+    AdditionalDocumentType:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of attachment type codes
+        documentType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of document type codes
+        formType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of form type codes
+      additionalProperties: false
     ErrorResponse:
       required:
       - errors
@@ -1001,6 +948,59 @@ components:
           description: Unauthorized access
           details: The request requires authentication
           timestamp: '2025-01-16T13:21:19.4355657Z'
+    DocumentRule:
+      type: object
+      properties:
+        conditions:
+          type:
+          - string
+          - 'null'
+          description: Conditions under which the rule applies
+        key:
+          type:
+          - string
+          - 'null'
+          description: Rule key
+        message:
+          type:
+          - string
+          - 'null'
+          description: Rule message shown to the user
+        value:
+          type:
+          - string
+          - 'null'
+          description: Rule value
+      additionalProperties: false
+    RequiredDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code
+        displayName:
+          type:
+          - string
+          - 'null'
+          description: Display name shown to the user
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type code
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code
+        message:
+          type:
+          - string
+          - 'null'
+          description: Instructional message for the required document
+      additionalProperties: false
   securitySchemes:
     openIdConnect:
       type: openIdConnect

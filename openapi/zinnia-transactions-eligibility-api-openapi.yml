@@ -200,6 +200,19 @@ components:
             status: 500
             error: Internal Server Error
   schemas:
+    EligibilityErrorResponse:
+      type: object
+      description: Error envelope returned by eligibility endpoints on 4xx/5xx responses.
+      properties:
+        status:
+          type: integer
+          example: 401
+        error:
+          type: string
+          example: Unauthorized
+        message:
+          type: string
+          example: partyId claim could not be extracted
     RestrictedTransactionResult:
       type: object
       description: A transaction affected by a restriction type, with its blocking status.
@@ -228,18 +241,6 @@ components:
           example:
           - FullSurrender
           - PartialWithdrawalOneTime
-    EligibilityReason:
-      type: object
-      description: Structured reason for a non-passing or indeterminate section.
-      properties:
-        code:
-          type: string
-          description: Machine-readable reason code.
-          example: INSUFFICIENT_PERMISSIONS
-        message:
-          type: string
-          description: Human-readable explanation.
-          example: Caller does not hold the required permissions for this transaction
     EligibilitySubjectResult:
       type: object
       description: 'Composed eligibility result for a single evaluated subject. Null fields are omitted from the JSON response (@JsonInclude NON_NULL). Three shapes exist: evaluated (sections present), notAvailable (subject absent from product-transactions), or notConfigured (subject absent from transactions-params).
@@ -281,6 +282,18 @@ components:
           type: string
           description: Human-readable explanation accompanying notAvailable or notConfigured.
           example: Transaction Not Configured
+    EligibilityReason:
+      type: object
+      description: Structured reason for a non-passing or indeterminate section.
+      properties:
+        code:
+          type: string
+          description: Machine-readable reason code.
+          example: INSUFFICIENT_PERMISSIONS
+        message:
+          type: string
+          description: Human-readable explanation.
+          example: Caller does not hold the required permissions for this transaction
     EligibilitySectionResult:
       type: object
       description: 'One evaluation section of a per-subject result (policyEligibility, userEligibility, or restriction).
@@ -334,19 +347,6 @@ components:
           - WRITE
         reason:
           $ref: '#/components/schemas/EligibilityReason'
-    EligibilityErrorResponse:
-      type: object
-      description: Error envelope returned by eligibility endpoints on 4xx/5xx responses.
-      properties:
-        status:
-          type: integer
-          example: 401
-        error:
-          type: string
-          example: Unauthorized
-        message:
-          type: string
-          example: partyId claim could not be extracted
     EligibilityResponse:
       type: object
       description: Top-level eligibility response envelope. Shared by all four endpoints.

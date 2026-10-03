@@ -64,48 +64,16 @@ paths:
       - Metrics
 components:
   schemas:
-    PolicyMetricsResponse:
+    MetricsErrorResponse:
       type: object
       properties:
-        metric:
+        timestamp:
           type: string
-          example: LAPSEPROTECTIONPAYMENTAMOUNT
-          description: Requested metric
-        begin:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-        minimum:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-        maximum:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-        average:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-        sum:
-          type: number
-          format: double
-          example: 8389.8
-          description: TBD
-        count:
-          type: integer
-          format: int64
-          example: 295
-          description: TBD
-        end:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
+          format: date-time
+          example: '2024-03-29T16:40:17.935761Z'
+        message:
+          type: string
+          example: Invalid date range provided
     MetricsType:
       type: string
       enum:
@@ -169,16 +137,6 @@ components:
       - REMAININGBENEFIT
       - NETDECREASEINFACEAMOUNT
       - NETINCREASEINFACEAMOUNT
-    MetricsErrorResponse:
-      type: object
-      properties:
-        timestamp:
-          type: string
-          format: date-time
-          example: '2024-03-29T16:40:17.935761Z'
-        message:
-          type: string
-          example: Invalid date range provided
     PolicyMetricsRequest:
       type: object
       properties:
@@ -194,6 +152,48 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MetricsType'
+    PolicyMetricsResponse:
+      type: object
+      properties:
+        metric:
+          type: string
+          example: LAPSEPROTECTIONPAYMENTAMOUNT
+          description: Requested metric
+        begin:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        minimum:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        maximum:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        average:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        sum:
+          type: number
+          format: double
+          example: 8389.8
+          description: TBD
+        count:
+          type: integer
+          format: int64
+          example: 295
+          description: TBD
+        end:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
   securitySchemes:
     Auth0:
       type: openIdConnect

@@ -316,26 +316,6 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
-    ProductPricingFeatureFee:
-      type: object
-      properties:
-        featureName:
-          type:
-          - string
-          - 'null'
-        feeValues:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        riderModifiedChargeSchedule:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/ProductPricingYearCharge'
-      additionalProperties: false
     ProductPricingFee:
       type: object
       properties:
@@ -409,6 +389,141 @@ components:
         description: Validation failed for field '$.fieldName'
         details: The request contains an unrecognized property. Only documented fields are allowed.
         timestamp: '2024-01-15T10:30:00.000Z'
+    ProductPricingData:
+      type: object
+      properties:
+        isApplicationTransaction:
+          type: boolean
+          description: True when the transaction is an application transaction.
+        isVariableAnnuity:
+          type: boolean
+          description: True when the selected product is a variable annuity.
+        showMarketValueAdjustment:
+          type: boolean
+          description: Whether the UI should show market value adjustment.
+        showNetManagementFee:
+          type: boolean
+          description: Whether the UI should show the net management fee section.
+        productFees:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingFee'
+          description: Base and contract-level product fees.
+        featureFees:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingFeatureFee'
+          description: Rider and feature-level fees with optional modified charge schedules.
+        fundFees:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingFundFee'
+          description: Fund-level fee displays with optional min/max ranges.
+        surrenderCharges:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingYearCharge'
+          description: Surrender charge schedule by contract year.
+        netManagementFees:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingNetManagementFee'
+          description: Net management fee summary by fund.
+      additionalProperties: false
+      example:
+        isApplicationTransaction: true
+        isVariableAnnuity: true
+        showMarketValueAdjustment: false
+        showNetManagementFee: true
+        productFees:
+        - feeTypeLabel: 'Base M&E charges:'
+          feeName: M&E
+          feeValue: 0.90%
+          isDefaultType: false
+        - feeTypeLabel: 'Annual Contract Amount:'
+          feeName: Contract fee
+          feeValue: $120.00
+          isDefaultType: false
+        featureFees:
+        - featureName: Lifetime income rider
+          feeValues:
+          - 0.35%
+          - $25 annual
+          riderModifiedChargeSchedule:
+          - year: '1'
+            charge: 2.00%
+          - year: '2'
+            charge: 1.50%
+        fundFees:
+        - fundName: Sample Index Fund
+          percentageDisplay: 0.85%
+          minPct: 0.50%
+          maxPct: 1.25%
+          amountDisplay: ''
+          minAmt: ''
+          maxAmt: ''
+          isValueAdjusted: false
+        surrenderCharges:
+        - year: '1'
+          charge: 8%
+        - year: '2'
+          charge: 7%
+        - year: '3'
+          charge: 6%
+        netManagementFees:
+        - fundName: Sample Index Fund
+          totalFeePercentage: 1.10%
+    ProductPricingFeatureFee:
+      type: object
+      properties:
+        featureName:
+          type:
+          - string
+          - 'null'
+        feeValues:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        riderModifiedChargeSchedule:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/ProductPricingYearCharge'
+      additionalProperties: false
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
     ProductPricingResponse:
       required:
       - transactionId
@@ -579,27 +694,6 @@ components:
         isValueAdjusted:
           type: boolean
       additionalProperties: false
-    ErrorResponse:
-      required:
-      - errors
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
     ProductPricingYearCharge:
       type: object
       properties:
@@ -612,100 +706,6 @@ components:
           - string
           - 'null'
       additionalProperties: false
-    ProductPricingData:
-      type: object
-      properties:
-        isApplicationTransaction:
-          type: boolean
-          description: True when the transaction is an application transaction.
-        isVariableAnnuity:
-          type: boolean
-          description: True when the selected product is a variable annuity.
-        showMarketValueAdjustment:
-          type: boolean
-          description: Whether the UI should show market value adjustment.
-        showNetManagementFee:
-          type: boolean
-          description: Whether the UI should show the net management fee section.
-        productFees:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/ProductPricingFee'
-          description: Base and contract-level product fees.
-        featureFees:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/ProductPricingFeatureFee'
-          description: Rider and feature-level fees with optional modified charge schedules.
-        fundFees:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/ProductPricingFundFee'
-          description: Fund-level fee displays with optional min/max ranges.
-        surrenderCharges:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/ProductPricingYearCharge'
-          description: Surrender charge schedule by contract year.
-        netManagementFees:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/ProductPricingNetManagementFee'
-          description: Net management fee summary by fund.
-      additionalProperties: false
-      example:
-        isApplicationTransaction: true
-        isVariableAnnuity: true
-        showMarketValueAdjustment: false
-        showNetManagementFee: true
-        productFees:
-        - feeTypeLabel: 'Base M&E charges:'
-          feeName: M&E
-          feeValue: 0.90%
-          isDefaultType: false
-        - feeTypeLabel: 'Annual Contract Amount:'
-          feeName: Contract fee
-          feeValue: $120.00
-          isDefaultType: false
-        featureFees:
-        - featureName: Lifetime income rider
-          feeValues:
-          - 0.35%
-          - $25 annual
-          riderModifiedChargeSchedule:
-          - year: '1'
-            charge: 2.00%
-          - year: '2'
-            charge: 1.50%
-        fundFees:
-        - fundName: Sample Index Fund
-          percentageDisplay: 0.85%
-          minPct: 0.50%
-          maxPct: 1.25%
-          amountDisplay: ''
-          minAmt: ''
-          maxAmt: ''
-          isValueAdjusted: false
-        surrenderCharges:
-        - year: '1'
-          charge: 8%
-        - year: '2'
-          charge: 7%
-        - year: '3'
-          charge: 6%
-        netManagementFees:
-        - fundName: Sample Index Fund
-          totalFeePercentage: 1.10%
   securitySchemes:
     openIdConnect:
       type: openIdConnect

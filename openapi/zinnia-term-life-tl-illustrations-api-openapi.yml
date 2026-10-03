@@ -134,78 +134,134 @@ paths:
       - Term Life (TL) Illustrations
 components:
   schemas:
-    Coverage-Collection:
-      title: Coverage-Collection (v3)
-      description: A collection of benefits
+    Multiple-Basic-Collections:
+      title: Multiple-Basic-Collections
       type: array
       items:
-        $ref: '#/components/schemas/Coverage'
-    Non-Insured-Party:
-      title: Non-Insured Party
-      description: 'Represents a party with a roleCode other than `INSURED`
-
-        '
+        $ref: '#/components/schemas/Basic-Collection'
+    Parties:
+      title: Parties
+      description: An unkeyed collection of unique Party objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Party'
+      uniqueItems: true
+    Basic-Collection:
+      title: Basic Collection
+      description: A simple object that only contains a collection of unique attributes and no further structure.
       type: object
-      allOf:
-      - $ref: '#/components/schemas/Party-Base'
       properties:
-        roleCode:
-          $ref: '#/components/schemas/Party-Role'
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
       required:
-      - roleCode
-    PropertyCollection-Loan:
-      title: Loan Property Collection
-      description: Reusable collection of loan-related properties
+      - attributes
+    Arrangement-Type:
+      title: Arrangement Type
+      description: Enumeration of allowable arrangement types
+      type: string
+      enum:
+      - LOAN
+      - WITHDRAWAL
+      - PAYMENT
+      - CONVERSION_ACTIVATION
+    Frequency:
+      type: string
+      description: Frequency
+      example: DAILY
+      enum:
+      - DAILY
+      - EVERYTWOWEEKS
+      - MONTHLY
+      - SEMIANNUAL
+      - QUARTERLY
+      - ANNUAL
+      - SINGLEPAYMENT
+    Message:
+      title: Message
+      description: A structured signal
       type: object
       properties:
-        loan:
-          type: object
-          properties:
-            amount:
-              type: number
-              format: double
-              description: Loan amount
-              example: 0
-            interestCreditedAmount:
-              type: number
-              format: double
-              description: Loan interest credited amount
-              example: 0
-            interestDueAmount:
-              type: number
-              format: double
-              description: Loan interest due amount
-              example: 0
-            payoffAmount:
-              type: number
-              format: double
-              description: Loan payoff amount
-              example: 0
-            maximumLoanAmount:
-              type: number
-              format: double
-              description: Maximum loan amount
-              example: 0
-        netAccountValue:
-          type: number
-          format: double
-          example: 0.104742
-        netDeathBenefitAmount:
-          type: number
-          format: double
-          example: 250000.104742
-        netSurrenderValue:
-          type: number
-          format: double
-          example: 0.104742
-        policyNetOutlayAmount:
-          type: number
-          format: double
-          example: 397.2
-        premiumOutlayAmount:
-          type: number
-          format: double
-          example: 397.2
+        code:
+          type: integer
+        severity:
+          type: string
+          enum:
+          - INFO
+          - WARNING
+          - ERROR
+        text:
+          type: string
+        returnTo:
+          type: string
+      required:
+      - code
+      - text
+    Date-Field:
+      type: string
+      format: date
+      pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+      description: Date (with pattern "yyyy-mm-dd")
+      example: '2025-05-13'
+    Fund:
+      title: Fund
+      description: A source of money
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        segments:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+      required:
+      - attributes
+      - segments
+    Party:
+      title: Party
+      description: A unique entity
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        person:
+          $ref: '#/components/schemas/Basic-Collection'
+        organization:
+          $ref: '#/components/schemas/Basic-Collection'
+        trust:
+          $ref: '#/components/schemas/Basic-Collection'
+      required:
+      - attributes
+      - person
+      - organization
+      - trust
+    Party-Role:
+      title: Party Role
+      example: OWNER
+      type: string
+      description: The role of a given party
+      enum:
+      - OWNER
+      - PRIMARYBENEFICIARY
+      - CONTINGENTBENEFICIARY
+      - INSURED
+      - PAYOR
+      - PAYEE
+      - AGENT
+      - PRIMARYWRITINGAGENT
+      - PRIMARYSERVICINGAGENT
+      - ADDITIONALSERVICINGAGENT
+      - ADDITIONALWRITINGAGENT
+      - THIRDPARTYDESIGNEE
+      - JOINTOWNER
+      - COVERAGEINSURED
+      - ASSIGNEE
+      - ANNUITANT
+      - EXCHANGECOMPANY
+      - JOINTANNUITANT
+      - GRANTOR
+      - TRUSTEE
+      - POWEROFATTORNEY
+      - AUTHORIZEDSIGNATORY
+      - OTHERINTERESTEDPARTY
+      - CONTINGENTOWNER
     Schedule-Premium:
       title: Premium Schedule
       allOf:
@@ -231,6 +287,364 @@ components:
                   - LEVEL_NON_MEC
             required:
             - value
+    Account-Value:
+      title: Account-Value
+      description: A description of the monetary value of an investment contract
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        policyMetrics:
+          $ref: '#/components/schemas/Basic-Collection'
+        loan:
+          $ref: '#/components/schemas/Basic-Collection'
+        withdrawal:
+          $ref: '#/components/schemas/Basic-Collection'
+      required:
+      - attributes
+      - policyMetrics
+      - loan
+      - withdrawal
+    Fund-Collection:
+      title: Fund-Collection
+      description: An unkeyed collection of funds
+      type: array
+      items:
+        $ref: '#/components/schemas/Fund'
+    Scenario-Term:
+      title: Scenario Results for Term Life
+      description: Outputs for Term Life product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Scenario-Base'
+      properties:
+        annualTimeSeriesData:
+          type: array
+          items:
+            $ref: '#/components/schemas/Single-Year-Values-Term'
+        coverages:
+          properties:
+            acceleratedDeathBenefitForTerminalIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            acceleratedDeathBenefitForChronicIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            acceleratedDeathBenefitForCriticalIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            accidentalDeathBenefit:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            charitableGiving:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            childrensTerm:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            waiverOfPremium:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+    Attribute-Collection:
+      title: Attribute Collection
+      description: A collection of uniquely named variables, must be camel-cased.
+      type: object
+      properties:
+        ^[a-z][a-zA-Z0-9]+:
+          $ref: '#/components/schemas/Variable-Value'
+    Illustration-Inputs-TL-Inforce-What-If:
+      title: Illustration Request for Term Life - Inforce What-If
+      description: Illustration Request for Term Life product - Inforce What-If scenario
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Inputs-TL'
+      - $ref: '#/components/schemas/Illustration-Inputs-Inforce-Base'
+    Participant-Collection-V4:
+      title: Participants
+      description: A collection of unique participants
+      type: array
+      items:
+        title: Participant
+        description: An entity with a stake in a policy
+        type: object
+        properties:
+          issueAge:
+            type: number
+            format: integer
+            description: Issue age
+            example: 30
+          participantId:
+            type: string
+            description: Participant id (UUID)
+            example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
+          underwritingClass:
+            type: string
+            description: Underwriting class
+            example: ULTRANONTOBACCO
+            enum:
+            - ULTRANONTOBACCO
+            - ELITENONTOBACCO
+            - PREFERREDNONTOBACCO
+            - STANDARDNONTOBACCO
+            - STANDARDTOBACCO
+            - STANDARDAGGREGATE
+            - SUBSTANDARDNONTOBACCO
+            - SUBSTANDARDTOBACCO
+            - STANDARDPLUSNONTOBACCO
+            - PREFERREDTOBACCO
+            - STANDARDCONVERSIONNONTOBACCO
+            - STANDARDCONVERSIONTOBACCO
+            - STANDARDPLUSBLEND
+            - STANDARDPLUSTOBACCO
+            - STANDARDBLEND
+            - SUBSTANDARDBLEND
+            - PREFERREDSELECTNONTOBACCO
+            - PREFERREDSELECTBLEND
+            - PREFERREDSELECTTOBACCO
+            - PREFERREDBLEND
+          subStandardRating:
+            type: string
+            description: Substandard rating
+            example: TABLEA
+            enum:
+            - TABLEA
+            - TABLEB
+            - TABLEC
+            - TABLED
+            - TABLEE
+            - TABLEF
+            - TABLEG
+            - TABLEH
+            - TABLEI
+            - TABLEJ
+            - TABLEK
+            - TABLEL
+            - TABLEM
+            - TABLEN
+            - TABLEO
+            - TABLEP
+            - NONETABLE
+          flatExtra:
+            type: array
+            description: Flat extra
+            items:
+              $ref: '#/components/schemas/Flat-Extra'
+        required:
+        - issueAge
+        - participantId
+      uniqueItems: true
+    Coverage-Collection:
+      title: Coverage-Collection (v3)
+      description: A collection of benefits
+      type: array
+      items:
+        $ref: '#/components/schemas/Coverage'
+    Schedule:
+      title: Schedule
+      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
+      type: object
+      properties:
+        frequency:
+          description: Indicates the interval between values for each entry. Any entry other than Annual results in multiple activities within a year.
+          type: string
+          enum:
+          - ANNUAL
+          - SEMI_ANNUAL
+          - QUARTERLY
+          - MONTHLY
+          - BIWEEKLY
+          - WEEKLY
+          - DAILY
+        basis:
+          description: Specifies how to interpret the from and through properties for each entry.
+          type: string
+          enum:
+          - AGE
+          - DURATION
+        sequence:
+          description: Collection of entries describing the changes in value over time
+          type: array
+          items:
+            $ref: '#/components/schemas/Scheduled-Entry'
+          minItems: 1
+      required:
+      - sequence
+    Scheduled-Entry:
+      title: Scheduled Entry
+      description: Represents a limited time period for which a value is constant.
+      type: object
+      properties:
+        from:
+          description: starting point for the value, inclusive
+          type: integer
+          minimum: 1
+        through:
+          description: ending point for the value, inclusive
+          type: integer
+          minimum: 1
+        value:
+          type: string
+      required:
+      - from
+      - through
+      - value
+    Single-Year-Values-Base:
+      title: Single-Year Values
+      description: A single-year slice of data that varies annually - these values apply to any scenario and any product
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/PropertyCollection-Loan'
+      properties:
+        year:
+          type: number
+          format: integer
+        accountValue:
+          type: number
+          format: double
+          example: 0.104742
+        coverages:
+          type: object
+          description: Coverage-specific values which are annually variable. See under "initial" for values that are constant year-to-year
+          properties:
+            base:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+        cumulativePremiumAmount:
+          type: number
+          format: double
+          example: 397.2
+        deathBenefitAmount:
+          type: number
+          format: double
+          example: 250000.104742
+        faceAmount:
+          type: number
+          format: double
+          example: 250000
+        insuranceAgeAtBeginningOfYear:
+          type: number
+          format: integer
+          example: 35
+        insuranceAgeAtEndOfYear:
+          type: number
+          format: integer
+          example: 36
+        perUnitCharge:
+          type: number
+          format: double
+          example: 201.21
+        policyValue:
+          type: number
+          format: double
+          example: 0.104742
+        premiumAmount:
+          type: number
+          format: double
+          example: 397.2
+        policyBasis:
+          type: number
+          format: double
+          example: 110.04
+        policyGain:
+          type: number
+          format: double
+          example: 0
+        surrenderValue:
+          type: number
+          format: double
+          example: 0.102552
+    Schedule-Base:
+      title: Generic Schedule
+      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
+      type: object
+      properties:
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+        basis:
+          description: Specifies how to interpret the from and through properties for each entry.
+          type: string
+          example: AGE
+          enum:
+          - AGE
+          - DURATION
+          - RETIREMENT
+        sequence:
+          description: Collection of entries describing the changes in value over time
+          type: array
+          items:
+            title: Schedule Entry
+            description: Represents a limited time period for which a value is constant.
+            type: object
+            properties:
+              from:
+                description: starting point for the value, inclusive
+                type: integer
+                minimum: 1
+                example: 1
+              through:
+                description: ending point for the value, inclusive
+                type: integer
+                minimum: 1
+                example: 10
+            required:
+            - from
+            - through
+          minItems: 1
+      required:
+      - sequence
+    Illustration-Inputs-Inforce-Base:
+      title: Base Inforce Illustration Request
+      description: Common properties for inforce illustration scenarios
+      type: object
+      properties:
+        policyDetail:
+          $ref: '#/components/schemas/Policy-State'
+        policyDetailDate:
+          $ref: '#/components/schemas/Date-Field'
+      required:
+      - policyDetail
+      - policyDetailDate
+    Schedule-FaceAmount:
+      title: Face Amount Schedule
+      allOf:
+      - $ref: '#/components/schemas/Schedule-Base'
+      properties:
+        sequence:
+          items:
+            title: Face Amount Schedule Entry
+            properties:
+              value:
+                example: 250000
+                oneOf:
+                - type: number
+                  format: double
+                - title: Face Amount Option
+                  type: string
+                  enum:
+                  - SOLVE_FOR_TARGET_CASH_VALUE
+                  - MINIMUM_NON_MEC
+            required:
+            - value
+    Illustration-Inputs-Projection-Base:
+      title: Projection Base
+      description: Base for projection scenarios
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Inputs-Base'
+      - type: object
+        properties:
+          coverages:
+            $ref: '#/components/schemas/Coverage-Collection-V4'
+          parties:
+            type: array
+            description: Must have at least one party representing the Insured participant
+            items:
+              anyOf:
+              - $ref: '#/components/schemas/Non-Insured-Party'
+              - $ref: '#/components/schemas/Insured'
+            minItems: 1
+            uniqueItems: true
+          options:
+            $ref: '#/components/schemas/Options-Base'
+        required:
+        - coverages
+        - parties
+    Illustration-Inputs-TL:
+      title: Illustration Request for Term Life
+      description: Illustration Request for Term Life product
+      allOf:
+      - $ref: '#/components/schemas/Illustration-Inputs-Projection-Base'
+      - $ref: '#/components/schemas/Illustration-Inputs-New-Business-Base'
     Arrangement:
       title: Arrangement
       description: Describes an arbitrary agreement
@@ -258,66 +672,408 @@ components:
           $ref: '#/components/schemas/Multiple-Basic-Collections'
         taxWithholdings:
           $ref: '#/components/schemas/Multiple-Basic-Collections'
-    Financial-Activity:
-      title: Financial Activity
+    Illustration-Inputs-Base:
+      title: Illustration Request
+      description: Fundamental Illustration request schema. See the schema for a specific product
+      properties:
+        calculationType:
+          type: string
+          description: Type of calculation. Only SINGLE_ILLUSTRATION triggers a PDF to be generated.
+          example: QUICK_QUOTE
+          enum:
+          - QUICK_QUOTE
+          - SINGLE_ILLUSTRATION
+          - AGGREGATE_ILLUSTRATION
+          - COMPOSITE_ILLUSTRATION
+          - POLICY_PAGE_PROJECTION
+          - INITIAL_QUOTE
+        source:
+          type: string
+          description: Source of the request
+          example: ZINNIA
+        illustrationRequestDate:
+          $ref: '#/components/schemas/Date-Field'
+        reports:
+          type: object
+          properties:
+            internalRateOfReturnOn:
+              type: boolean
+              description: Internal rate of return
+              example: true
+            annualChargesOn:
+              type: boolean
+              description: Annual charges
+              example: true
+            annualChargesYears:
+              type: number
+              description: Annual charges years
+              format: integer
+              example: 10
+            monthlyChargesOn:
+              type: boolean
+              description: Monthly charges
+              example: true
+            monthlyChargesYears:
+              type: number
+              format: integer
+              description: Monthly charges years
+              example: 10
+            marketingPagesOn:
+              type: boolean
+              description: Whether to produce marketing pages
+              example: true
+            costDetailsReportOn:
+              type: boolean
+              description: Whether to produce the cost details report
+              example: true
+            inputSummaryOn:
+              type: boolean
+              description: Whether to produce the input summary
+              example: true
+      required:
+      - calculationType
+      - illustrationRequestDate
+    Arrangement-Source:
+      title: Arrangement-Source
       type: object
+      description: A source of funding for an arrangement
       properties:
         attributes:
           $ref: '#/components/schemas/Attribute-Collection'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Active-Segment'
       required:
       - attributes
-    Illustration-Inputs-TL:
-      title: Illustration Request for Term Life
-      description: Illustration Request for Term Life product
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Inputs-Projection-Base'
-      - $ref: '#/components/schemas/Illustration-Inputs-New-Business-Base'
-    Illustration-Response-TL:
-      title: Illustration Response for Term Life
-      description: Illustration Response for Term Life product
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Response-Base'
-      properties:
-        assumed:
-          $ref: '#/components/schemas/Scenario-Term'
-        guaranteed:
-          $ref: '#/components/schemas/Scenario-Term'
-    Fund-Collection:
-      title: Fund-Collection
-      description: An unkeyed collection of funds
+      - segments
+    Coverage-Collection-V4:
+      title: Coverages
+      description: A collection of benefits
       type: array
       items:
-        $ref: '#/components/schemas/Fund'
-    Illustration-Inputs-Inforce-Base:
-      title: Base Inforce Illustration Request
-      description: Common properties for inforce illustration scenarios
+        title: Coverage
+        description: A benefit conferred to a group of one or more participants
+        type: object
+        properties:
+          coverageId:
+            type: string
+            description: Coverage id
+            example: BASE_COVERAGE
+            enum:
+            - BASE_COVERAGE
+            - Rider_ABRTRM
+            - Rider_CTR
+            - Rider_ABRCHR
+            - Rider_ADR
+            - Rider_WPR
+            - Rider_CGR
+            - Rider_GIBR
+            - Rider_OPR
+            - Rider_OWDR
+            - Rider_WDR
+            - Rider_NHR
+            - Rider_ABRCRI
+            - Rider_OWP
+          riderYears:
+            type: number
+            format: integer
+            example: 10
+            description: Rider years
+          currentAmount:
+            type: number
+            format: double
+            example: 1000
+            description: Current amount
+          participants:
+            $ref: '#/components/schemas/Participant-Collection-V4'
+        required:
+        - coverageId
+    Insured:
+      title: Insured Party
+      description: 'Represents a party with roleCode: `Insured`
+
+        '
       type: object
+      allOf:
+      - $ref: '#/components/schemas/Party-Base'
       properties:
-        policyDetail:
-          $ref: '#/components/schemas/Policy-State'
-        policyDetailDate:
-          $ref: '#/components/schemas/Date-Field'
+        roleCode:
+          type: string
+          enum:
+          - INSURED
+          example: INSURED
       required:
-      - policyDetail
-      - policyDetailDate
-    Party:
-      title: Party
-      description: A unique entity
+      - lastName
+      - gender
+      - roleCode
+    Variable-Value:
+      title: Variable Value
+      description: the value of a variable, may be constant or time-dependent
+      oneOf:
+      - type: string
+      - $ref: '#/components/schemas/Schedule'
+    Participant-Collection:
+      title: Participant-Collection
+      description: An unkeyed collection of unique participant objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Participant'
+      uniqueItems: true
+    Policy-State:
+      title: Policy State
+      description: Represents the state of a policy at an instant in time. Describes the payload Zahara transmits when requesting calculations for a single transaction.
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        accountValue:
+          $ref: '#/components/schemas/Account-Value'
+        testValue:
+          $ref: '#/components/schemas/Basic-Collection'
+        deathBenefit:
+          $ref: '#/components/schemas/Basic-Collection'
+        coverageValue:
+          $ref: '#/components/schemas/Basic-Collection'
+        coverages:
+          $ref: '#/components/schemas/Coverage-Collection'
+        parties:
+          $ref: '#/components/schemas/Parties'
+        features:
+          $ref: '#/components/schemas/Features'
+        fundAllocations:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+        funds:
+          $ref: '#/components/schemas/Fund-Collection'
+        matchSegment:
+          $ref: '#/components/schemas/Basic-Collection'
+        loanSegments:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+        arrangements:
+          $ref: '#/components/schemas/Arrangements'
+      required:
+      - attributes
+      - accountValue
+      - testValue
+      - deathBenefit
+      - coverageValue
+      - coverages
+      - parties
+      - features
+      - fundAllocations
+      - funds
+      - matchSegment
+      - loanSegments
+      - arrangements
+    Participant:
+      title: Participant (v3)
+      description: An entity with a stake in a policy
       type: object
       properties:
         attributes:
           $ref: '#/components/schemas/Attribute-Collection'
-        person:
+        flatExtra:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+      required:
+      - attributes
+      - flatExtra
+    Features:
+      title: Features
+      description: Well-known geatures associated with a policy
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        lapseAssessment:
           $ref: '#/components/schemas/Basic-Collection'
-        organization:
+        lapseProtection:
           $ref: '#/components/schemas/Basic-Collection'
-        trust:
+        reinstatement:
           $ref: '#/components/schemas/Basic-Collection'
       required:
       - attributes
-      - person
-      - organization
-      - trust
+      - lapseAssessment
+      - lapseProtection
+      - reinstatement
+    Active-Segment:
+      title: Active-Segment
+      type: object
+      description: A segment of a source of money that has some form of financial activity
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        financialActivity:
+          $ref: '#/components/schemas/Financial-Activity'
+      required:
+      - attributes
+    Single-Year-Values-Term:
+      title: Single-Year Values for Term Life
+      description: A single-year slice of data that varies annually - these values are specific to IUL products
+      allOf:
+      - $ref: '#/components/schemas/Single-Year-Values-Base'
+      properties:
+        coverages:
+          type: object
+          properties:
+            acceleratedDeathBenefitForTerminalIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            acceleratedDeathBenefitForChronicIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            acceleratedDeathBenefitForCriticalIllness:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            accidentalDeathBenefit:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            charitableGiving:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            childrensTerm:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            waiverOfPremium:
+              $ref: '#/components/schemas/Output-Coverage-Values'
+            netSurrenderValue:
+              deprecated: true
+              type: number
+              format: double
+              example: 0
+            reducedPaidUp:
+              deprecated: true
+              type: number
+              format: double
+              example: 100
+        totalSurplusDistributions:
+          type: number
+          format: double
+          example: 1.23
+        paidUpAdditionDeathBenefit:
+          type: number
+          format: double
+          example: 1.23
+        paidUpAdditionCashValue:
+          type: number
+          format: double
+          example: 1.23
+        reducedPaidUp:
+          type: number
+          format: double
+          example: 1.23
+        modifiedEndowmentContractIndicator:
+          type: number
+          format: double
+          example: 0
+    Illustration-Response-Base:
+      title: Illustration Response
+      description: Fundamental Illustration response schema. See the schema for a specific product
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the illustration request.
+          example: ed13083d-d6b3-463d-a569-56b532d00fcd
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+    Options-Base:
+      title: Options
+      description: Fundamental Options schema. Some products may have product-specific Options.
+      type: object
+      required:
+      - revisedIllustration
+      - solveFor
+      - paymentMode
+      properties:
+        revisedIllustration:
+          type: boolean
+          description: Whether the illustration is revised
+          example: true
+        solveFor:
+          type: string
+          description: Solve for
+          example: PREMIUM
+          enum:
+          - PREMIUM
+          - FACE
+          - NO_SOLVE
+        fixedCostPeriod:
+          type: number
+          description: Fixed cost period
+          example: 10
+          deprecated: true
+        fixedCostPeriodOption:
+          type: number
+          format: integer
+          description: The fixed cost period in YEARS or at AGE depending on the value of fixedCostPeriodUnit
+          example: 65
+        fixedCostPeriodUnit:
+          type: string
+          description: The Unit that the number in fixedCostPeriodOption represents
+          example: AGE
+          enum:
+          - AGE
+          - YEARS
+        paymentMode:
+          $ref: '#/components/schemas/Frequency'
+        discountIndicator:
+          type: string
+          description: Discount indicator
+          example: MULTIPRODUCT
+          enum:
+          - MULTIPRODUCT
+          - NON
+        paymentMethod:
+          type: string
+          description: Payment method
+          example: DTCC
+          enum:
+          - DTCC
+          - CREDITCARD
+          - ACH
+          - CHECK
+          - EXCHANGE
+          - WIRE
+        premiumDuration:
+          type: number
+          format: integer
+          description: Premium duration
+          example: 10
+        premiumDurationOption:
+          type: string
+          description: Premium duration option
+          example: YEARS
+          enum:
+          - AGE
+          - YEARS
+          - MATURITY
+        faceAmount:
+          $ref: '#/components/schemas/Schedule-FaceAmount'
+        premium:
+          $ref: '#/components/schemas/Schedule-Premium'
+        targetCashValueOption:
+          type: string
+          description: Target cash value option
+          example: SPECIFY_AMOUNT
+          enum:
+          - SPECIFY_AMOUNT
+          - ENDOWMENT
+        targetCashValueAtOption:
+          type: string
+          enum:
+          - AGE
+          - YEAR
+          description: Whether to use targetCashValueAge or targetCashValueYear
+          example: AGE
+        targetCashValueAge:
+          type: number
+          format: integer
+          description: If target cash value should be at an age, use this. If it should be at a year, use targetCashValueYear. targetCashValueAtOption determines which is used.
+          example: 10
+        targetCashValueYear:
+          type: number
+          format: integer
+          description: If target cash value should be at a year, use this. If it should be at an age, use targetCashValueAge. targetCashValueAtOption determines which is used.
+          example: 10
+        targetCashValueAmount:
+          type: number
+          format: double
+          description: Target cash value amount
+          example: 10000
     Illustration-Inputs-New-Business-Base:
       title: New Business Base
       description: Properties for new business scenarios
@@ -391,6 +1147,12 @@ components:
       required:
       - jurisdiction
       - planCode
+    Arrangements:
+      title: Arrangements
+      description: An unkeyed collection of arrangement objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Arrangement'
     Party-Base:
       title: Party
       type: object
@@ -573,129 +1335,159 @@ components:
               type: string
               description: Identification value
               example: ECN
-    Arrangement-Type:
-      title: Arrangement Type
-      description: Enumeration of allowable arrangement types
-      type: string
-      enum:
-      - LOAN
-      - WITHDRAWAL
-      - PAYMENT
-      - CONVERSION_ACTIVATION
-    Participant-Collection:
-      title: Participant-Collection
-      description: An unkeyed collection of unique participant objects
-      type: array
-      items:
-        $ref: '#/components/schemas/Participant'
-      uniqueItems: true
-    Single-Year-Values-Term:
-      title: Single-Year Values for Term Life
-      description: A single-year slice of data that varies annually - these values are specific to IUL products
+    Illustration-Response-TL:
+      title: Illustration Response for Term Life
+      description: Illustration Response for Term Life product
       allOf:
-      - $ref: '#/components/schemas/Single-Year-Values-Base'
+      - $ref: '#/components/schemas/Illustration-Response-Base'
       properties:
-        coverages:
+        assumed:
+          $ref: '#/components/schemas/Scenario-Term'
+        guaranteed:
+          $ref: '#/components/schemas/Scenario-Term'
+    Output-Coverage-Values:
+      title: Output Coverage Values
+      description: Result values relevant to a specific coverage
+      type: object
+      properties:
+        policyFee:
+          type: number
+          format: double
+          description: Annual policy fee
+          example: 150.2
+        modalPolicyFee:
+          type: number
+          format: double
+          description: Modal policy fee
+          example: 0
+        premium:
+          type: number
+          format: double
+          description: Annual premium
+          example: 0
+        modalPremium:
+          type: number
+          format: double
+          description: Modal premium
+          example: 0
+        tablePremium:
+          type: number
+          format: double
+          description: Annual table premium
+          example: 0
+        modalTablePremium:
+          type: number
+          format: double
+          description: Modal table premium
+          example: 0
+        flatExtraPremium:
+          description: Flat Extra premium
+          type: number
+          format: double
+          example: 5
+        modalFlatExtraPremium:
+          type: number
+          format: double
+          description: Modal flat extra premium
+          example: 0
+        faceAmount:
+          type: number
+          format: double
+          description: Coverage face amount
+          example: 2500
+        isIncludedInQuote:
+          type: boolean
+          example: true
+          description: indicates that this coverage was actually used in producing the quote
+    Coverage:
+      title: Coverage (v3)
+      description: A benefit conferred to a group of one or more participants
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        participants:
+          $ref: '#/components/schemas/Participant-Collection'
+        fees:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+      required:
+      - attributes
+      - participants
+      - fees
+    Financial-Activity:
+      title: Financial Activity
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+      required:
+      - attributes
+    PropertyCollection-Loan:
+      title: Loan Property Collection
+      description: Reusable collection of loan-related properties
+      type: object
+      properties:
+        loan:
           type: object
           properties:
-            acceleratedDeathBenefitForTerminalIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            acceleratedDeathBenefitForChronicIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            acceleratedDeathBenefitForCriticalIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            accidentalDeathBenefit:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            charitableGiving:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            childrensTerm:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            waiverOfPremium:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            netSurrenderValue:
-              deprecated: true
+            amount:
               type: number
               format: double
+              description: Loan amount
               example: 0
-            reducedPaidUp:
-              deprecated: true
+            interestCreditedAmount:
               type: number
               format: double
-              example: 100
-        totalSurplusDistributions:
+              description: Loan interest credited amount
+              example: 0
+            interestDueAmount:
+              type: number
+              format: double
+              description: Loan interest due amount
+              example: 0
+            payoffAmount:
+              type: number
+              format: double
+              description: Loan payoff amount
+              example: 0
+            maximumLoanAmount:
+              type: number
+              format: double
+              description: Maximum loan amount
+              example: 0
+        netAccountValue:
           type: number
           format: double
-          example: 1.23
-        paidUpAdditionDeathBenefit:
+          example: 0.104742
+        netDeathBenefitAmount:
           type: number
           format: double
-          example: 1.23
-        paidUpAdditionCashValue:
+          example: 250000.104742
+        netSurrenderValue:
           type: number
           format: double
-          example: 1.23
-        reducedPaidUp:
+          example: 0.104742
+        policyNetOutlayAmount:
           type: number
           format: double
-          example: 1.23
-        modifiedEndowmentContractIndicator:
+          example: 397.2
+        premiumOutlayAmount:
           type: number
           format: double
-          example: 0
-    Coverage-Collection-V4:
-      title: Coverages
-      description: A collection of benefits
-      type: array
-      items:
-        title: Coverage
-        description: A benefit conferred to a group of one or more participants
-        type: object
-        properties:
-          coverageId:
-            type: string
-            description: Coverage id
-            example: BASE_COVERAGE
-            enum:
-            - BASE_COVERAGE
-            - Rider_ABRTRM
-            - Rider_CTR
-            - Rider_ABRCHR
-            - Rider_ADR
-            - Rider_WPR
-            - Rider_CGR
-            - Rider_GIBR
-            - Rider_OPR
-            - Rider_OWDR
-            - Rider_WDR
-            - Rider_NHR
-            - Rider_ABRCRI
-            - Rider_OWP
-          riderYears:
-            type: number
-            format: integer
-            example: 10
-            description: Rider years
-          currentAmount:
-            type: number
-            format: double
-            example: 1000
-            description: Current amount
-          participants:
-            $ref: '#/components/schemas/Participant-Collection-V4'
-        required:
-        - coverageId
-    Illustration-Response-Base:
-      title: Illustration Response
-      description: Fundamental Illustration response schema. See the schema for a specific product
+          example: 397.2
+    Non-Insured-Party:
+      title: Non-Insured Party
+      description: 'Represents a party with a roleCode other than `INSURED`
+
+        '
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Party-Base'
       properties:
-        id:
-          type: string
-          description: The unique identifier for the illustration request.
-          example: ed13083d-d6b3-463d-a569-56b532d00fcd
-        messages:
-          type: array
-          items:
-            $ref: '#/components/schemas/Message'
+        roleCode:
+          $ref: '#/components/schemas/Party-Role'
+      required:
+      - roleCode
     Scenario-Base:
       title: Base Scenario Results
       description: Fundamental outputs that apply across all products. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
@@ -901,107 +1693,6 @@ components:
           type: number
           format: double
           example: 110.04
-    Single-Year-Values-Base:
-      title: Single-Year Values
-      description: A single-year slice of data that varies annually - these values apply to any scenario and any product
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/PropertyCollection-Loan'
-      properties:
-        year:
-          type: number
-          format: integer
-        accountValue:
-          type: number
-          format: double
-          example: 0.104742
-        coverages:
-          type: object
-          description: Coverage-specific values which are annually variable. See under "initial" for values that are constant year-to-year
-          properties:
-            base:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-        cumulativePremiumAmount:
-          type: number
-          format: double
-          example: 397.2
-        deathBenefitAmount:
-          type: number
-          format: double
-          example: 250000.104742
-        faceAmount:
-          type: number
-          format: double
-          example: 250000
-        insuranceAgeAtBeginningOfYear:
-          type: number
-          format: integer
-          example: 35
-        insuranceAgeAtEndOfYear:
-          type: number
-          format: integer
-          example: 36
-        perUnitCharge:
-          type: number
-          format: double
-          example: 201.21
-        policyValue:
-          type: number
-          format: double
-          example: 0.104742
-        premiumAmount:
-          type: number
-          format: double
-          example: 397.2
-        policyBasis:
-          type: number
-          format: double
-          example: 110.04
-        policyGain:
-          type: number
-          format: double
-          example: 0
-        surrenderValue:
-          type: number
-          format: double
-          example: 0.102552
-    Attribute-Collection:
-      title: Attribute Collection
-      description: A collection of uniquely named variables, must be camel-cased.
-      type: object
-      properties:
-        ^[a-z][a-zA-Z0-9]+:
-          $ref: '#/components/schemas/Variable-Value'
-    Frequency:
-      type: string
-      description: Frequency
-      example: DAILY
-      enum:
-      - DAILY
-      - EVERYTWOWEEKS
-      - MONTHLY
-      - SEMIANNUAL
-      - QUARTERLY
-      - ANNUAL
-      - SINGLEPAYMENT
-    Features:
-      title: Features
-      description: Well-known geatures associated with a policy
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        lapseAssessment:
-          $ref: '#/components/schemas/Basic-Collection'
-        lapseProtection:
-          $ref: '#/components/schemas/Basic-Collection'
-        reinstatement:
-          $ref: '#/components/schemas/Basic-Collection'
-      required:
-      - attributes
-      - lapseAssessment
-      - lapseProtection
-      - reinstatement
     Flat-Extra:
       title: Flat Extra
       type: object
@@ -1036,697 +1727,6 @@ components:
           pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
           description: Date (with pattern "yyyy-mm-dd")
           example: '2025-05-13'
-    Parties:
-      title: Parties
-      description: An unkeyed collection of unique Party objects
-      type: array
-      items:
-        $ref: '#/components/schemas/Party'
-      uniqueItems: true
-    Schedule:
-      title: Schedule
-      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
-      type: object
-      properties:
-        frequency:
-          description: Indicates the interval between values for each entry. Any entry other than Annual results in multiple activities within a year.
-          type: string
-          enum:
-          - ANNUAL
-          - SEMI_ANNUAL
-          - QUARTERLY
-          - MONTHLY
-          - BIWEEKLY
-          - WEEKLY
-          - DAILY
-        basis:
-          description: Specifies how to interpret the from and through properties for each entry.
-          type: string
-          enum:
-          - AGE
-          - DURATION
-        sequence:
-          description: Collection of entries describing the changes in value over time
-          type: array
-          items:
-            $ref: '#/components/schemas/Scheduled-Entry'
-          minItems: 1
-      required:
-      - sequence
-    Illustration-Inputs-Projection-Base:
-      title: Projection Base
-      description: Base for projection scenarios
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Inputs-Base'
-      - type: object
-        properties:
-          coverages:
-            $ref: '#/components/schemas/Coverage-Collection-V4'
-          parties:
-            type: array
-            description: Must have at least one party representing the Insured participant
-            items:
-              anyOf:
-              - $ref: '#/components/schemas/Non-Insured-Party'
-              - $ref: '#/components/schemas/Insured'
-            minItems: 1
-            uniqueItems: true
-          options:
-            $ref: '#/components/schemas/Options-Base'
-        required:
-        - coverages
-        - parties
-    Arrangement-Source:
-      title: Arrangement-Source
-      type: object
-      description: A source of funding for an arrangement
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        segments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Active-Segment'
-      required:
-      - attributes
-      - segments
-    Participant:
-      title: Participant (v3)
-      description: An entity with a stake in a policy
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        flatExtra:
-          $ref: '#/components/schemas/Multiple-Basic-Collections'
-      required:
-      - attributes
-      - flatExtra
-    Coverage:
-      title: Coverage (v3)
-      description: A benefit conferred to a group of one or more participants
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        participants:
-          $ref: '#/components/schemas/Participant-Collection'
-        fees:
-          $ref: '#/components/schemas/Multiple-Basic-Collections'
-      required:
-      - attributes
-      - participants
-      - fees
-    Policy-State:
-      title: Policy State
-      description: Represents the state of a policy at an instant in time. Describes the payload Zahara transmits when requesting calculations for a single transaction.
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        accountValue:
-          $ref: '#/components/schemas/Account-Value'
-        testValue:
-          $ref: '#/components/schemas/Basic-Collection'
-        deathBenefit:
-          $ref: '#/components/schemas/Basic-Collection'
-        coverageValue:
-          $ref: '#/components/schemas/Basic-Collection'
-        coverages:
-          $ref: '#/components/schemas/Coverage-Collection'
-        parties:
-          $ref: '#/components/schemas/Parties'
-        features:
-          $ref: '#/components/schemas/Features'
-        fundAllocations:
-          $ref: '#/components/schemas/Multiple-Basic-Collections'
-        funds:
-          $ref: '#/components/schemas/Fund-Collection'
-        matchSegment:
-          $ref: '#/components/schemas/Basic-Collection'
-        loanSegments:
-          $ref: '#/components/schemas/Multiple-Basic-Collections'
-        arrangements:
-          $ref: '#/components/schemas/Arrangements'
-      required:
-      - attributes
-      - accountValue
-      - testValue
-      - deathBenefit
-      - coverageValue
-      - coverages
-      - parties
-      - features
-      - fundAllocations
-      - funds
-      - matchSegment
-      - loanSegments
-      - arrangements
-    Participant-Collection-V4:
-      title: Participants
-      description: A collection of unique participants
-      type: array
-      items:
-        title: Participant
-        description: An entity with a stake in a policy
-        type: object
-        properties:
-          issueAge:
-            type: number
-            format: integer
-            description: Issue age
-            example: 30
-          participantId:
-            type: string
-            description: Participant id (UUID)
-            example: 2ad51ecf-9923-437f-a6f0-70968e464cdb
-          underwritingClass:
-            type: string
-            description: Underwriting class
-            example: ULTRANONTOBACCO
-            enum:
-            - ULTRANONTOBACCO
-            - ELITENONTOBACCO
-            - PREFERREDNONTOBACCO
-            - STANDARDNONTOBACCO
-            - STANDARDTOBACCO
-            - STANDARDAGGREGATE
-            - SUBSTANDARDNONTOBACCO
-            - SUBSTANDARDTOBACCO
-            - STANDARDPLUSNONTOBACCO
-            - PREFERREDTOBACCO
-            - STANDARDCONVERSIONNONTOBACCO
-            - STANDARDCONVERSIONTOBACCO
-            - STANDARDPLUSBLEND
-            - STANDARDPLUSTOBACCO
-            - STANDARDBLEND
-            - SUBSTANDARDBLEND
-            - PREFERREDSELECTNONTOBACCO
-            - PREFERREDSELECTBLEND
-            - PREFERREDSELECTTOBACCO
-            - PREFERREDBLEND
-          subStandardRating:
-            type: string
-            description: Substandard rating
-            example: TABLEA
-            enum:
-            - TABLEA
-            - TABLEB
-            - TABLEC
-            - TABLED
-            - TABLEE
-            - TABLEF
-            - TABLEG
-            - TABLEH
-            - TABLEI
-            - TABLEJ
-            - TABLEK
-            - TABLEL
-            - TABLEM
-            - TABLEN
-            - TABLEO
-            - TABLEP
-            - NONETABLE
-          flatExtra:
-            type: array
-            description: Flat extra
-            items:
-              $ref: '#/components/schemas/Flat-Extra'
-        required:
-        - issueAge
-        - participantId
-      uniqueItems: true
-    Schedule-Base:
-      title: Generic Schedule
-      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
-      type: object
-      properties:
-        frequency:
-          $ref: '#/components/schemas/Frequency'
-        basis:
-          description: Specifies how to interpret the from and through properties for each entry.
-          type: string
-          example: AGE
-          enum:
-          - AGE
-          - DURATION
-          - RETIREMENT
-        sequence:
-          description: Collection of entries describing the changes in value over time
-          type: array
-          items:
-            title: Schedule Entry
-            description: Represents a limited time period for which a value is constant.
-            type: object
-            properties:
-              from:
-                description: starting point for the value, inclusive
-                type: integer
-                minimum: 1
-                example: 1
-              through:
-                description: ending point for the value, inclusive
-                type: integer
-                minimum: 1
-                example: 10
-            required:
-            - from
-            - through
-          minItems: 1
-      required:
-      - sequence
-    Insured:
-      title: Insured Party
-      description: 'Represents a party with roleCode: `Insured`
-
-        '
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Party-Base'
-      properties:
-        roleCode:
-          type: string
-          enum:
-          - INSURED
-          example: INSURED
-      required:
-      - lastName
-      - gender
-      - roleCode
-    Scheduled-Entry:
-      title: Scheduled Entry
-      description: Represents a limited time period for which a value is constant.
-      type: object
-      properties:
-        from:
-          description: starting point for the value, inclusive
-          type: integer
-          minimum: 1
-        through:
-          description: ending point for the value, inclusive
-          type: integer
-          minimum: 1
-        value:
-          type: string
-      required:
-      - from
-      - through
-      - value
-    Basic-Collection:
-      title: Basic Collection
-      description: A simple object that only contains a collection of unique attributes and no further structure.
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-      required:
-      - attributes
-    Illustration-Inputs-Base:
-      title: Illustration Request
-      description: Fundamental Illustration request schema. See the schema for a specific product
-      properties:
-        calculationType:
-          type: string
-          description: Type of calculation. Only SINGLE_ILLUSTRATION triggers a PDF to be generated.
-          example: QUICK_QUOTE
-          enum:
-          - QUICK_QUOTE
-          - SINGLE_ILLUSTRATION
-          - AGGREGATE_ILLUSTRATION
-          - COMPOSITE_ILLUSTRATION
-          - POLICY_PAGE_PROJECTION
-          - INITIAL_QUOTE
-        source:
-          type: string
-          description: Source of the request
-          example: ZINNIA
-        illustrationRequestDate:
-          $ref: '#/components/schemas/Date-Field'
-        reports:
-          type: object
-          properties:
-            internalRateOfReturnOn:
-              type: boolean
-              description: Internal rate of return
-              example: true
-            annualChargesOn:
-              type: boolean
-              description: Annual charges
-              example: true
-            annualChargesYears:
-              type: number
-              description: Annual charges years
-              format: integer
-              example: 10
-            monthlyChargesOn:
-              type: boolean
-              description: Monthly charges
-              example: true
-            monthlyChargesYears:
-              type: number
-              format: integer
-              description: Monthly charges years
-              example: 10
-            marketingPagesOn:
-              type: boolean
-              description: Whether to produce marketing pages
-              example: true
-            costDetailsReportOn:
-              type: boolean
-              description: Whether to produce the cost details report
-              example: true
-            inputSummaryOn:
-              type: boolean
-              description: Whether to produce the input summary
-              example: true
-      required:
-      - calculationType
-      - illustrationRequestDate
-    Message:
-      title: Message
-      description: A structured signal
-      type: object
-      properties:
-        code:
-          type: integer
-        severity:
-          type: string
-          enum:
-          - INFO
-          - WARNING
-          - ERROR
-        text:
-          type: string
-        returnTo:
-          type: string
-      required:
-      - code
-      - text
-    Party-Role:
-      title: Party Role
-      example: OWNER
-      type: string
-      description: The role of a given party
-      enum:
-      - OWNER
-      - PRIMARYBENEFICIARY
-      - CONTINGENTBENEFICIARY
-      - INSURED
-      - PAYOR
-      - PAYEE
-      - AGENT
-      - PRIMARYWRITINGAGENT
-      - PRIMARYSERVICINGAGENT
-      - ADDITIONALSERVICINGAGENT
-      - ADDITIONALWRITINGAGENT
-      - THIRDPARTYDESIGNEE
-      - JOINTOWNER
-      - COVERAGEINSURED
-      - ASSIGNEE
-      - ANNUITANT
-      - EXCHANGECOMPANY
-      - JOINTANNUITANT
-      - GRANTOR
-      - TRUSTEE
-      - POWEROFATTORNEY
-      - AUTHORIZEDSIGNATORY
-      - OTHERINTERESTEDPARTY
-      - CONTINGENTOWNER
-    Options-Base:
-      title: Options
-      description: Fundamental Options schema. Some products may have product-specific Options.
-      type: object
-      required:
-      - revisedIllustration
-      - solveFor
-      - paymentMode
-      properties:
-        revisedIllustration:
-          type: boolean
-          description: Whether the illustration is revised
-          example: true
-        solveFor:
-          type: string
-          description: Solve for
-          example: PREMIUM
-          enum:
-          - PREMIUM
-          - FACE
-          - NO_SOLVE
-        fixedCostPeriod:
-          type: number
-          description: Fixed cost period
-          example: 10
-          deprecated: true
-        fixedCostPeriodOption:
-          type: number
-          format: integer
-          description: The fixed cost period in YEARS or at AGE depending on the value of fixedCostPeriodUnit
-          example: 65
-        fixedCostPeriodUnit:
-          type: string
-          description: The Unit that the number in fixedCostPeriodOption represents
-          example: AGE
-          enum:
-          - AGE
-          - YEARS
-        paymentMode:
-          $ref: '#/components/schemas/Frequency'
-        discountIndicator:
-          type: string
-          description: Discount indicator
-          example: MULTIPRODUCT
-          enum:
-          - MULTIPRODUCT
-          - NON
-        paymentMethod:
-          type: string
-          description: Payment method
-          example: DTCC
-          enum:
-          - DTCC
-          - CREDITCARD
-          - ACH
-          - CHECK
-          - EXCHANGE
-          - WIRE
-        premiumDuration:
-          type: number
-          format: integer
-          description: Premium duration
-          example: 10
-        premiumDurationOption:
-          type: string
-          description: Premium duration option
-          example: YEARS
-          enum:
-          - AGE
-          - YEARS
-          - MATURITY
-        faceAmount:
-          $ref: '#/components/schemas/Schedule-FaceAmount'
-        premium:
-          $ref: '#/components/schemas/Schedule-Premium'
-        targetCashValueOption:
-          type: string
-          description: Target cash value option
-          example: SPECIFY_AMOUNT
-          enum:
-          - SPECIFY_AMOUNT
-          - ENDOWMENT
-        targetCashValueAtOption:
-          type: string
-          enum:
-          - AGE
-          - YEAR
-          description: Whether to use targetCashValueAge or targetCashValueYear
-          example: AGE
-        targetCashValueAge:
-          type: number
-          format: integer
-          description: If target cash value should be at an age, use this. If it should be at a year, use targetCashValueYear. targetCashValueAtOption determines which is used.
-          example: 10
-        targetCashValueYear:
-          type: number
-          format: integer
-          description: If target cash value should be at a year, use this. If it should be at an age, use targetCashValueAge. targetCashValueAtOption determines which is used.
-          example: 10
-        targetCashValueAmount:
-          type: number
-          format: double
-          description: Target cash value amount
-          example: 10000
-    Variable-Value:
-      title: Variable Value
-      description: the value of a variable, may be constant or time-dependent
-      oneOf:
-      - type: string
-      - $ref: '#/components/schemas/Schedule'
-    Fund:
-      title: Fund
-      description: A source of money
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        segments:
-          $ref: '#/components/schemas/Multiple-Basic-Collections'
-      required:
-      - attributes
-      - segments
-    Account-Value:
-      title: Account-Value
-      description: A description of the monetary value of an investment contract
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        policyMetrics:
-          $ref: '#/components/schemas/Basic-Collection'
-        loan:
-          $ref: '#/components/schemas/Basic-Collection'
-        withdrawal:
-          $ref: '#/components/schemas/Basic-Collection'
-      required:
-      - attributes
-      - policyMetrics
-      - loan
-      - withdrawal
-    Scenario-Term:
-      title: Scenario Results for Term Life
-      description: Outputs for Term Life product across all scenarios. This object represents a single scenario (e.g. Assumed, Guaranteed, etc)
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Scenario-Base'
-      properties:
-        annualTimeSeriesData:
-          type: array
-          items:
-            $ref: '#/components/schemas/Single-Year-Values-Term'
-        coverages:
-          properties:
-            acceleratedDeathBenefitForTerminalIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            acceleratedDeathBenefitForChronicIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            acceleratedDeathBenefitForCriticalIllness:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            accidentalDeathBenefit:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            charitableGiving:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            childrensTerm:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-            waiverOfPremium:
-              $ref: '#/components/schemas/Output-Coverage-Values'
-    Multiple-Basic-Collections:
-      title: Multiple-Basic-Collections
-      type: array
-      items:
-        $ref: '#/components/schemas/Basic-Collection'
-    Date-Field:
-      type: string
-      format: date
-      pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-      description: Date (with pattern "yyyy-mm-dd")
-      example: '2025-05-13'
-    Output-Coverage-Values:
-      title: Output Coverage Values
-      description: Result values relevant to a specific coverage
-      type: object
-      properties:
-        policyFee:
-          type: number
-          format: double
-          description: Annual policy fee
-          example: 150.2
-        modalPolicyFee:
-          type: number
-          format: double
-          description: Modal policy fee
-          example: 0
-        premium:
-          type: number
-          format: double
-          description: Annual premium
-          example: 0
-        modalPremium:
-          type: number
-          format: double
-          description: Modal premium
-          example: 0
-        tablePremium:
-          type: number
-          format: double
-          description: Annual table premium
-          example: 0
-        modalTablePremium:
-          type: number
-          format: double
-          description: Modal table premium
-          example: 0
-        flatExtraPremium:
-          description: Flat Extra premium
-          type: number
-          format: double
-          example: 5
-        modalFlatExtraPremium:
-          type: number
-          format: double
-          description: Modal flat extra premium
-          example: 0
-        faceAmount:
-          type: number
-          format: double
-          description: Coverage face amount
-          example: 2500
-        isIncludedInQuote:
-          type: boolean
-          example: true
-          description: indicates that this coverage was actually used in producing the quote
-    Active-Segment:
-      title: Active-Segment
-      type: object
-      description: A segment of a source of money that has some form of financial activity
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        financialActivity:
-          $ref: '#/components/schemas/Financial-Activity'
-      required:
-      - attributes
-    Illustration-Inputs-TL-Inforce-What-If:
-      title: Illustration Request for Term Life - Inforce What-If
-      description: Illustration Request for Term Life product - Inforce What-If scenario
-      allOf:
-      - $ref: '#/components/schemas/Illustration-Inputs-TL'
-      - $ref: '#/components/schemas/Illustration-Inputs-Inforce-Base'
-    Schedule-FaceAmount:
-      title: Face Amount Schedule
-      allOf:
-      - $ref: '#/components/schemas/Schedule-Base'
-      properties:
-        sequence:
-          items:
-            title: Face Amount Schedule Entry
-            properties:
-              value:
-                example: 250000
-                oneOf:
-                - type: number
-                  format: double
-                - title: Face Amount Option
-                  type: string
-                  enum:
-                  - SOLVE_FOR_TARGET_CASH_VALUE
-                  - MINIMUM_NON_MEC
-            required:
-            - value
-    Arrangements:
-      title: Arrangements
-      description: An unkeyed collection of arrangement objects
-      type: array
-      items:
-        $ref: '#/components/schemas/Arrangement'
   securitySchemes:
     Auth0:
       type: openIdConnect
