@@ -167,6 +167,197 @@ components:
           type: integer
           description: Maximum duration in days
           example: 365
+    PPFAIntegratedDataResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+          example: 678f1a2b3c4d5e6f7890abcd
+        planName:
+          type: string
+          description: Name of the plan
+          example: Variable Annuity Premier Growth Plan
+        policyProductType:
+          $ref: '#/components/schemas/CodeDisplayName'
+        featureMapping:
+          $ref: '#/components/schemas/CodeDisplayName'
+        featureCode:
+          type: string
+          description: Feature code
+          example: PARTIAL_WD_001
+        arrangementType:
+          $ref: '#/components/schemas/CodeDisplayName'
+        arrangementSubType:
+          $ref: '#/components/schemas/CodeDisplayName'
+        transactionType:
+          type: array
+          description: List of transaction types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        transactionSubtypes:
+          type: array
+          description: Complete transaction subtypes with all arrangement details (filtered by VI restrictions)
+          items:
+            $ref: '#/components/schemas/TransactionSubtype'
+        paymentMode:
+          $ref: '#/components/schemas/CodeDisplayName'
+        paymentMethod:
+          type: array
+          description: Available payment methods
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        fundDisbursementType:
+          type: array
+          description: Fund disbursement types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        disbursementTypes:
+          type: array
+          description: Applicable disbursement types from VI
+          items:
+            type: string
+          example:
+          - Gross
+          - Net
+        sourceTransferAmtType:
+          type: array
+          description: Source transfer amount types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        amountQualifier:
+          type: array
+          description: Amount qualifiers
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        taxRateBasedOn:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxWithholdingCollect:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxWithholdingPlace:
+          $ref: '#/components/schemas/CodeDisplayName'
+        withholdStateIfFederalInd:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxJurisdiction:
+          $ref: '#/components/schemas/CodeDisplayName'
+        taxMinPercentage:
+          type: string
+          description: Minimum tax percentage
+          example: '0'
+        taxMaxPercentage:
+          type: string
+          description: Maximum tax percentage
+          example: '100'
+        taxTransferAmtType:
+          type: string
+          description: Tax transfer amount type
+          example: PERCENT
+        jurisdiction:
+          $ref: '#/components/schemas/CodeDisplayName'
+        effectiveDateDuration:
+          $ref: '#/components/schemas/EffectiveDateDuration'
+        featureMaxNumInstances:
+          type: number
+          description: Maximum feature instances
+          example: 12
+        minContractAmt:
+          type: number
+          description: Minimum contract amount
+          example: 1000
+        maxNumSourceInvestProd:
+          type: number
+          description: Maximum source investment products
+          example: 10
+        minNumSourceInvestments:
+          type: number
+          description: Minimum source investments
+          example: 1
+        featureProductCode:
+          $ref: '#/components/schemas/CodeDisplayName'
+        featureProductInfo:
+          type: array
+          description: Feature product information
+          items:
+            type: object
+        actionTypeAllowed:
+          type: array
+          description: Allowed action types
+          items:
+            $ref: '#/components/schemas/CodeDisplayName'
+        planCode:
+          type: string
+          description: Plan code
+          example: '534222609'
+        viAmounts:
+          $ref: '#/components/schemas/ViAmounts'
+        viFunds:
+          type: array
+          description: VI-derived fund information with withdrawal eligibility
+          items:
+            $ref: '#/components/schemas/ViFund'
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
+    ViFund:
+      type: object
+      description: VI-derived fund information with withdrawal eligibility
+      properties:
+        fundCode:
+          type: string
+          description: Fund identifier (ProductCode)
+          example: ABAF
+        fundKey:
+          type: string
+          description: Fund key (SubAccountKey)
+          example: SUB123
+        fundName:
+          type: string
+          description: Fund name
+          example: LVIP American Balanced Allocation Fund
+        withdrawalsAllowed:
+          type: boolean
+          nullable: true
+          description: Whether withdrawals are allowed from this fund
+          example: true
+        totalValue:
+          type: number
+          format: decimal
+          nullable: true
+          description: Total value of the fund
+          example: 5000
+        availableFundsAmount:
+          type: number
+          format: decimal
+          nullable: true
+          description: Available funds amount
+          example: 4500
+        numberOfUnits:
+          type: number
+          format: decimal
+          nullable: true
+          description: Number of units held
+          example: 100.25
+        fundRestrictReason:
+          type: string
+          nullable: true
+          description: Fund restriction reason if any
+          example: null
+        isTransferSendAllowed:
+          type: boolean
+          nullable: true
+          description: Whether transfer send is allowed
+          example: true
+        isTransferDestinationAllowed:
+          type: boolean
+          nullable: true
+          description: Whether fund can be a transfer destination
+          example: true
     TransactionSubtype:
       type: object
       description: Complete transaction subtype with all arrangement and fund details, enriched with VI 21209 real-time amounts
@@ -359,155 +550,6 @@ components:
           $ref: '#/components/schemas/CodeDisplayName'
         arrangementSubType:
           $ref: '#/components/schemas/CodeDisplayName'
-    CodeDisplayName:
-      type: object
-      description: Generic code/displayName object
-      properties:
-        code:
-          type: string
-          description: Code value
-          example: WD
-        displayName:
-          type: string
-          description: Display name
-          example: Withdrawal
-    ErrorResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 404
-        message:
-          type: string
-          example: 'Invalid or missing request field: correlationId'
-    PPFAIntegratedDataResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Unique identifier
-          example: 678f1a2b3c4d5e6f7890abcd
-        planName:
-          type: string
-          description: Name of the plan
-          example: Variable Annuity Premier Growth Plan
-        policyProductType:
-          $ref: '#/components/schemas/CodeDisplayName'
-        featureMapping:
-          $ref: '#/components/schemas/CodeDisplayName'
-        featureCode:
-          type: string
-          description: Feature code
-          example: PARTIAL_WD_001
-        arrangementType:
-          $ref: '#/components/schemas/CodeDisplayName'
-        arrangementSubType:
-          $ref: '#/components/schemas/CodeDisplayName'
-        transactionType:
-          type: array
-          description: List of transaction types
-          items:
-            $ref: '#/components/schemas/CodeDisplayName'
-        transactionSubtypes:
-          type: array
-          description: Complete transaction subtypes with all arrangement details (filtered by VI restrictions)
-          items:
-            $ref: '#/components/schemas/TransactionSubtype'
-        paymentMode:
-          $ref: '#/components/schemas/CodeDisplayName'
-        paymentMethod:
-          type: array
-          description: Available payment methods
-          items:
-            $ref: '#/components/schemas/CodeDisplayName'
-        fundDisbursementType:
-          type: array
-          description: Fund disbursement types
-          items:
-            $ref: '#/components/schemas/CodeDisplayName'
-        disbursementTypes:
-          type: array
-          description: Applicable disbursement types from VI
-          items:
-            type: string
-          example:
-          - Gross
-          - Net
-        sourceTransferAmtType:
-          type: array
-          description: Source transfer amount types
-          items:
-            $ref: '#/components/schemas/CodeDisplayName'
-        amountQualifier:
-          type: array
-          description: Amount qualifiers
-          items:
-            $ref: '#/components/schemas/CodeDisplayName'
-        taxRateBasedOn:
-          $ref: '#/components/schemas/CodeDisplayName'
-        taxWithholdingCollect:
-          $ref: '#/components/schemas/CodeDisplayName'
-        taxWithholdingPlace:
-          $ref: '#/components/schemas/CodeDisplayName'
-        withholdStateIfFederalInd:
-          $ref: '#/components/schemas/CodeDisplayName'
-        taxJurisdiction:
-          $ref: '#/components/schemas/CodeDisplayName'
-        taxMinPercentage:
-          type: string
-          description: Minimum tax percentage
-          example: '0'
-        taxMaxPercentage:
-          type: string
-          description: Maximum tax percentage
-          example: '100'
-        taxTransferAmtType:
-          type: string
-          description: Tax transfer amount type
-          example: PERCENT
-        jurisdiction:
-          $ref: '#/components/schemas/CodeDisplayName'
-        effectiveDateDuration:
-          $ref: '#/components/schemas/EffectiveDateDuration'
-        featureMaxNumInstances:
-          type: number
-          description: Maximum feature instances
-          example: 12
-        minContractAmt:
-          type: number
-          description: Minimum contract amount
-          example: 1000
-        maxNumSourceInvestProd:
-          type: number
-          description: Maximum source investment products
-          example: 10
-        minNumSourceInvestments:
-          type: number
-          description: Minimum source investments
-          example: 1
-        featureProductCode:
-          $ref: '#/components/schemas/CodeDisplayName'
-        featureProductInfo:
-          type: array
-          description: Feature product information
-          items:
-            type: object
-        actionTypeAllowed:
-          type: array
-          description: Allowed action types
-          items:
-            $ref: '#/components/schemas/CodeDisplayName'
-        planCode:
-          type: string
-          description: Plan code
-          example: '534222609'
-        viAmounts:
-          $ref: '#/components/schemas/ViAmounts'
-        viFunds:
-          type: array
-          description: VI-derived fund information with withdrawal eligibility
-          items:
-            $ref: '#/components/schemas/ViFund'
     ViAmounts:
       type: object
       nullable: true
@@ -559,60 +601,18 @@ components:
           nullable: true
           description: Total policy value
           example: 50000
-    ViFund:
+    CodeDisplayName:
       type: object
-      description: VI-derived fund information with withdrawal eligibility
+      description: Generic code/displayName object
       properties:
-        fundCode:
+        code:
           type: string
-          description: Fund identifier (ProductCode)
-          example: ABAF
-        fundKey:
+          description: Code value
+          example: WD
+        displayName:
           type: string
-          description: Fund key (SubAccountKey)
-          example: SUB123
-        fundName:
-          type: string
-          description: Fund name
-          example: LVIP American Balanced Allocation Fund
-        withdrawalsAllowed:
-          type: boolean
-          nullable: true
-          description: Whether withdrawals are allowed from this fund
-          example: true
-        totalValue:
-          type: number
-          format: decimal
-          nullable: true
-          description: Total value of the fund
-          example: 5000
-        availableFundsAmount:
-          type: number
-          format: decimal
-          nullable: true
-          description: Available funds amount
-          example: 4500
-        numberOfUnits:
-          type: number
-          format: decimal
-          nullable: true
-          description: Number of units held
-          example: 100.25
-        fundRestrictReason:
-          type: string
-          nullable: true
-          description: Fund restriction reason if any
-          example: null
-        isTransferSendAllowed:
-          type: boolean
-          nullable: true
-          description: Whether transfer send is allowed
-          example: true
-        isTransferDestinationAllowed:
-          type: boolean
-          nullable: true
-          description: Whether fund can be a transfer destination
-          example: true
+          description: Display name
+          example: Withdrawal
   securitySchemes:
     Auth0:
       type: openIdConnect

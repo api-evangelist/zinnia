@@ -174,29 +174,6 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    InlineResponse404:
-      type: object
-      properties:
-        message:
-          type: string
-      required:
-      - message
-    InlineResponse400:
-      type: object
-      properties:
-        xCorrelationId:
-          type: string
-        status:
-          type: number
-        errorDesc:
-          type: string
-        errorDetailedDesc:
-          type: string
-      required:
-      - xCorrelationId
-      - status
-      - errorDesc
-      - errorDetailedDesc
     TaxFormsResponse:
       type: object
       properties:
@@ -226,13 +203,6 @@ components:
       - fChar
       - formId
       - taxYear
-    InlineResponse401:
-      type: object
-      properties:
-        message:
-          type: string
-      required:
-      - message
     TaxFormsResponse200:
       type: object
       properties:
@@ -245,6 +215,36 @@ components:
       required:
       - count
       - items
+    InlineResponse401:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    InlineResponse400:
+      type: object
+      properties:
+        xCorrelationId:
+          type: string
+        status:
+          type: number
+        errorDesc:
+          type: string
+        errorDetailedDesc:
+          type: string
+      required:
+      - xCorrelationId
+      - status
+      - errorDesc
+      - errorDetailedDesc
+    InlineResponse404:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
     DownloadDocumentResponse:
       type: object
       properties:

@@ -138,628 +138,19 @@ paths:
       - Auth0: []
 components:
   schemas:
-    ServerErrorResponse:
+    SuccessResponse:
       type: object
       properties:
         statusCode:
           type: integer
           format: int32
-          example: 500
+          example: 201
         timestamp:
-          type: integer
-          format: int64
-          example: 1681395423438
-        errorId:
           type: string
-          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+          format: date-time
         message:
           type: string
-          example: Failed to process request
-    SpecialProgram:
-      type: object
-      required:
-      - specialProgramType
-      - startDate
-      - mode
-      - amountType
-      - amount
-      - duration
-      - funds
-      - firstPaymentDate
-      properties:
-        specialProgramType:
-          type: string
-          description: specialProgramType selected
-          enum:
-          - PAYOUT
-          - RMD
-          - SYSWITHDRAWAL
-          - PREMIUMDEFAULT
-          - DOLLARCOSTAVERAGE
-          - SYSPARTIALWITHDRAWGROSS
-          - AUTOREBALANCE
-          - MINREQUIREDDIST
-          - EFTDRAW
-          - ANNUITYPAYMENTDEFAULTS
-          - CHARGEDEDUCTION
-          - EFTLOANREPAY
-          - REGINVESTADVISORFEE
-          - RIDERCHARGE
-          - COVEREDPERSONAGEBAND
-          - 60DAYHHCDRECERTLETTER
-          - 45DAYHHCDRECERTLETTER
-          - 60DAYGMWBROLLUPRNWLNOTICE
-          - 45DAYGMWBROLLUPRNWLNOTICE
-          - 60DAYGMDBROLLUPRNWLNOTICE
-          - 45DAYGMDBROLLUPRNWLNOTICE
-          - 72TQDIST
-          - GMIBTERM
-          - IBGROWTHLOCKDATE
-          - LOANREPAY
-          example: PAYOUT
-        startDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Effective date of Special program (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        mode:
-          type: string
-          enum:
-          - DLY
-          - BIWKLY
-          - MNTHLY
-          - SEMIANN
-          - QTRLY
-          - ANNUAL
-          - SNGLPMT
-          - BIMNTHLY
-          description: Frequency of special program
-          example: DLY
-        amountType:
-          type: string
-          enum:
-          - AMT
-          - PCT
-          - MAX
-          - FREEWDAMT
-          - WDUNITBASIS
-          - PRORATA
-          description: amountType of special program
-          example: AMT
-        amount:
-          type: number
-          format: double
-          description: Stores the allocated percent to the specific fund
-          example: 50.5
-        distribCode:
-          type: string
-          enum:
-          - DEF
-          - PRMTRDIST
-          - ERLYDISTEXCEPAPP
-          - DISB
-          - DTHCLM
-          - DTHEXC
-          - PROHIBTRANS
-          - SEC1035EXC
-          - NRMLDISB
-          - EXCSCNTRIBCURRYRTX
-          - PS58COSTS
-          - 10YRTAXOPT
-          - EXCSCONTRIB2YRPRIORTX
-          - EXCSANNADDNLASSEC415
-          - CHARGIFTANN
-          - DIRROLLIRA
-          - DIRROLLQUALPLNTSA
-          - DISTFROMROTHIRA
-          - LOANSASDIST
-          - QUALLOANNDIST
-          - PRMTRLOANDIST
-          - DISTFROMEDIRA
-          - EXCSCONTRIB1YRPRIOR
-          - EXCSCONTRIBPLUSEARN
-          - RECHARIRAPREVYR
-          - ERLYDISTRIBSIMPLE
-          - SEPSERV
-          - TRSTTOTRST
-          - IRATOROTH
-          - QDROROLLIRA
-          - DTHROLLIRA
-          - DTHTRANS
-          - QDROLIKETOLIKE
-          - QDROPMTTOSPSE
-          - FRSTHMBYRIRAONLY
-          - EDCTNEXP
-          - MEDEXP
-          - NONTAXEVNT
-          - GROSSPDATRNY
-          - OTHERINC
-          - NONEMPCOMP
-          - PRMTREX
-          - ROYALTIES
-          - DIRTRANS
-          - ROTHIRANORMDISTRIB
-          - RECHARIRACURRYR
-          - FEEADMIN
-          - FEEASSET
-          - FEECONTRIB
-          - FEELUMPSUMDEATH
-          - FEELUMPSUMDISB
-          - FEELUMPSUMPURCHANN
-          - FEELUMPSUMOTH
-          - FEELNEWRETPERPMNT
-          - FEEEXISTINGRETINFORCE
-          - FEECONT
-          - FEEEXISTINGRETINC
-          - FEETHIRDPARTY
-          - LUMPSUMDEATH
-          - LUMPSUMDISB
-          - LUMPSUMPURCHANN
-          - LUMPSUMOTH
-          - FEEIPGEXP
-          - FROMFUND
-          - RELRESRV
-          - HEALTHDED
-          - FEEMRKTVAL
-          - FEEANNADMIN
-          - SECT1035EXCPART
-          - QDRONORMDISB
-          - QDROSEC1035
-          - DESGROTHACCTDIST
-          - REPDTHBEN6050Y
-          - DISTTRADINDVNOTFMV
-          - DIVDISTEMPSTK404K
-          - COSTCURRLIFEINSURPROTECT
-          - DISTUNDEREMPLOYEEPLANSCOMPLRESSYS
-          - EXCSCONTRIBPLUSEARN2024
-          - FEELONGTERMCAREINSUR
-          - QUALPLANLOANOFFSET
-          - QUALROTHINDVARRDIST
-          - ROTHIRADISTEXCEPAPPLIES
-          description: Distribution Code
-          example: DEF
-        duration:
-          type: string
-          description: Specifies how many times special program will be run
-          example: '5'
-        funds:
-          type: array
-          items:
-            $ref: '#/components/schemas/Fund'
-        bankInformation:
-          $ref: '#/components/schemas/BankInformation'
-        firstPaymentDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        firstPaymentYear:
-          type: string
-          description: First payment year.
-          example: '2025'
-        grossDisbursement:
-          type: string
-          description: Gross disbursment.
-          example: '10000'
-        waiveCharges:
-          type: string
-          description: Waive charges.
-          example: '1000'
-        nextDate:
-          type: string
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        priorRMDAmtType:
-          format: string
-          description: Prior RMD amount type.
-          example: '-999'
-        priorRMDAmt:
-          format: double
-          type: number
-          description: Prior RMD amount.
-          example: 100
-    Address:
-      type: object
-      required:
-      - addressType
-      - addressLine1
-      - city
-      - state
-      - zip
-      - country
-      properties:
-        addressType:
-          type: string
-          required:
-          - addressType
-          description: Address Type of the Company
-          enum:
-          - RES
-          - BUS
-          - SECONDARY
-          - POBOX
-          - SEASONAL
-          - MAILING
-          example: BUS
-        addressLine1:
-          type: string
-          description: Address Line 1
-          example: 100 ABC Street
-        addressLine2:
-          type: string
-          description: Address Line 2
-          example: Suite 200
-        addressLine3:
-          type: string
-          description: Address Line 3
-          example: Topeka, KS 66601
-        city:
-          type: string
-          description: City Name
-          example: Topeka
-        state:
-          type: string
-          enum:
-          - AA
-          - AE
-          - AK
-          - AL
-          - AP
-          - AR
-          - AZ
-          - CA
-          - CO
-          - CT
-          - DC
-          - DE
-          - FL
-          - GA
-          - HI
-          - IA
-          - ID
-          - IL
-          - IN
-          - KS
-          - KY
-          - LA
-          - MA
-          - MD
-          - ME
-          - MI
-          - MN
-          - MO
-          - MS
-          - MT
-          - NC
-          - ND
-          - NE
-          - NH
-          - NJ
-          - NM
-          - NV
-          - NY
-          - OH
-          - OK
-          - OR
-          - PA
-          - RI
-          - SC
-          - SD
-          - TN
-          - TX
-          - UT
-          - VA
-          - VT
-          - WA
-          - WI
-          - WV
-          - WY
-          description: State code
-          example: KS
-        zip:
-          type: string
-          format: 5 digits
-          description: ZIP code
-          example: '66601'
-        zipSuffix:
-          type: string
-          format: 4 digits
-          description: ZIP code suffix
-          example: 0148
-        country:
-          type: string
-          enum:
-          - AD
-          - AE
-          - AF
-          - AG
-          - AI
-          - AL
-          - AM
-          - AN
-          - AO
-          - AQ
-          - AR
-          - AS
-          - AT
-          - AU
-          - AW
-          - AX
-          - AZ
-          - BA
-          - BB
-          - BD
-          - BE
-          - BF
-          - BG
-          - BH
-          - BI
-          - BJ
-          - BL
-          - BM
-          - BN
-          - BO
-          - BQ
-          - BR
-          - BS
-          - BT
-          - BV
-          - BW
-          - BY
-          - BZ
-          - CA
-          - CC
-          - CD
-          - CF
-          - CG
-          - CH
-          - CI
-          - CK
-          - CL
-          - CM
-          - CN
-          - CO
-          - CR
-          - CU
-          - CV
-          - CW
-          - CX
-          - CY
-          - CZ
-          - DE
-          - DJ
-          - DK
-          - DM
-          - DO
-          - DZ
-          - EC
-          - EE
-          - EG
-          - EH
-          - ER
-          - ES
-          - ET
-          - FI
-          - FJ
-          - FK
-          - FM
-          - FO
-          - FR
-          - GA
-          - GB
-          - GD
-          - GE
-          - GF
-          - GG
-          - GH
-          - GI
-          - GL
-          - GM
-          - GN
-          - GP
-          - GQ
-          - GR
-          - GS
-          - GT
-          - GU
-          - GW
-          - GY
-          - HK
-          - HM
-          - HN
-          - HR
-          - HT
-          - HU
-          - ID
-          - IE
-          - IL
-          - IM
-          - IN
-          - IO
-          - IQ
-          - IR
-          - IS
-          - IT
-          - JE
-          - JM
-          - JO
-          - JP
-          - KE
-          - KG
-          - KH
-          - KI
-          - KM
-          - KN
-          - KP
-          - KR
-          - KW
-          - KY
-          - KZ
-          - LA
-          - LB
-          - LC
-          - LI
-          - LK
-          - LR
-          - LS
-          - LT
-          - LU
-          - LV
-          - LY
-          - MA
-          - MC
-          - MD
-          - ME
-          - MF
-          - MG
-          - MH
-          - MK
-          - ML
-          - MM
-          - MN
-          - MO
-          - MP
-          - MQ
-          - MR
-          - MS
-          - MT
-          - MU
-          - MV
-          - MW
-          - MX
-          - MY
-          - MZ
-          - NA
-          - NC
-          - NE
-          - NF
-          - NG
-          - NI
-          - NL
-          - 'NO'
-          - NP
-          - NR
-          - NU
-          - NZ
-          - OM
-          - PA
-          - PE
-          - PF
-          - PG
-          - PH
-          - PK
-          - PL
-          - PM
-          - PN
-          - PR
-          - PS
-          - PT
-          - PW
-          - PY
-          - QA
-          - RE
-          - RO
-          - RS
-          - RU
-          - RW
-          - SA
-          - SB
-          - SC
-          - SD
-          - SE
-          - SG
-          - SH
-          - SI
-          - SJ
-          - SK
-          - SL
-          - SM
-          - SN
-          - SO
-          - SR
-          - SS
-          - ST
-          - SV
-          - SX
-          - SY
-          - SZ
-          - TC
-          - TD
-          - TF
-          - TG
-          - TH
-          - TJ
-          - TK
-          - TL
-          - TM
-          - TN
-          - TO
-          - TR
-          - TT
-          - TV
-          - TW
-          - TZ
-          - UA
-          - UG
-          - UM
-          - US
-          - UY
-          - UZ
-          - VA
-          - VC
-          - VE
-          - VG
-          - VI
-          - VN
-          - VU
-          - WF
-          - WS
-          - XK
-          - YE
-          - YT
-          - ZA
-          - ZM
-          - ZW
-          description: Country codes
-          example: US
-    Email:
-      type: object
-      properties:
-        emailId:
-          type: string
-          format: email
-          description: Email address of associated party
-          example: abc@zinnia.com
-        emailType:
-          type: string
-          enum:
-          - BUSINESS
-          - PERSONAL
-          description: This field captures the type of email address like business or personal email.
-    InitialPurchase:
-      type: object
-      required:
-      - grossAmount
-      - netAmount
-      - payments
-      properties:
-        grossAmount:
-          format: double
-          type: number
-          description: Total Gross Amount
-          example: 238500.5
-        netAmount:
-          format: double
-          type: number
-          description: Total Net Amount
-          example: 100.5
-        payments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Payment'
+          example: Request Submitted Successfully
     DocumentInformation:
       type: object
       required:
@@ -790,146 +181,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DocumentDetail'
-    Fund:
-      type: object
-      required:
-      - fundCode
-      - amountType
-      - amount
-      properties:
-        fundCode:
-          type: string
-          description: Zinnia will provide specific Fund code for individual funds per Product. Duplicate Fund codes will be rejected.
-          example: XXX000
-        amountType:
-          type: string
-          description: Type of the Amount
-          enum:
-          - AMT
-          - PCT
-          - UNITS
-          - PRORATA
-          - EARNINGSONLY
-          - MODEARNINGSONLY
-          - MAX
-          - FREEWDAMT
-          - GUARENTEEDWITHDRAWBENEFIT
-          - LIFEEXPECTANCY
-          - WDUNITBASIS
-          - NONE
-          - AUTO
-          - MAINTAINFACE
-          - ADJUSTFACE
-          - NEWAMT
-          - FACECHANGE
-          - NONFINANCIAL
-          - MAXFREE
-          - COMBO
-          - PCTAV
-          - PRORATAVAR
-          - RESERVEADJ
-          - PARTIALREBALANCE
-          - DOLLARLIQUIDFIRST
-          - DOLLARLIQUIDLAST
-          - CHOICEDOLLAR
-          - CHOICEMAXFREE
-          - EARNLIQUIDFIRST
-          - EARNLIQUIDLAST
-          - PCTLIQUIDFIRST
-          - PCTLIQUIDLAST
-          - BONUSDOLLAR
-          - BONUSPCT
-          - PRORATAFIXTHENVAR
-          - PRORATAALL
-          - SINGLEGWMB
-          - JOINTGWMB
-          - PECKINGORDER
-          - DIVREQUEST
-          - NOCONTVALREDUCT
-          - GMWBANNUALLIMIT
-          - PRIMARY
-          - JOINT
-          - GMWBRECALCANNUALLIMIT
-          - BAILOUTONLY
-          - WINDOWPERIODONLY
-          - GMWBANNUALPECKING
-          - GMWBRECALCPECKING
-          - RIAFEEPCT
-          - RIAFEEDOLLAR
-          - GWMBANNUALLIMITLEVEL
-          - GMWBALLEVELPECKING
-          - SPOUSALDEFAULT
-          - FIXEDMODIFIEDEARN
-          - PRORATANEWMONEY
-          - ACCUMALATEDEARN
-          - CONTRACTYEAREARN
-          - CALENDARYEAREARN
-          - ACCELERATEDJOINTGMWB
-          - ACCELERATEDSINGLEGMWB
-          example: PCT
-        amount:
-          type: number
-          format: double
-          description: Total percentage of all funds should be 100%.
-          example: 50.55
-    ValidationResponse:
-      type: object
-      properties:
-        statusCode:
-          type: integer
-          format: int32
-          example: 400
-        timestamp:
-          type: string
-          format: date-time
-        errorId:
-          type: string
-          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
-        message:
-          type: string
-          example: JSON Valdiation fails with error
-        error:
-          type: array
-          items:
-            type: string
-            example: Mandatory attribute label missing
-    TaxInfo:
-      type: object
-      properties:
-        currentContribAmount:
-          format: double
-          type: number
-          description: Current Contribution Amount
-          example: 0
-        priorContribAmount:
-          format: double
-          type: number
-          description: Prior Contribution Amount
-          example: 0
-        taxYear:
-          type: string
-          description: tax year
-          example: '2025'
-        totalBasis:
-          format: double
-          type: number
-          description: Total Cost basis amount
-          example: 0
-        pretefraBasis:
-          format: double
-          type: number
-          description: Pre Tefra basis amount
-          example: 0
-        posttefraBasis:
-          format: double
-          type: number
-          description: Post Teefra basis amount
-          example: 0
-        post88Amount:
-          format: double
-          type: number
-          description: Post 88 Amount
-          example: 0
     Feature:
       type: object
       required:
@@ -939,644 +190,6 @@ components:
           type: string
           description: Rider Code will be provided by Zinnia for the respective Products
           example: ABC0000000
-    Role:
-      type: object
-      required:
-      - roleType
-      - rolePercentage
-      - nameType
-      - lastName
-      - dob
-      - sex
-      - phones
-      - addresses
-      - eDelivery
-      - citizenshipCountry
-      properties:
-        roleType:
-          type: string
-          enum:
-          - OWN
-          - JNTOWN
-          - PRIMBENE
-          - CONTBENE
-          - MRDDESGBENE
-          - EXCCOMPANY
-          - ANN
-          - JNTANN
-          - PAYOR
-          - PAYEE
-          - ASSIGNEE
-          - PRIMWRITAGT
-          - ADDWRITAGT
-          - NONCOMAGT
-          - PRIMSERAGT
-          description: Role type. Owner, Annuitant, Servicing Agent and Writing Agent are mandatory.
-          example: OWN
-        rolePercentage:
-          type: string
-          required:
-          - rolePercentage
-          description: string($9(01) V9(09) for percentage. Total percentage of a role should be 100%.
-          example: '100'
-        nameType:
-          type: string
-          enum:
-          - IND
-          - ORG
-          - TRUST
-          - OTHER
-          - UGMA
-          - COMPANY
-          description: The name type associated with the role.
-          example: IND
-        firstName:
-          type: string
-          description: First name of the party role
-          example: firstName when name type is Natural/Individual
-        middleName:
-          type: string
-          description: Middle name of the party role
-          example: B
-        lastName:
-          type: string
-          description: Last name of the party role
-          example: Doe
-        prefix:
-          type: string
-          description: Prefix
-          example: Dr
-        suffix:
-          type: string
-          description: Suffix
-          example: Sr
-        dob:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date of birth of party role. Mandatory for Owner and Annuitant (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        sex:
-          type: string
-          enum:
-          - MALE
-          - FEMALE
-          - UNISEX
-          - OTHER
-          description: Any one of the possible value for the gender.Mandatory for Owner and Annuitant.
-          example: MALE
-        citizenshipCountry:
-          type: string
-          enum:
-          - AD
-          - AE
-          - AF
-          - AG
-          - AI
-          - AL
-          - AM
-          - AN
-          - AO
-          - AQ
-          - AR
-          - AS
-          - AT
-          - AU
-          - AW
-          - AX
-          - AZ
-          - BA
-          - BB
-          - BD
-          - BE
-          - BF
-          - BG
-          - BH
-          - BI
-          - BJ
-          - BL
-          - BM
-          - BN
-          - BO
-          - BQ
-          - BR
-          - BS
-          - BT
-          - BV
-          - BW
-          - BY
-          - BZ
-          - CA
-          - CC
-          - CD
-          - CF
-          - CG
-          - CH
-          - CI
-          - CK
-          - CL
-          - CM
-          - CN
-          - CO
-          - CR
-          - CU
-          - CV
-          - CW
-          - CX
-          - CY
-          - CZ
-          - DE
-          - DJ
-          - DK
-          - DM
-          - DO
-          - DZ
-          - EC
-          - EE
-          - EG
-          - EH
-          - ER
-          - ES
-          - ET
-          - FI
-          - FJ
-          - FK
-          - FM
-          - FO
-          - FR
-          - GA
-          - GB
-          - GD
-          - GE
-          - GF
-          - GG
-          - GH
-          - GI
-          - GL
-          - GM
-          - GN
-          - GP
-          - GQ
-          - GR
-          - GS
-          - GT
-          - GU
-          - GW
-          - GY
-          - HK
-          - HM
-          - HN
-          - HR
-          - HT
-          - HU
-          - ID
-          - IE
-          - IL
-          - IM
-          - IN
-          - IO
-          - IQ
-          - IR
-          - IS
-          - IT
-          - JE
-          - JM
-          - JO
-          - JP
-          - KE
-          - KG
-          - KH
-          - KI
-          - KM
-          - KN
-          - KP
-          - KR
-          - KW
-          - KY
-          - KZ
-          - LA
-          - LB
-          - LC
-          - LI
-          - LK
-          - LR
-          - LS
-          - LT
-          - LU
-          - LV
-          - LY
-          - MA
-          - MC
-          - MD
-          - ME
-          - MF
-          - MG
-          - MH
-          - MK
-          - ML
-          - MM
-          - MN
-          - MO
-          - MP
-          - MQ
-          - MR
-          - MS
-          - MT
-          - MU
-          - MV
-          - MW
-          - MX
-          - MY
-          - MZ
-          - NA
-          - NC
-          - NE
-          - NF
-          - NG
-          - NI
-          - NL
-          - 'NO'
-          - NP
-          - NR
-          - NU
-          - NZ
-          - OM
-          - PA
-          - PE
-          - PF
-          - PG
-          - PH
-          - PK
-          - PL
-          - PM
-          - PN
-          - PR
-          - PS
-          - PT
-          - PW
-          - PY
-          - QA
-          - RE
-          - RO
-          - RS
-          - RU
-          - RW
-          - SA
-          - SB
-          - SC
-          - SD
-          - SE
-          - SG
-          - SH
-          - SI
-          - SJ
-          - SK
-          - SL
-          - SM
-          - SN
-          - SO
-          - SR
-          - SS
-          - ST
-          - SV
-          - SX
-          - SY
-          - SZ
-          - TC
-          - TD
-          - TF
-          - TG
-          - TH
-          - TJ
-          - TK
-          - TL
-          - TM
-          - TN
-          - TO
-          - TR
-          - TT
-          - TV
-          - TW
-          - TZ
-          - UA
-          - UG
-          - UM
-          - USA
-          - UY
-          - UZ
-          - VA
-          - VC
-          - VE
-          - VG
-          - VI
-          - VN
-          - VU
-          - WF
-          - WS
-          - XK
-          - YE
-          - YT
-          - ZA
-          - ZM
-          - ZW
-          description: Country codes, Mandatory for Owner and Annuitant.
-        taxId:
-          type: string
-          pattern: \d{9}
-          description: 9 digit Social Security number. Mandatory for Owner , Annuitant and Agent.
-          minLength: 9
-          maxLength: 9
-          example: '123456789'
-        agentCRD:
-          type: string
-          description: CRD number for the party role, used as Agent Identifier.
-          example: '123456'
-        agentNPN:
-          type: string
-          description: NPN number for the agent, used as Agent Identifier.
-          example: '123456'
-        agentDistributorAgentAssignedId:
-          type: string
-          description: Distributor assigned Id for an agent, used as Agent Identifier.
-          example: ABC0000000
-        agentCarrierAgentAssignedId:
-          type: string
-          description: Internal identifier assigned to the agent by carrier, used as Agent Identifier.
-          example: ABC0000000
-        agentExternalId:
-          type: string
-          description: Unique number assigned by the MCS system, used as Agent Identifier.
-          example: ABC0000000
-        phones:
-          type: array
-          description: One phone is mandatory for Owner and Annuitant
-          items:
-            $ref: '#/components/schemas/Phone'
-        relationship:
-          type: string
-          enum:
-          - TRUSTEE
-          - TRUSTEEOFMINOR
-          - BROTHER
-          - CHILD
-          - DAUGHTER
-          - FATHER
-          - FIANCEE
-          - GRANDCHILD
-          - LIFEPARTNER
-          - MOTHER
-          - SISTER
-          - SON
-          - SPOUSE
-          - STEPFATHER
-          - STEPMOTHER
-          - SELF
-          - OTHER
-          - GRANDFATHER
-          - GRANDMOTHER
-          - DOMPARTNER
-          - AUNT
-          - NEPHEW
-          - NIECE
-          - HUSBAND
-          - WIFE
-          - UNCLE
-          - EMPLOYER
-          - GRANDPARENT
-          - LEGALGUARDIAN
-          - TRUSTEEOFINCOMP
-          - PWROFATTRNY
-          - CNTRLNGPRSNOFENT
-          - EXECUTORS
-          - ASSOCIATE
-          - PARTNER
-          - ESTATE
-          - TRUST
-          - GRANDSON
-          - GRANDDAUGHTER
-          - PARENT
-          - NONSPOUSE
-          - CHILDRENEQUALLY
-          - CHILDRENPERSTIRPES
-          - PERSTIRPES
-          - SURVIVNGSPOUSE
-          description: Relationship code
-          example: SELF
-        addresses:
-          type: array
-          description: One address is mandatory for Owner and Annuitant
-          items:
-            $ref: '#/components/schemas/Address'
-        trustType:
-          type: string
-          enum:
-          - INDIVIDUAL
-          - CORPORATE
-          description: Type of trust &  TrustType is required when the role is a trust
-          example: INDIVIDUAL
-        eDelivery:
-          type: string
-          description: eDelivery is required/not for the role
-          enum:
-          - 'YES'
-          - 'NO'
-          example: 'YES'
-        emails:
-          type: array
-          description: Email for associated party, email is required when eDelivery is 'Y'.
-          items:
-            $ref: '#/components/schemas/Email'
-        bankInformation:
-          $ref: '#/components/schemas/BankInformation'
-        dod:
-          type: string
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date of Death (with pattern "yyyy-mm-dd")
-          example: '2023-12-19'
-    Withholding:
-      type: object
-      required:
-      - withholdingAmount
-      - withholdingAmountQualifer
-      - withholdingAuthority
-      properties:
-        withholdingAmount:
-          type: number
-          format: double
-          description: The amount to be withheld if withholding is selected
-          example: 100.5
-        withholdingAmountQualifer:
-          type: string
-          description: Qualifies the withholding amount. Either as dollars or a percentage
-          enum:
-          - DOLLAR
-          - PERCENT
-          example: DOLLAR
-        withholdingAmountType:
-          type: string
-          description: This will be used to indicate the type of withholding information for this instance of the Withholding Amount.  This is in reference to the IRS W-4P and W-4R tax withholding forms
-          enum:
-          - JOBORPEN
-          - EXTRA
-          - OTHRDED
-          - OTHRINC
-          - CLMSNCRED
-          - DEFAULT
-          - NOWITH
-          - USEVALUES
-          example: JOBORPEN
-        withholdingAuthority:
-          type: string
-          description: Defines the withholding authority for which is being withheld
-          enum:
-          - ST
-          - FED
-          - LOCAL
-          - NRA
-          - BACKUP
-          example: FED
-    Payment:
-      type: object
-      required:
-      - id
-      - paymentMethod
-      - moneySource
-      - grossAmount
-      - netAmount
-      - currentAlloc
-      properties:
-        id:
-          type: string
-          description: Unique Id to tag to respective payment records. Duplicate Ids will be rejected.
-          example: payment_1
-        paymentMethod:
-          type: string
-          description: Payment methods
-          enum:
-          - CHK
-          - WIRE
-          - EXCREP
-          - CREDITCARD
-          - ACH
-          - DTCC
-          example: CHK
-        grossAmount:
-          format: double
-          type: number
-          description: Gross Amount for the individual payment
-          example: 238500.5
-        netAmount:
-          format: double
-          type: number
-          description: Net Amount  for the individual payment
-          example: 0
-        taxInfo:
-          $ref: '#/components/schemas/TaxInfo'
-        currentAlloc:
-          type: string
-          description: Funds to be considered for Future Allocations or not
-          enum:
-          - 'YES'
-          - 'NO'
-          example: 'YES'
-        waivePremium:
-          format: int32
-          type: integer
-          description: waivePremium
-          example: 0
-        distributorId:
-          type: string
-          description: This is same as Tracking ID.If there are multiple payments, first payment distributorId will be the TrackingID. This unique system generated number is assigned by the B/D system and sent with each premium to the NSCC,  to send to the Insurance Company.  This number is assigned by the broker dealer, by which the premium can be located. Required for clearing house and detail level transactions. Broker/dealer would expect this back for chargebacks, reversals, etc. Can be returned on the "FAR" and the "COM" by the insurance carrier to identify the transaction processed.
-        exchangeReplace:
-          $ref: '#/components/schemas/ExchangeReplace'
-    DocumentDetail:
-      type: object
-      required:
-      - documentId
-      - binaryData
-      - formId
-      - formName
-      - documentCategory
-      - documentFileType
-      properties:
-        documentId:
-          type: string
-          description: Unique Identifier for the individual document. Duplicate document Ids will be rejected.
-          example: 0ca10708-4b53-464c-b745-355c8f6f0edb
-        binaryData:
-          type: string
-          description: Base 64 encoded binary stream
-          example: SGVsbG8gV29ybGQ=
-        formId:
-          type: string
-          description: Unique ID for a Form
-          example: FR2279
-        formName:
-          type: string
-          description: Unique Name for a form
-          example: Fixed Annuity Order Entry Cover Sheet
-        documentCategory:
-          type: string
-          description: Category of the document as per OnBase system
-          example: NB Supporting Document
-        documentFileType:
-          type: string
-          enum:
-          - pdf
-          description: Type of file
-          example: pdf
-    AccessDeniedResponse:
-      type: object
-      properties:
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-          example: 'User is not authorized for the carrier : CarrierName_1'
-    PolicyValues:
-      type: object
-      required:
-      - fedMaritalStatus
-      - stateMaritalStatus
-      - mktSegment
-      properties:
-        fedMaritalStatus:
-          type: string
-          enum:
-          - DEF
-          - SNGL
-          - MRRD
-          - HOH
-          - QUALWIDOWWITHDEPCHILD
-          - DOMESTICPARTNER
-          - DIVORCED
-          description: Fed marital status
-          example: MRRD
-        stateMaritalStatus:
-          type: string
-          enum:
-          - DEF
-          - SNGL
-          - MRRD
-          - HOH
-          - QUALWIDOWWITHDEPCHILD
-          - DOMESTICPARTNER
-          - DIVORCED
-          description: State marital status
-          example: MRRD
-        withholding:
-          type: array
-          items:
-            $ref: '#/components/schemas/Withholding'
-        contribType:
-          type: string
-          enum:
-          - NA
-          - EMPVOL
-          - EMPDISC
-          description: Contribution type
-          example: EMPVOL
     Phone:
       type: object
       required:
@@ -2118,6 +731,1301 @@ components:
           type: string
           description: This field stores the Extension number
           example: '4560'
+    Address:
+      type: object
+      required:
+      - addressType
+      - addressLine1
+      - city
+      - state
+      - zip
+      - country
+      properties:
+        addressType:
+          type: string
+          required:
+          - addressType
+          description: Address Type of the Company
+          enum:
+          - RES
+          - BUS
+          - SECONDARY
+          - POBOX
+          - SEASONAL
+          - MAILING
+          example: BUS
+        addressLine1:
+          type: string
+          description: Address Line 1
+          example: 100 ABC Street
+        addressLine2:
+          type: string
+          description: Address Line 2
+          example: Suite 200
+        addressLine3:
+          type: string
+          description: Address Line 3
+          example: Topeka, KS 66601
+        city:
+          type: string
+          description: City Name
+          example: Topeka
+        state:
+          type: string
+          enum:
+          - AA
+          - AE
+          - AK
+          - AL
+          - AP
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+          description: State code
+          example: KS
+        zip:
+          type: string
+          format: 5 digits
+          description: ZIP code
+          example: '66601'
+        zipSuffix:
+          type: string
+          format: 4 digits
+          description: ZIP code suffix
+          example: 0148
+        country:
+          type: string
+          enum:
+          - AD
+          - AE
+          - AF
+          - AG
+          - AI
+          - AL
+          - AM
+          - AN
+          - AO
+          - AQ
+          - AR
+          - AS
+          - AT
+          - AU
+          - AW
+          - AX
+          - AZ
+          - BA
+          - BB
+          - BD
+          - BE
+          - BF
+          - BG
+          - BH
+          - BI
+          - BJ
+          - BL
+          - BM
+          - BN
+          - BO
+          - BQ
+          - BR
+          - BS
+          - BT
+          - BV
+          - BW
+          - BY
+          - BZ
+          - CA
+          - CC
+          - CD
+          - CF
+          - CG
+          - CH
+          - CI
+          - CK
+          - CL
+          - CM
+          - CN
+          - CO
+          - CR
+          - CU
+          - CV
+          - CW
+          - CX
+          - CY
+          - CZ
+          - DE
+          - DJ
+          - DK
+          - DM
+          - DO
+          - DZ
+          - EC
+          - EE
+          - EG
+          - EH
+          - ER
+          - ES
+          - ET
+          - FI
+          - FJ
+          - FK
+          - FM
+          - FO
+          - FR
+          - GA
+          - GB
+          - GD
+          - GE
+          - GF
+          - GG
+          - GH
+          - GI
+          - GL
+          - GM
+          - GN
+          - GP
+          - GQ
+          - GR
+          - GS
+          - GT
+          - GU
+          - GW
+          - GY
+          - HK
+          - HM
+          - HN
+          - HR
+          - HT
+          - HU
+          - ID
+          - IE
+          - IL
+          - IM
+          - IN
+          - IO
+          - IQ
+          - IR
+          - IS
+          - IT
+          - JE
+          - JM
+          - JO
+          - JP
+          - KE
+          - KG
+          - KH
+          - KI
+          - KM
+          - KN
+          - KP
+          - KR
+          - KW
+          - KY
+          - KZ
+          - LA
+          - LB
+          - LC
+          - LI
+          - LK
+          - LR
+          - LS
+          - LT
+          - LU
+          - LV
+          - LY
+          - MA
+          - MC
+          - MD
+          - ME
+          - MF
+          - MG
+          - MH
+          - MK
+          - ML
+          - MM
+          - MN
+          - MO
+          - MP
+          - MQ
+          - MR
+          - MS
+          - MT
+          - MU
+          - MV
+          - MW
+          - MX
+          - MY
+          - MZ
+          - NA
+          - NC
+          - NE
+          - NF
+          - NG
+          - NI
+          - NL
+          - 'NO'
+          - NP
+          - NR
+          - NU
+          - NZ
+          - OM
+          - PA
+          - PE
+          - PF
+          - PG
+          - PH
+          - PK
+          - PL
+          - PM
+          - PN
+          - PR
+          - PS
+          - PT
+          - PW
+          - PY
+          - QA
+          - RE
+          - RO
+          - RS
+          - RU
+          - RW
+          - SA
+          - SB
+          - SC
+          - SD
+          - SE
+          - SG
+          - SH
+          - SI
+          - SJ
+          - SK
+          - SL
+          - SM
+          - SN
+          - SO
+          - SR
+          - SS
+          - ST
+          - SV
+          - SX
+          - SY
+          - SZ
+          - TC
+          - TD
+          - TF
+          - TG
+          - TH
+          - TJ
+          - TK
+          - TL
+          - TM
+          - TN
+          - TO
+          - TR
+          - TT
+          - TV
+          - TW
+          - TZ
+          - UA
+          - UG
+          - UM
+          - US
+          - UY
+          - UZ
+          - VA
+          - VC
+          - VE
+          - VG
+          - VI
+          - VN
+          - VU
+          - WF
+          - WS
+          - XK
+          - YE
+          - YT
+          - ZA
+          - ZM
+          - ZW
+          description: Country codes
+          example: US
+    ServerErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 500
+        timestamp:
+          type: integer
+          format: int64
+          example: 1681395423438
+        errorId:
+          type: string
+          example: 0286d47a-7ad9-499c-8ca0-8f6634d236a3
+        message:
+          type: string
+          example: Failed to process request
+    Payouts:
+      type: object
+      required:
+      - payoutOption
+      properties:
+        payoutOption:
+          type: string
+          enum:
+          - LIFEONLY
+          - JLONLY
+          - PC
+          - AC
+          - LWPC
+          - LWCR
+          example: LIFEONLY
+        livesType:
+          type: string
+          description: Lives Type
+          example: Single
+        primarySurvivorAdjType:
+          type: string
+          description: Primary Survivor Adjustment Type
+        primarySurvivorAdjPct:
+          type: string
+          description: Primary Survivor Adjustment Percent
+          example: '100'
+        jointSurvivorAdjType:
+          type: string
+          description: Joint Survivor Adjustment Type
+        jointSurvivorAdjPct:
+          type: string
+          description: Joint Survivor Adjustment Percent
+          example: '100'
+        annuityFrequencyCode:
+          type: string
+          enum:
+          - DLY
+          - BIWKLY
+          - MNTHLY
+          - SEMIANN
+          - QTRLY
+          - ANNUAL
+          - SNGLPMT
+          - BIMNTHLY
+          example: DLY
+        certainPeriodQualifier:
+          type: string
+          description: Certain Period Qualifier
+          example: A
+        certainPeriod:
+          type: string
+          description: Certain Period
+          example: '1'
+        payoutStartDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        FixedPaymentAmount:
+          type: string
+          format: integer
+          example: '1000'
+    Withholding:
+      type: object
+      required:
+      - withholdingAmount
+      - withholdingAmountQualifer
+      - withholdingAuthority
+      properties:
+        withholdingAmount:
+          type: number
+          format: double
+          description: The amount to be withheld if withholding is selected
+          example: 100.5
+        withholdingAmountQualifer:
+          type: string
+          description: Qualifies the withholding amount. Either as dollars or a percentage
+          enum:
+          - DOLLAR
+          - PERCENT
+          example: DOLLAR
+        withholdingAmountType:
+          type: string
+          description: This will be used to indicate the type of withholding information for this instance of the Withholding Amount.  This is in reference to the IRS W-4P and W-4R tax withholding forms
+          enum:
+          - JOBORPEN
+          - EXTRA
+          - OTHRDED
+          - OTHRINC
+          - CLMSNCRED
+          - DEFAULT
+          - NOWITH
+          - USEVALUES
+          example: JOBORPEN
+        withholdingAuthority:
+          type: string
+          description: Defines the withholding authority for which is being withheld
+          enum:
+          - ST
+          - FED
+          - LOCAL
+          - NRA
+          - BACKUP
+          example: FED
+    Role:
+      type: object
+      required:
+      - roleType
+      - rolePercentage
+      - nameType
+      - lastName
+      - dob
+      - sex
+      - phones
+      - addresses
+      - eDelivery
+      - citizenshipCountry
+      properties:
+        roleType:
+          type: string
+          enum:
+          - OWN
+          - JNTOWN
+          - PRIMBENE
+          - CONTBENE
+          - MRDDESGBENE
+          - EXCCOMPANY
+          - ANN
+          - JNTANN
+          - PAYOR
+          - PAYEE
+          - ASSIGNEE
+          - PRIMWRITAGT
+          - ADDWRITAGT
+          - NONCOMAGT
+          - PRIMSERAGT
+          description: Role type. Owner, Annuitant, Servicing Agent and Writing Agent are mandatory.
+          example: OWN
+        rolePercentage:
+          type: string
+          required:
+          - rolePercentage
+          description: string($9(01) V9(09) for percentage. Total percentage of a role should be 100%.
+          example: '100'
+        nameType:
+          type: string
+          enum:
+          - IND
+          - ORG
+          - TRUST
+          - OTHER
+          - UGMA
+          - COMPANY
+          description: The name type associated with the role.
+          example: IND
+        firstName:
+          type: string
+          description: First name of the party role
+          example: firstName when name type is Natural/Individual
+        middleName:
+          type: string
+          description: Middle name of the party role
+          example: B
+        lastName:
+          type: string
+          description: Last name of the party role
+          example: Doe
+        prefix:
+          type: string
+          description: Prefix
+          example: Dr
+        suffix:
+          type: string
+          description: Suffix
+          example: Sr
+        dob:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date of birth of party role. Mandatory for Owner and Annuitant (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        sex:
+          type: string
+          enum:
+          - MALE
+          - FEMALE
+          - UNISEX
+          - OTHER
+          description: Any one of the possible value for the gender.Mandatory for Owner and Annuitant.
+          example: MALE
+        citizenshipCountry:
+          type: string
+          enum:
+          - AD
+          - AE
+          - AF
+          - AG
+          - AI
+          - AL
+          - AM
+          - AN
+          - AO
+          - AQ
+          - AR
+          - AS
+          - AT
+          - AU
+          - AW
+          - AX
+          - AZ
+          - BA
+          - BB
+          - BD
+          - BE
+          - BF
+          - BG
+          - BH
+          - BI
+          - BJ
+          - BL
+          - BM
+          - BN
+          - BO
+          - BQ
+          - BR
+          - BS
+          - BT
+          - BV
+          - BW
+          - BY
+          - BZ
+          - CA
+          - CC
+          - CD
+          - CF
+          - CG
+          - CH
+          - CI
+          - CK
+          - CL
+          - CM
+          - CN
+          - CO
+          - CR
+          - CU
+          - CV
+          - CW
+          - CX
+          - CY
+          - CZ
+          - DE
+          - DJ
+          - DK
+          - DM
+          - DO
+          - DZ
+          - EC
+          - EE
+          - EG
+          - EH
+          - ER
+          - ES
+          - ET
+          - FI
+          - FJ
+          - FK
+          - FM
+          - FO
+          - FR
+          - GA
+          - GB
+          - GD
+          - GE
+          - GF
+          - GG
+          - GH
+          - GI
+          - GL
+          - GM
+          - GN
+          - GP
+          - GQ
+          - GR
+          - GS
+          - GT
+          - GU
+          - GW
+          - GY
+          - HK
+          - HM
+          - HN
+          - HR
+          - HT
+          - HU
+          - ID
+          - IE
+          - IL
+          - IM
+          - IN
+          - IO
+          - IQ
+          - IR
+          - IS
+          - IT
+          - JE
+          - JM
+          - JO
+          - JP
+          - KE
+          - KG
+          - KH
+          - KI
+          - KM
+          - KN
+          - KP
+          - KR
+          - KW
+          - KY
+          - KZ
+          - LA
+          - LB
+          - LC
+          - LI
+          - LK
+          - LR
+          - LS
+          - LT
+          - LU
+          - LV
+          - LY
+          - MA
+          - MC
+          - MD
+          - ME
+          - MF
+          - MG
+          - MH
+          - MK
+          - ML
+          - MM
+          - MN
+          - MO
+          - MP
+          - MQ
+          - MR
+          - MS
+          - MT
+          - MU
+          - MV
+          - MW
+          - MX
+          - MY
+          - MZ
+          - NA
+          - NC
+          - NE
+          - NF
+          - NG
+          - NI
+          - NL
+          - 'NO'
+          - NP
+          - NR
+          - NU
+          - NZ
+          - OM
+          - PA
+          - PE
+          - PF
+          - PG
+          - PH
+          - PK
+          - PL
+          - PM
+          - PN
+          - PR
+          - PS
+          - PT
+          - PW
+          - PY
+          - QA
+          - RE
+          - RO
+          - RS
+          - RU
+          - RW
+          - SA
+          - SB
+          - SC
+          - SD
+          - SE
+          - SG
+          - SH
+          - SI
+          - SJ
+          - SK
+          - SL
+          - SM
+          - SN
+          - SO
+          - SR
+          - SS
+          - ST
+          - SV
+          - SX
+          - SY
+          - SZ
+          - TC
+          - TD
+          - TF
+          - TG
+          - TH
+          - TJ
+          - TK
+          - TL
+          - TM
+          - TN
+          - TO
+          - TR
+          - TT
+          - TV
+          - TW
+          - TZ
+          - UA
+          - UG
+          - UM
+          - USA
+          - UY
+          - UZ
+          - VA
+          - VC
+          - VE
+          - VG
+          - VI
+          - VN
+          - VU
+          - WF
+          - WS
+          - XK
+          - YE
+          - YT
+          - ZA
+          - ZM
+          - ZW
+          description: Country codes, Mandatory for Owner and Annuitant.
+        taxId:
+          type: string
+          pattern: \d{9}
+          description: 9 digit Social Security number. Mandatory for Owner , Annuitant and Agent.
+          minLength: 9
+          maxLength: 9
+          example: '123456789'
+        agentCRD:
+          type: string
+          description: CRD number for the party role, used as Agent Identifier.
+          example: '123456'
+        agentNPN:
+          type: string
+          description: NPN number for the agent, used as Agent Identifier.
+          example: '123456'
+        agentDistributorAgentAssignedId:
+          type: string
+          description: Distributor assigned Id for an agent, used as Agent Identifier.
+          example: ABC0000000
+        agentCarrierAgentAssignedId:
+          type: string
+          description: Internal identifier assigned to the agent by carrier, used as Agent Identifier.
+          example: ABC0000000
+        agentExternalId:
+          type: string
+          description: Unique number assigned by the MCS system, used as Agent Identifier.
+          example: ABC0000000
+        phones:
+          type: array
+          description: One phone is mandatory for Owner and Annuitant
+          items:
+            $ref: '#/components/schemas/Phone'
+        relationship:
+          type: string
+          enum:
+          - TRUSTEE
+          - TRUSTEEOFMINOR
+          - BROTHER
+          - CHILD
+          - DAUGHTER
+          - FATHER
+          - FIANCEE
+          - GRANDCHILD
+          - LIFEPARTNER
+          - MOTHER
+          - SISTER
+          - SON
+          - SPOUSE
+          - STEPFATHER
+          - STEPMOTHER
+          - SELF
+          - OTHER
+          - GRANDFATHER
+          - GRANDMOTHER
+          - DOMPARTNER
+          - AUNT
+          - NEPHEW
+          - NIECE
+          - HUSBAND
+          - WIFE
+          - UNCLE
+          - EMPLOYER
+          - GRANDPARENT
+          - LEGALGUARDIAN
+          - TRUSTEEOFINCOMP
+          - PWROFATTRNY
+          - CNTRLNGPRSNOFENT
+          - EXECUTORS
+          - ASSOCIATE
+          - PARTNER
+          - ESTATE
+          - TRUST
+          - GRANDSON
+          - GRANDDAUGHTER
+          - PARENT
+          - NONSPOUSE
+          - CHILDRENEQUALLY
+          - CHILDRENPERSTIRPES
+          - PERSTIRPES
+          - SURVIVNGSPOUSE
+          description: Relationship code
+          example: SELF
+        addresses:
+          type: array
+          description: One address is mandatory for Owner and Annuitant
+          items:
+            $ref: '#/components/schemas/Address'
+        trustType:
+          type: string
+          enum:
+          - INDIVIDUAL
+          - CORPORATE
+          description: Type of trust &  TrustType is required when the role is a trust
+          example: INDIVIDUAL
+        eDelivery:
+          type: string
+          description: eDelivery is required/not for the role
+          enum:
+          - 'YES'
+          - 'NO'
+          example: 'YES'
+        emails:
+          type: array
+          description: Email for associated party, email is required when eDelivery is 'Y'.
+          items:
+            $ref: '#/components/schemas/Email'
+        bankInformation:
+          $ref: '#/components/schemas/BankInformation'
+        dod:
+          type: string
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date of Death (with pattern "yyyy-mm-dd")
+          example: '2023-12-19'
+    ValidationResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 400
+        timestamp:
+          type: string
+          format: date-time
+        errorId:
+          type: string
+          example: a4a57ed0-2c1b-4922-9959-3b85dd8a96d3
+        message:
+          type: string
+          example: JSON Valdiation fails with error
+        error:
+          type: array
+          items:
+            type: string
+            example: Mandatory attribute label missing
+    SpecialProgram:
+      type: object
+      required:
+      - specialProgramType
+      - startDate
+      - mode
+      - amountType
+      - amount
+      - duration
+      - funds
+      - firstPaymentDate
+      properties:
+        specialProgramType:
+          type: string
+          description: specialProgramType selected
+          enum:
+          - PAYOUT
+          - RMD
+          - SYSWITHDRAWAL
+          - PREMIUMDEFAULT
+          - DOLLARCOSTAVERAGE
+          - SYSPARTIALWITHDRAWGROSS
+          - AUTOREBALANCE
+          - MINREQUIREDDIST
+          - EFTDRAW
+          - ANNUITYPAYMENTDEFAULTS
+          - CHARGEDEDUCTION
+          - EFTLOANREPAY
+          - REGINVESTADVISORFEE
+          - RIDERCHARGE
+          - COVEREDPERSONAGEBAND
+          - 60DAYHHCDRECERTLETTER
+          - 45DAYHHCDRECERTLETTER
+          - 60DAYGMWBROLLUPRNWLNOTICE
+          - 45DAYGMWBROLLUPRNWLNOTICE
+          - 60DAYGMDBROLLUPRNWLNOTICE
+          - 45DAYGMDBROLLUPRNWLNOTICE
+          - 72TQDIST
+          - GMIBTERM
+          - IBGROWTHLOCKDATE
+          - LOANREPAY
+          example: PAYOUT
+        startDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Effective date of Special program (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        mode:
+          type: string
+          enum:
+          - DLY
+          - BIWKLY
+          - MNTHLY
+          - SEMIANN
+          - QTRLY
+          - ANNUAL
+          - SNGLPMT
+          - BIMNTHLY
+          description: Frequency of special program
+          example: DLY
+        amountType:
+          type: string
+          enum:
+          - AMT
+          - PCT
+          - MAX
+          - FREEWDAMT
+          - WDUNITBASIS
+          - PRORATA
+          description: amountType of special program
+          example: AMT
+        amount:
+          type: number
+          format: double
+          description: Stores the allocated percent to the specific fund
+          example: 50.5
+        distribCode:
+          type: string
+          enum:
+          - DEF
+          - PRMTRDIST
+          - ERLYDISTEXCEPAPP
+          - DISB
+          - DTHCLM
+          - DTHEXC
+          - PROHIBTRANS
+          - SEC1035EXC
+          - NRMLDISB
+          - EXCSCNTRIBCURRYRTX
+          - PS58COSTS
+          - 10YRTAXOPT
+          - EXCSCONTRIB2YRPRIORTX
+          - EXCSANNADDNLASSEC415
+          - CHARGIFTANN
+          - DIRROLLIRA
+          - DIRROLLQUALPLNTSA
+          - DISTFROMROTHIRA
+          - LOANSASDIST
+          - QUALLOANNDIST
+          - PRMTRLOANDIST
+          - DISTFROMEDIRA
+          - EXCSCONTRIB1YRPRIOR
+          - EXCSCONTRIBPLUSEARN
+          - RECHARIRAPREVYR
+          - ERLYDISTRIBSIMPLE
+          - SEPSERV
+          - TRSTTOTRST
+          - IRATOROTH
+          - QDROROLLIRA
+          - DTHROLLIRA
+          - DTHTRANS
+          - QDROLIKETOLIKE
+          - QDROPMTTOSPSE
+          - FRSTHMBYRIRAONLY
+          - EDCTNEXP
+          - MEDEXP
+          - NONTAXEVNT
+          - GROSSPDATRNY
+          - OTHERINC
+          - NONEMPCOMP
+          - PRMTREX
+          - ROYALTIES
+          - DIRTRANS
+          - ROTHIRANORMDISTRIB
+          - RECHARIRACURRYR
+          - FEEADMIN
+          - FEEASSET
+          - FEECONTRIB
+          - FEELUMPSUMDEATH
+          - FEELUMPSUMDISB
+          - FEELUMPSUMPURCHANN
+          - FEELUMPSUMOTH
+          - FEELNEWRETPERPMNT
+          - FEEEXISTINGRETINFORCE
+          - FEECONT
+          - FEEEXISTINGRETINC
+          - FEETHIRDPARTY
+          - LUMPSUMDEATH
+          - LUMPSUMDISB
+          - LUMPSUMPURCHANN
+          - LUMPSUMOTH
+          - FEEIPGEXP
+          - FROMFUND
+          - RELRESRV
+          - HEALTHDED
+          - FEEMRKTVAL
+          - FEEANNADMIN
+          - SECT1035EXCPART
+          - QDRONORMDISB
+          - QDROSEC1035
+          - DESGROTHACCTDIST
+          - REPDTHBEN6050Y
+          - DISTTRADINDVNOTFMV
+          - DIVDISTEMPSTK404K
+          - COSTCURRLIFEINSURPROTECT
+          - DISTUNDEREMPLOYEEPLANSCOMPLRESSYS
+          - EXCSCONTRIBPLUSEARN2024
+          - FEELONGTERMCAREINSUR
+          - QUALPLANLOANOFFSET
+          - QUALROTHINDVARRDIST
+          - ROTHIRADISTEXCEPAPPLIES
+          description: Distribution Code
+          example: DEF
+        duration:
+          type: string
+          description: Specifies how many times special program will be run
+          example: '5'
+        funds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fund'
+        bankInformation:
+          $ref: '#/components/schemas/BankInformation'
+        firstPaymentDate:
+          type: string
+          format: date
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        firstPaymentYear:
+          type: string
+          description: First payment year.
+          example: '2025'
+        grossDisbursement:
+          type: string
+          description: Gross disbursment.
+          example: '10000'
+        waiveCharges:
+          type: string
+          description: Waive charges.
+          example: '1000'
+        nextDate:
+          type: string
+          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
+          description: Date (with pattern "yyyy-mm-dd").
+          example: '2023-12-19'
+        priorRMDAmtType:
+          format: string
+          description: Prior RMD amount type.
+          example: '-999'
+        priorRMDAmt:
+          format: double
+          type: number
+          description: Prior RMD amount.
+          example: 100
+    Fund:
+      type: object
+      required:
+      - fundCode
+      - amountType
+      - amount
+      properties:
+        fundCode:
+          type: string
+          description: Zinnia will provide specific Fund code for individual funds per Product. Duplicate Fund codes will be rejected.
+          example: XXX000
+        amountType:
+          type: string
+          description: Type of the Amount
+          enum:
+          - AMT
+          - PCT
+          - UNITS
+          - PRORATA
+          - EARNINGSONLY
+          - MODEARNINGSONLY
+          - MAX
+          - FREEWDAMT
+          - GUARENTEEDWITHDRAWBENEFIT
+          - LIFEEXPECTANCY
+          - WDUNITBASIS
+          - NONE
+          - AUTO
+          - MAINTAINFACE
+          - ADJUSTFACE
+          - NEWAMT
+          - FACECHANGE
+          - NONFINANCIAL
+          - MAXFREE
+          - COMBO
+          - PCTAV
+          - PRORATAVAR
+          - RESERVEADJ
+          - PARTIALREBALANCE
+          - DOLLARLIQUIDFIRST
+          - DOLLARLIQUIDLAST
+          - CHOICEDOLLAR
+          - CHOICEMAXFREE
+          - EARNLIQUIDFIRST
+          - EARNLIQUIDLAST
+          - PCTLIQUIDFIRST
+          - PCTLIQUIDLAST
+          - BONUSDOLLAR
+          - BONUSPCT
+          - PRORATAFIXTHENVAR
+          - PRORATAALL
+          - SINGLEGWMB
+          - JOINTGWMB
+          - PECKINGORDER
+          - DIVREQUEST
+          - NOCONTVALREDUCT
+          - GMWBANNUALLIMIT
+          - PRIMARY
+          - JOINT
+          - GMWBRECALCANNUALLIMIT
+          - BAILOUTONLY
+          - WINDOWPERIODONLY
+          - GMWBANNUALPECKING
+          - GMWBRECALCPECKING
+          - RIAFEEPCT
+          - RIAFEEDOLLAR
+          - GWMBANNUALLIMITLEVEL
+          - GMWBALLEVELPECKING
+          - SPOUSALDEFAULT
+          - FIXEDMODIFIEDEARN
+          - PRORATANEWMONEY
+          - ACCUMALATEDEARN
+          - CONTRACTYEAREARN
+          - CALENDARYEAREARN
+          - ACCELERATEDJOINTGMWB
+          - ACCELERATEDSINGLEGMWB
+          example: PCT
+        amount:
+          type: number
+          format: double
+          description: Total percentage of all funds should be 100%.
+          example: 50.55
+    AccessDeniedResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: 'User is not authorized for the carrier : CarrierName_1'
+    TaxInfo:
+      type: object
+      properties:
+        currentContribAmount:
+          format: double
+          type: number
+          description: Current Contribution Amount
+          example: 0
+        priorContribAmount:
+          format: double
+          type: number
+          description: Prior Contribution Amount
+          example: 0
+        taxYear:
+          type: string
+          description: tax year
+          example: '2025'
+        totalBasis:
+          format: double
+          type: number
+          description: Total Cost basis amount
+          example: 0
+        pretefraBasis:
+          format: double
+          type: number
+          description: Pre Tefra basis amount
+          example: 0
+        posttefraBasis:
+          format: double
+          type: number
+          description: Post Teefra basis amount
+          example: 0
+        post88Amount:
+          format: double
+          type: number
+          description: Post 88 Amount
+          example: 0
     ExchangeReplace:
       type: object
       description: For any payment that is a replacement/exchange
@@ -2229,119 +2137,138 @@ components:
           - 'YES'
           - 'NO'
           example: 'YES'
-    BankInformation:
+    Payment:
       type: object
       required:
-      - bankName
-      - abaNumber
-      - accountNumber
-      - bankingType
+      - id
+      - paymentMethod
+      - moneySource
+      - grossAmount
+      - netAmount
+      - currentAlloc
       properties:
-        bankName:
+        id:
           type: string
-          description: Bank name
-          example: ABC Bank
-        abaNumber:
+          description: Unique Id to tag to respective payment records. Duplicate Ids will be rejected.
+          example: payment_1
+        paymentMethod:
           type: string
-          pattern: \d{9}
-          description: ABA number
-          minLength: 9
-          maxLength: 9
-          example: '123456789'
-        ibaNumber:
-          type: string
-          description: International Bank Account Number
-          example: US12KBDE89571012345678
-        accountNumber:
-          type: string
-          description: Account Number
-          example: '1000000000'
-        bankingType:
-          type: string
+          description: Payment methods
           enum:
-          - CHECKING
-          - SAVINGS
+          - CHK
+          - WIRE
+          - EXCREP
           - CREDITCARD
-          - DEBITCARD
-          - BRKACCT
-          - COD
-          example: CHECKING
-    Payouts:
+          - ACH
+          - DTCC
+          example: CHK
+        grossAmount:
+          format: double
+          type: number
+          description: Gross Amount for the individual payment
+          example: 238500.5
+        netAmount:
+          format: double
+          type: number
+          description: Net Amount  for the individual payment
+          example: 0
+        taxInfo:
+          $ref: '#/components/schemas/TaxInfo'
+        currentAlloc:
+          type: string
+          description: Funds to be considered for Future Allocations or not
+          enum:
+          - 'YES'
+          - 'NO'
+          example: 'YES'
+        waivePremium:
+          format: int32
+          type: integer
+          description: waivePremium
+          example: 0
+        distributorId:
+          type: string
+          description: This is same as Tracking ID.If there are multiple payments, first payment distributorId will be the TrackingID. This unique system generated number is assigned by the B/D system and sent with each premium to the NSCC,  to send to the Insurance Company.  This number is assigned by the broker dealer, by which the premium can be located. Required for clearing house and detail level transactions. Broker/dealer would expect this back for chargebacks, reversals, etc. Can be returned on the "FAR" and the "COM" by the insurance carrier to identify the transaction processed.
+        exchangeReplace:
+          $ref: '#/components/schemas/ExchangeReplace'
+    Email:
+      type: object
+      properties:
+        emailId:
+          type: string
+          format: email
+          description: Email address of associated party
+          example: abc@zinnia.com
+        emailType:
+          type: string
+          enum:
+          - BUSINESS
+          - PERSONAL
+          description: This field captures the type of email address like business or personal email.
+    InitialPurchase:
       type: object
       required:
-      - payoutOption
+      - grossAmount
+      - netAmount
+      - payments
       properties:
-        payoutOption:
-          type: string
-          enum:
-          - LIFEONLY
-          - JLONLY
-          - PC
-          - AC
-          - LWPC
-          - LWCR
-          example: LIFEONLY
-        livesType:
-          type: string
-          description: Lives Type
-          example: Single
-        primarySurvivorAdjType:
-          type: string
-          description: Primary Survivor Adjustment Type
-        primarySurvivorAdjPct:
-          type: string
-          description: Primary Survivor Adjustment Percent
-          example: '100'
-        jointSurvivorAdjType:
-          type: string
-          description: Joint Survivor Adjustment Type
-        jointSurvivorAdjPct:
-          type: string
-          description: Joint Survivor Adjustment Percent
-          example: '100'
-        annuityFrequencyCode:
-          type: string
-          enum:
-          - DLY
-          - BIWKLY
-          - MNTHLY
-          - SEMIANN
-          - QTRLY
-          - ANNUAL
-          - SNGLPMT
-          - BIMNTHLY
-          example: DLY
-        certainPeriodQualifier:
-          type: string
-          description: Certain Period Qualifier
-          example: A
-        certainPeriod:
-          type: string
-          description: Certain Period
-          example: '1'
-        payoutStartDate:
-          type: string
-          format: date
-          pattern: ([0-9]{4})-([0-9]{2})-([0-9]{2})
-          description: Date (with pattern "yyyy-mm-dd").
-          example: '2023-12-19'
-        FixedPaymentAmount:
-          type: string
-          format: integer
-          example: '1000'
-    SuccessResponse:
+        grossAmount:
+          format: double
+          type: number
+          description: Total Gross Amount
+          example: 238500.5
+        netAmount:
+          format: double
+          type: number
+          description: Total Net Amount
+          example: 100.5
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+    PolicyValues:
       type: object
+      required:
+      - fedMaritalStatus
+      - stateMaritalStatus
+      - mktSegment
       properties:
-        statusCode:
-          type: integer
-          format: int32
-          example: 201
-        timestamp:
+        fedMaritalStatus:
           type: string
-          format: date-time
-        message:
+          enum:
+          - DEF
+          - SNGL
+          - MRRD
+          - HOH
+          - QUALWIDOWWITHDEPCHILD
+          - DOMESTICPARTNER
+          - DIVORCED
+          description: Fed marital status
+          example: MRRD
+        stateMaritalStatus:
           type: string
-          example: Request Submitted Successfully
+          enum:
+          - DEF
+          - SNGL
+          - MRRD
+          - HOH
+          - QUALWIDOWWITHDEPCHILD
+          - DOMESTICPARTNER
+          - DIVORCED
+          description: State marital status
+          example: MRRD
+        withholding:
+          type: array
+          items:
+            $ref: '#/components/schemas/Withholding'
+        contribType:
+          type: string
+          enum:
+          - NA
+          - EMPVOL
+          - EMPDISC
+          description: Contribution type
+          example: EMPVOL
     Application:
       type: object
       required:
@@ -2847,6 +2774,79 @@ components:
           items:
             type: string
             example: Error 1
+    BankInformation:
+      type: object
+      required:
+      - bankName
+      - abaNumber
+      - accountNumber
+      - bankingType
+      properties:
+        bankName:
+          type: string
+          description: Bank name
+          example: ABC Bank
+        abaNumber:
+          type: string
+          pattern: \d{9}
+          description: ABA number
+          minLength: 9
+          maxLength: 9
+          example: '123456789'
+        ibaNumber:
+          type: string
+          description: International Bank Account Number
+          example: US12KBDE89571012345678
+        accountNumber:
+          type: string
+          description: Account Number
+          example: '1000000000'
+        bankingType:
+          type: string
+          enum:
+          - CHECKING
+          - SAVINGS
+          - CREDITCARD
+          - DEBITCARD
+          - BRKACCT
+          - COD
+          example: CHECKING
+    DocumentDetail:
+      type: object
+      required:
+      - documentId
+      - binaryData
+      - formId
+      - formName
+      - documentCategory
+      - documentFileType
+      properties:
+        documentId:
+          type: string
+          description: Unique Identifier for the individual document. Duplicate document Ids will be rejected.
+          example: 0ca10708-4b53-464c-b745-355c8f6f0edb
+        binaryData:
+          type: string
+          description: Base 64 encoded binary stream
+          example: SGVsbG8gV29ybGQ=
+        formId:
+          type: string
+          description: Unique ID for a Form
+          example: FR2279
+        formName:
+          type: string
+          description: Unique Name for a form
+          example: Fixed Annuity Order Entry Cover Sheet
+        documentCategory:
+          type: string
+          description: Category of the document as per OnBase system
+          example: NB Supporting Document
+        documentFileType:
+          type: string
+          enum:
+          - pdf
+          description: Type of file
+          example: pdf
   securitySchemes:
     Auth0:
       type: openIdConnect

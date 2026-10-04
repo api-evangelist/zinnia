@@ -167,80 +167,7 @@ paths:
       security:
       - Auth0: []
 components:
-  responses:
-    EligibilityUnauthorized:
-      description: Missing or invalid bearer token
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/EligibilityErrorResponse'
-          example:
-            status: 401
-            error: Unauthorized
-            message: partyId claim could not be extracted from token
-    EligibilityBadRequest:
-      description: Invalid request — missing required fields or malformed input
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/EligibilityErrorResponse'
-          example:
-            status: 400
-            error: Bad Request
-            message: policyNumber is required
-    EligibilityInternalServerError:
-      description: 'Unexpected server error. Dependency failures (CIAM, Zahara) surface as COULD_NOT_DETERMINE on the affected section rather than a 500.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/EligibilityErrorResponse'
-          example:
-            status: 500
-            error: Internal Server Error
   schemas:
-    EligibilityErrorResponse:
-      type: object
-      description: Error envelope returned by eligibility endpoints on 4xx/5xx responses.
-      properties:
-        status:
-          type: integer
-          example: 401
-        error:
-          type: string
-          example: Unauthorized
-        message:
-          type: string
-          example: partyId claim could not be extracted
-    RestrictedTransactionResult:
-      type: object
-      description: A transaction affected by a restriction type, with its blocking status.
-      properties:
-        type:
-          type: string
-          description: Transaction type code.
-          example: FullSurrender
-        status:
-          type: string
-          description: How the transaction is blocked (e.g. Unavailable, CarrierApprovalNeeded).
-          example: Unavailable
-    EligibilityRequest:
-      type: object
-      description: 'Optional request body shared by all four eligibility endpoints. planCode and policyNumber are supplied as path parameters, not in the body.
-
-        '
-      properties:
-        items:
-          type: array
-          description: 'Subject identifiers to evaluate. Semantics depend on the endpoint: transaction/cancellation — transaction type codes (e.g. FullSurrender); capabilities — capability codes (e.g. ViewPolicy); restrictions — restriction type codes (e.g. DIVORCE, OVERPAYMENT). When absent or empty, all subjects configured for the plan are evaluated.
-
-            '
-          items:
-            type: string
-          example:
-          - FullSurrender
-          - PartialWithdrawalOneTime
     EligibilitySubjectResult:
       type: object
       description: 'Composed eligibility result for a single evaluated subject. Null fields are omitted from the JSON response (@JsonInclude NON_NULL). Three shapes exist: evaluated (sections present), notAvailable (subject absent from product-transactions), or notConfigured (subject absent from transactions-params).
@@ -282,6 +209,31 @@ components:
           type: string
           description: Human-readable explanation accompanying notAvailable or notConfigured.
           example: Transaction Not Configured
+    RestrictedTransactionResult:
+      type: object
+      description: A transaction affected by a restriction type, with its blocking status.
+      properties:
+        type:
+          type: string
+          description: Transaction type code.
+          example: FullSurrender
+        status:
+          type: string
+          description: How the transaction is blocked (e.g. Unavailable, CarrierApprovalNeeded).
+          example: Unavailable
+    EligibilityErrorResponse:
+      type: object
+      description: Error envelope returned by eligibility endpoints on 4xx/5xx responses.
+      properties:
+        status:
+          type: integer
+          example: 401
+        error:
+          type: string
+          example: Unauthorized
+        message:
+          type: string
+          example: partyId claim could not be extracted
     EligibilityReason:
       type: object
       description: Structured reason for a non-passing or indeterminate section.
@@ -369,6 +321,54 @@ components:
           description: One entry per evaluated subject.
           items:
             $ref: '#/components/schemas/EligibilitySubjectResult'
+    EligibilityRequest:
+      type: object
+      description: 'Optional request body shared by all four eligibility endpoints. planCode and policyNumber are supplied as path parameters, not in the body.
+
+        '
+      properties:
+        items:
+          type: array
+          description: 'Subject identifiers to evaluate. Semantics depend on the endpoint: transaction/cancellation — transaction type codes (e.g. FullSurrender); capabilities — capability codes (e.g. ViewPolicy); restrictions — restriction type codes (e.g. DIVORCE, OVERPAYMENT). When absent or empty, all subjects configured for the plan are evaluated.
+
+            '
+          items:
+            type: string
+          example:
+          - FullSurrender
+          - PartialWithdrawalOneTime
+  responses:
+    EligibilityUnauthorized:
+      description: Missing or invalid bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EligibilityErrorResponse'
+          example:
+            status: 401
+            error: Unauthorized
+            message: partyId claim could not be extracted from token
+    EligibilityBadRequest:
+      description: Invalid request — missing required fields or malformed input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EligibilityErrorResponse'
+          example:
+            status: 400
+            error: Bad Request
+            message: policyNumber is required
+    EligibilityInternalServerError:
+      description: 'Unexpected server error. Dependency failures (CIAM, Zahara) surface as COULD_NOT_DETERMINE on the affected section rather than a 500.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EligibilityErrorResponse'
+          example:
+            status: 500
+            error: Internal Server Error
   securitySchemes:
     Auth0:
       type: openIdConnect

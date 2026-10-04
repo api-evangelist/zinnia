@@ -547,93 +547,107 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
-    IngestAttachmentDocumentRequest:
+    IngestAttachmentDocumentResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the ingestion operation was successful.
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result.
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation (for example, Success, ValidationError, Failure).
+      additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Attachment document ingested successfully.
+        status: Success
+    ErrorResponse:
       required:
-      - action
-      - documentId
-      - sourceSystem
+      - errors
       - transactionId
       type: object
       properties:
         transactionId:
           minLength: 1
-          pattern: ^[1-9][0-9]*$
           type: string
-          description: Unique identifier for the Order Entry transaction (positive integer encoded as a string).
-        documentId:
-          minLength: 1
-          type: string
-          description: Electronic document service (EDS) identifier for the uploaded or deleted file.
-        sourceSystem:
-          minLength: 1
-          enum:
-          - AnnuityNet
-          - LifeSpeed
-          type: string
-          description: Originating source system identifier (for example, AnnuityNet or LifeSpeed).
-        action:
-          minLength: 1
-          enum:
-          - added
-          - deleted
-          type: string
-          description: 'Document lifecycle action. Allowed values: added, deleted.'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
       additionalProperties: false
       example:
-        transactionId: '123456'
-        documentId: 6a3c4358bd44a9000c8d140e
-        sourceSystem: AnnuityNet
-        action: added
-    ErrorInfo:
-      required:
-      - code
-      - timestamp
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
+    DocumentRule:
       type: object
       properties:
-        code:
-          enum:
-          - VALIDATION_ERROR
-          - INVALID_TRANSACTION_ID
-          - INVALID_STEP_NAME
-          - TRANSACTION_CREATION_FAILED
-          - TRANSACTION_ID_NOT_FOUND
-          - SAVE_TRANSACTION_ERROR
-          - SAVE_TRANSACTION_FAILED
-          - INVALID_RESPONSE_FORMAT
-          - BUILD_BLUEPRINT_ERROR
-          - JSON_PARSE_ERROR
-          - TRANSFORMER_NULL_RESPONSE
-          - EMPTY_BLUEPRINT
-          - UNEXPECTED_ERROR
-          - SERVICE_ERROR
-          - UNAUTHORIZED
-          - FORBIDDEN
-          - NOT_FOUND
-          - RATE_LIMIT_EXCEEDED
-          - UPSTREAM_SERVICE_ERROR
-          - SERVICE_UNAVAILABLE
-          - UPSTREAM_TIMEOUT
-          - FIRST_STEP_SETUP_FAILED
-          - METHOD_NOT_ALLOWED
-          type: string
-          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
-        description:
+        conditions:
           type:
           - string
           - 'null'
-        details:
+          description: Conditions under which the rule applies
+        key:
           type:
           - string
           - 'null'
-        timestamp:
-          type: string
-          format: date-time
+          description: Rule key
+        message:
+          type:
+          - string
+          - 'null'
+          description: Rule message shown to the user
+        value:
+          type:
+          - string
+          - 'null'
+          description: Rule value
       additionalProperties: false
-      example:
-        code: VALIDATION_ERROR
-        description: Validation failed for field '$.fieldName'
-        details: The request contains an unrecognized property. Only documented fields are allowed.
-        timestamp: '2024-01-15T10:30:00.000Z'
+    RequiredDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code
+        displayName:
+          type:
+          - string
+          - 'null'
+          description: Display name shown to the user
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type code
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code
+        message:
+          type:
+          - string
+          - 'null'
+          description: Instructional message for the required document
+      additionalProperties: false
     AttachmentResponse:
       required:
       - carrierCode
@@ -756,33 +770,6 @@ components:
             documentType: APPLICATION
             formType: APP_FULL
             message: Upload the fully signed application prior to submission.
-    IngestAttachmentDocumentResponse:
-      type: object
-      properties:
-        caseId:
-          type:
-          - string
-          - 'null'
-          description: Case identifier associated with the transaction.
-        isSuccess:
-          type: boolean
-          description: Indicates whether the ingestion operation was successful.
-        message:
-          type:
-          - string
-          - 'null'
-          description: Human-readable message describing the result.
-        status:
-          type:
-          - string
-          - 'null'
-          description: Status code of the operation (for example, Success, ValidationError, Failure).
-      additionalProperties: false
-      example:
-        caseId: CA0000188538
-        isSuccess: true
-        message: Attachment document ingested successfully.
-        status: Success
     AttachmentData:
       type: object
       properties:
@@ -854,6 +841,56 @@ components:
           documentType: APPLICATION
           formType: APP_FULL
           message: Upload the fully signed application prior to submission.
+    ErrorInfo:
+      required:
+      - code
+      - timestamp
+      type: object
+      properties:
+        code:
+          enum:
+          - VALIDATION_ERROR
+          - INVALID_TRANSACTION_ID
+          - INVALID_STEP_NAME
+          - TRANSACTION_CREATION_FAILED
+          - TRANSACTION_ID_NOT_FOUND
+          - SAVE_TRANSACTION_ERROR
+          - SAVE_TRANSACTION_FAILED
+          - INVALID_RESPONSE_FORMAT
+          - BUILD_BLUEPRINT_ERROR
+          - JSON_PARSE_ERROR
+          - TRANSFORMER_NULL_RESPONSE
+          - EMPTY_BLUEPRINT
+          - UNEXPECTED_ERROR
+          - SERVICE_ERROR
+          - UNAUTHORIZED
+          - FORBIDDEN
+          - NOT_FOUND
+          - RATE_LIMIT_EXCEEDED
+          - UPSTREAM_SERVICE_ERROR
+          - SERVICE_UNAVAILABLE
+          - UPSTREAM_TIMEOUT
+          - FIRST_STEP_SETUP_FAILED
+          - METHOD_NOT_ALLOWED
+          type: string
+          description: Backend error codes returned by the Order Entry API indicating validation failures, transaction issues, blueprint generation errors, authorization errors, or unexpected system failures.
+        description:
+          type:
+          - string
+          - 'null'
+        details:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: false
+      example:
+        code: VALIDATION_ERROR
+        description: Validation failed for field '$.fieldName'
+        details: The request contains an unrecognized property. Only documented fields are allowed.
+        timestamp: '2024-01-15T10:30:00.000Z'
     AttachmentDocument:
       type: object
       properties:
@@ -902,6 +939,43 @@ components:
         documentSize: 9000000
         attachmentType: null
         formType: null
+    IngestAttachmentDocumentRequest:
+      required:
+      - action
+      - documentId
+      - sourceSystem
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier for the Order Entry transaction (positive integer encoded as a string).
+        documentId:
+          minLength: 1
+          type: string
+          description: Electronic document service (EDS) identifier for the uploaded or deleted file.
+        sourceSystem:
+          minLength: 1
+          enum:
+          - AnnuityNet
+          - LifeSpeed
+          type: string
+          description: Originating source system identifier (for example, AnnuityNet or LifeSpeed).
+        action:
+          minLength: 1
+          enum:
+          - added
+          - deleted
+          type: string
+          description: 'Document lifecycle action. Allowed values: added, deleted.'
+      additionalProperties: false
+      example:
+        transactionId: '123456'
+        documentId: 6a3c4358bd44a9000c8d140e
+        sourceSystem: AnnuityNet
+        action: added
     AdditionalDocumentType:
       type: object
       properties:
@@ -926,80 +1000,6 @@ components:
           items:
             type: string
           description: List of form type codes
-      additionalProperties: false
-    ErrorResponse:
-      required:
-      - errors
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
-    DocumentRule:
-      type: object
-      properties:
-        conditions:
-          type:
-          - string
-          - 'null'
-          description: Conditions under which the rule applies
-        key:
-          type:
-          - string
-          - 'null'
-          description: Rule key
-        message:
-          type:
-          - string
-          - 'null'
-          description: Rule message shown to the user
-        value:
-          type:
-          - string
-          - 'null'
-          description: Rule value
-      additionalProperties: false
-    RequiredDocument:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - string
-          - 'null'
-          description: Attachment type code
-        displayName:
-          type:
-          - string
-          - 'null'
-          description: Display name shown to the user
-        documentType:
-          type:
-          - string
-          - 'null'
-          description: Document type code
-        formType:
-          type:
-          - string
-          - 'null'
-          description: Form type code
-        message:
-          type:
-          - string
-          - 'null'
-          description: Instructional message for the required document
       additionalProperties: false
   securitySchemes:
     openIdConnect:

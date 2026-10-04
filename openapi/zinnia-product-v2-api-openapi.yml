@@ -120,100 +120,6 @@ paths:
       - Auth0: []
 components:
   schemas:
-    ProductV2Model:
-      type: object
-      properties:
-        id:
-          type: string
-          description: System-generated unique identifier (UUID)
-          example: 7b9f2b65-1b4a-4f4c-9d9d-6a7f5b6d9b1a
-        carrierCode:
-          type: string
-          description: Unique carrier code
-          example: EVGL
-        carrierName:
-          type: string
-          description: Carrier name
-          example: Everglades
-        cusip:
-          type:
-          - string
-          - 'null'
-          description: CUSIP identifier (9 characters)
-          example: 1234567AB
-        productName:
-          type: string
-          description: Primary product name
-          example: Term Life 20
-        marketingName:
-          type: string
-          description: Marketing name for the product
-          example: Everglades Term 20
-        legalName:
-          type: string
-          description: Full legal name of the product
-          example: Everglades Term Life Insurance – 20 Year Level Premium
-        version:
-          type: string
-          description: Version identifier
-          example: '1.0'
-        versionStartDate:
-          type: string
-          description: Version start date
-          example: '2025-01-01'
-        versionEndDate:
-          type: string
-          description: Version end date
-          example: '2099-01-01'
-        line:
-          type: string
-          description: Product line classification
-          enum:
-          - LIFE
-          - ANNUITY
-          example: LIFE
-        type:
-          type: string
-          description: Product type
-          enum:
-          - TERM
-          - UNIVERSAL_LIFE
-          example: TERM
-        planCode:
-          type: string
-          description: Plan code
-          example: EVGUL001
-        availableToSell:
-          type: boolean
-          description: Whether the product is available to sell at product level
-          example: true
-        distributors:
-          description: List of distributors authorized to sell this product
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/Distributor'
-        stateAvailability:
-          description: State-level availability records
-          type: array
-          items:
-            $ref: '#/components/schemas/StateAvailability'
-      required:
-      - id
-      - carrierCode
-      - carrierName
-      - productName
-      - marketingName
-      - legalName
-      - version
-      - versionStartDate
-      - versionEndDate
-      - line
-      - type
-      - planCode
-      - availableToSell
-      - stateAvailability
     PaginatedProductsResponse:
       type: object
       properties:
@@ -243,6 +149,69 @@ components:
       - next
       - previous
       - results
+    Distributor:
+      type: object
+      properties:
+        distributorCode:
+          type: string
+          description: Unique distributor code
+          example: EVGL
+        distributorName:
+          type: string
+          description: Distributor name
+          example: Everglades Distribution
+        startDate:
+          type: string
+          description: Start date of distributor authorization
+          example: '2025-01-01'
+        endDate:
+          type: string
+          description: End date of distributor authorization
+          example: '2099-01-01'
+      required:
+      - distributorCode
+      - distributorName
+      - startDate
+      - endDate
+    StateAvailability:
+      type: object
+      properties:
+        availableToSell:
+          type: boolean
+          description: Indicates whether the product is available to sell in this state
+          example: true
+        startDate:
+          type: string
+          description: Start date of state availability (inclusive)
+          example: '2025-01-01'
+        endDate:
+          type: string
+          description: End date of state availability
+          example: '2099-01-01'
+        abbreviation:
+          type: string
+          description: Two-letter state abbreviation
+          example: NY
+          minLength: 2
+          maxLength: 2
+        name:
+          type: string
+          description: Full state name
+          example: New York
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Human-readable error description
+          example: Invalid orderByDirection. Must be "ASC" or "DESC".
+        timestamp:
+          type: string
+          description: ISO 8601 formatted timestamp of the error occurrence
+          example: '2025-12-09T16:03:00Z'
+      required:
+      - message
+      - timestamp
     ProductSearchRequestDto:
       type: object
       properties:
@@ -339,69 +308,100 @@ components:
         availableToSell:
           type: boolean
           description: Product-level availability filter
-    ErrorResponse:
+    ProductV2Model:
       type: object
       properties:
-        message:
+        id:
           type: string
-          description: Human-readable error description
-          example: Invalid orderByDirection. Must be "ASC" or "DESC".
-        timestamp:
+          description: System-generated unique identifier (UUID)
+          example: 7b9f2b65-1b4a-4f4c-9d9d-6a7f5b6d9b1a
+        carrierCode:
           type: string
-          description: ISO 8601 formatted timestamp of the error occurrence
-          example: '2025-12-09T16:03:00Z'
-      required:
-      - message
-      - timestamp
-    StateAvailability:
-      type: object
-      properties:
+          description: Unique carrier code
+          example: EVGL
+        carrierName:
+          type: string
+          description: Carrier name
+          example: Everglades
+        cusip:
+          type:
+          - string
+          - 'null'
+          description: CUSIP identifier (9 characters)
+          example: 1234567AB
+        productName:
+          type: string
+          description: Primary product name
+          example: Term Life 20
+        marketingName:
+          type: string
+          description: Marketing name for the product
+          example: Everglades Term 20
+        legalName:
+          type: string
+          description: Full legal name of the product
+          example: Everglades Term Life Insurance – 20 Year Level Premium
+        version:
+          type: string
+          description: Version identifier
+          example: '1.0'
+        versionStartDate:
+          type: string
+          description: Version start date
+          example: '2025-01-01'
+        versionEndDate:
+          type: string
+          description: Version end date
+          example: '2099-01-01'
+        line:
+          type: string
+          description: Product line classification
+          enum:
+          - LIFE
+          - ANNUITY
+          example: LIFE
+        type:
+          type: string
+          description: Product type
+          enum:
+          - TERM
+          - UNIVERSAL_LIFE
+          example: TERM
+        planCode:
+          type: string
+          description: Plan code
+          example: EVGUL001
         availableToSell:
           type: boolean
-          description: Indicates whether the product is available to sell in this state
+          description: Whether the product is available to sell at product level
           example: true
-        startDate:
-          type: string
-          description: Start date of state availability (inclusive)
-          example: '2025-01-01'
-        endDate:
-          type: string
-          description: End date of state availability
-          example: '2099-01-01'
-        abbreviation:
-          type: string
-          description: Two-letter state abbreviation
-          example: NY
-          minLength: 2
-          maxLength: 2
-        name:
-          type: string
-          description: Full state name
-          example: New York
-    Distributor:
-      type: object
-      properties:
-        distributorCode:
-          type: string
-          description: Unique distributor code
-          example: EVGL
-        distributorName:
-          type: string
-          description: Distributor name
-          example: Everglades Distribution
-        startDate:
-          type: string
-          description: Start date of distributor authorization
-          example: '2025-01-01'
-        endDate:
-          type: string
-          description: End date of distributor authorization
-          example: '2099-01-01'
+        distributors:
+          description: List of distributors authorized to sell this product
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/Distributor'
+        stateAvailability:
+          description: State-level availability records
+          type: array
+          items:
+            $ref: '#/components/schemas/StateAvailability'
       required:
-      - distributorCode
-      - distributorName
-      - startDate
-      - endDate
+      - id
+      - carrierCode
+      - carrierName
+      - productName
+      - marketingName
+      - legalName
+      - version
+      - versionStartDate
+      - versionEndDate
+      - line
+      - type
+      - planCode
+      - availableToSell
+      - stateAvailability
   securitySchemes:
     Auth0:
       type: openIdConnect
