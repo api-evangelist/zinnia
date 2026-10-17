@@ -155,6 +155,21 @@ paths:
       - Auth0: []
 components:
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
+    AuthorizationStatusResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 200
     AuthorizationStatusRequest:
       type: object
       required:
@@ -202,21 +217,6 @@ components:
           description: Source system sending the callback
           default: MPV
           example: My Policy View
-    AuthorizationStatusResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 200
-    ErrorResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 404
-        message:
-          type: string
-          example: 'Invalid or missing request field: correlationId'
   securitySchemes:
     Auth0:
       type: openIdConnect

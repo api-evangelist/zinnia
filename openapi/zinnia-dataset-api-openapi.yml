@@ -315,6 +315,27 @@ components:
         description: Validation failed for field '$.fieldName'
         details: The request contains an unrecognized property. Only documented fields are allowed.
         timestamp: '2024-01-15T10:30:00.000Z'
+    ErrorResponse:
+      required:
+      - errors
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+      additionalProperties: false
+      example:
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
     DatasetRequest:
       required:
       - fieldId
@@ -361,27 +382,6 @@ components:
           description: Identifier of the dataset instance returned by the upstream service. Present for success and most failures; absent for low-level exceptions.
           format: int64
       additionalProperties: false
-    ErrorResponse:
-      required:
-      - errors
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
   securitySchemes:
     openIdConnect:
       type: openIdConnect

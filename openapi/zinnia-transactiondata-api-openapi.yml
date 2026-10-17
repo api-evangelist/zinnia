@@ -110,6 +110,15 @@ paths:
       - Auth0: []
 components:
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: 'Invalid or missing request field: correlationId'
     Identifiers:
       type: object
       description: Identifier model with key-value pair.
@@ -171,15 +180,6 @@ components:
           description: List of identifiers related to the transaction.
           items:
             $ref: '#/components/schemas/Identifiers'
-    ErrorResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 404
-        message:
-          type: string
-          example: 'Invalid or missing request field: correlationId'
   securitySchemes:
     Auth0:
       type: openIdConnect

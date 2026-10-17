@@ -64,6 +64,21 @@ paths:
       - Metrics
 components:
   schemas:
+    PolicyMetricsRequest:
+      type: object
+      properties:
+        startDate:
+          type: string
+          description: Start Date
+          example: '2024-02-02'
+        endDate:
+          type: string
+          description: End Date
+          example: '2024-02-02'
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricsType'
     MetricsErrorResponse:
       type: object
       properties:
@@ -74,6 +89,48 @@ components:
         message:
           type: string
           example: Invalid date range provided
+    PolicyMetricsResponse:
+      type: object
+      properties:
+        metric:
+          type: string
+          example: LAPSEPROTECTIONPAYMENTAMOUNT
+          description: Requested metric
+        begin:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        minimum:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        maximum:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        average:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
+        sum:
+          type: number
+          format: double
+          example: 8389.8
+          description: TBD
+        count:
+          type: integer
+          format: int64
+          example: 295
+          description: TBD
+        end:
+          type: number
+          format: double
+          example: 28.44
+          description: TBD
     MetricsType:
       type: string
       enum:
@@ -137,63 +194,6 @@ components:
       - REMAININGBENEFIT
       - NETDECREASEINFACEAMOUNT
       - NETINCREASEINFACEAMOUNT
-    PolicyMetricsResponse:
-      type: object
-      properties:
-        metric:
-          type: string
-          example: LAPSEPROTECTIONPAYMENTAMOUNT
-          description: Requested metric
-        begin:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-        minimum:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-        maximum:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-        average:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-        sum:
-          type: number
-          format: double
-          example: 8389.8
-          description: TBD
-        count:
-          type: integer
-          format: int64
-          example: 295
-          description: TBD
-        end:
-          type: number
-          format: double
-          example: 28.44
-          description: TBD
-    PolicyMetricsRequest:
-      type: object
-      properties:
-        startDate:
-          type: string
-          description: Start Date
-          example: '2024-02-02'
-        endDate:
-          type: string
-          description: End Date
-          example: '2024-02-02'
-        metrics:
-          type: array
-          items:
-            $ref: '#/components/schemas/MetricsType'
   securitySchemes:
     Auth0:
       type: openIdConnect

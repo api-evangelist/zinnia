@@ -302,37 +302,6 @@ paths:
                     example: 'false'
 components:
   schemas:
-    TaxformResponseList:
-      type: object
-      properties:
-        count:
-          type: integer
-          description: Number of tax forms found
-          format: int32
-          example: 10
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TaxformResponse'
-        correlationId:
-          type: string
-          description: Unique ID for correlating requests
-          example: 1760f822-dcbf-49fc-a623-a1998383f4b9
-    TaxformDownloadResponse:
-      type: object
-      properties:
-        fileExtension:
-          type: string
-          description: File extension of the document
-          example: pdf
-        binaryData:
-          type: string
-          description: Binary data of the document
-          example: wdvb2ekllkk189w0enjansle..
-        correlationId:
-          type: string
-          description: Unique ID for correlating requests
-          example: 1760f822-dcbf-49fc-a623-a1998383f4b9
     TaxformResponse:
       type: object
       properties:
@@ -378,6 +347,37 @@ components:
           type: string
           description: Status intigating whether tax form is active or inactive
           example: active
+    TaxformResponseList:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of tax forms found
+          format: int32
+          example: 10
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxformResponse'
+        correlationId:
+          type: string
+          description: Unique ID for correlating requests
+          example: 1760f822-dcbf-49fc-a623-a1998383f4b9
+    TaxformDownloadResponse:
+      type: object
+      properties:
+        fileExtension:
+          type: string
+          description: File extension of the document
+          example: pdf
+        binaryData:
+          type: string
+          description: Binary data of the document
+          example: wdvb2ekllkk189w0enjansle..
+        correlationId:
+          type: string
+          description: Unique ID for correlating requests
+          example: 1760f822-dcbf-49fc-a623-a1998383f4b9
   securitySchemes:
     basic:
       type: http

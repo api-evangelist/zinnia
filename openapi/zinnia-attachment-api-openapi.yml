@@ -547,107 +547,6 @@ paths:
                   timestamp: '2025-01-16T13:21:19.4355657Z'
 components:
   schemas:
-    IngestAttachmentDocumentResponse:
-      type: object
-      properties:
-        caseId:
-          type:
-          - string
-          - 'null'
-          description: Case identifier associated with the transaction.
-        isSuccess:
-          type: boolean
-          description: Indicates whether the ingestion operation was successful.
-        message:
-          type:
-          - string
-          - 'null'
-          description: Human-readable message describing the result.
-        status:
-          type:
-          - string
-          - 'null'
-          description: Status code of the operation (for example, Success, ValidationError, Failure).
-      additionalProperties: false
-      example:
-        caseId: CA0000188538
-        isSuccess: true
-        message: Attachment document ingested successfully.
-        status: Success
-    ErrorResponse:
-      required:
-      - errors
-      - transactionId
-      type: object
-      properties:
-        transactionId:
-          minLength: 1
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorInfo'
-      additionalProperties: false
-      example:
-        transactionId: '12345'
-        errors:
-        - code: UNAUTHORIZED
-          description: Unauthorized access
-          details: The request requires authentication
-          timestamp: '2025-01-16T13:21:19.4355657Z'
-    DocumentRule:
-      type: object
-      properties:
-        conditions:
-          type:
-          - string
-          - 'null'
-          description: Conditions under which the rule applies
-        key:
-          type:
-          - string
-          - 'null'
-          description: Rule key
-        message:
-          type:
-          - string
-          - 'null'
-          description: Rule message shown to the user
-        value:
-          type:
-          - string
-          - 'null'
-          description: Rule value
-      additionalProperties: false
-    RequiredDocument:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - string
-          - 'null'
-          description: Attachment type code
-        displayName:
-          type:
-          - string
-          - 'null'
-          description: Display name shown to the user
-        documentType:
-          type:
-          - string
-          - 'null'
-          description: Document type code
-        formType:
-          type:
-          - string
-          - 'null'
-          description: Form type code
-        message:
-          type:
-          - string
-          - 'null'
-          description: Instructional message for the required document
-      additionalProperties: false
     AttachmentResponse:
       required:
       - carrierCode
@@ -770,6 +669,108 @@ components:
             documentType: APPLICATION
             formType: APP_FULL
             message: Upload the fully signed application prior to submission.
+    AdditionalDocumentType:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of attachment type codes
+        documentType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of document type codes
+        formType:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: List of form type codes
+      additionalProperties: false
+    AttachmentDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code when applicable; otherwise null.
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type label or code.
+        fileName:
+          type:
+          - string
+          - 'null'
+          description: Original file name as uploaded.
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code when applicable; otherwise null.
+        uploadDate:
+          type:
+          - string
+          - 'null'
+          description: Upload timestamp as returned by the attachment service.
+        documentId:
+          type:
+          - string
+          - 'null'
+          description: Electronic document service (EDS) identifier for the uploaded file.
+        documentSize:
+          type:
+          - integer
+          - 'null'
+          description: Size of the uploaded file in bytes.
+          format: int64
+      additionalProperties: false
+      example:
+        documentType: ESIGNATURE
+        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
+        uploadDate: 04/06/2026 11:22:05 PM
+        documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        documentSize: 9000000
+        attachmentType: null
+        formType: null
+    RequiredDocument:
+      type: object
+      properties:
+        attachmentType:
+          type:
+          - string
+          - 'null'
+          description: Attachment type code
+        displayName:
+          type:
+          - string
+          - 'null'
+          description: Display name shown to the user
+        documentType:
+          type:
+          - string
+          - 'null'
+          description: Document type code
+        formType:
+          type:
+          - string
+          - 'null'
+          description: Form type code
+        message:
+          type:
+          - string
+          - 'null'
+          description: Instructional message for the required document
+      additionalProperties: false
     AttachmentData:
       type: object
       properties:
@@ -841,6 +842,94 @@ components:
           documentType: APPLICATION
           formType: APP_FULL
           message: Upload the fully signed application prior to submission.
+    DocumentRule:
+      type: object
+      properties:
+        conditions:
+          type:
+          - string
+          - 'null'
+          description: Conditions under which the rule applies
+        key:
+          type:
+          - string
+          - 'null'
+          description: Rule key
+        message:
+          type:
+          - string
+          - 'null'
+          description: Rule message shown to the user
+        value:
+          type:
+          - string
+          - 'null'
+          description: Rule value
+      additionalProperties: false
+    IngestAttachmentDocumentRequest:
+      required:
+      - action
+      - documentId
+      - sourceSystem
+      - transactionId
+      type: object
+      properties:
+        transactionId:
+          minLength: 1
+          pattern: ^[1-9][0-9]*$
+          type: string
+          description: Unique identifier for the Order Entry transaction (positive integer encoded as a string).
+        documentId:
+          minLength: 1
+          type: string
+          description: Electronic document service (EDS) identifier for the uploaded or deleted file.
+        sourceSystem:
+          minLength: 1
+          enum:
+          - AnnuityNet
+          - LifeSpeed
+          type: string
+          description: Originating source system identifier (for example, AnnuityNet or LifeSpeed).
+        action:
+          minLength: 1
+          enum:
+          - added
+          - deleted
+          type: string
+          description: 'Document lifecycle action. Allowed values: added, deleted.'
+      additionalProperties: false
+      example:
+        transactionId: '123456'
+        documentId: 6a3c4358bd44a9000c8d140e
+        sourceSystem: AnnuityNet
+        action: added
+    IngestAttachmentDocumentResponse:
+      type: object
+      properties:
+        caseId:
+          type:
+          - string
+          - 'null'
+          description: Case identifier associated with the transaction.
+        isSuccess:
+          type: boolean
+          description: Indicates whether the ingestion operation was successful.
+        message:
+          type:
+          - string
+          - 'null'
+          description: Human-readable message describing the result.
+        status:
+          type:
+          - string
+          - 'null'
+          description: Status code of the operation (for example, Success, ValidationError, Failure).
+      additionalProperties: false
+      example:
+        caseId: CA0000188538
+        isSuccess: true
+        message: Attachment document ingested successfully.
+        status: Success
     ErrorInfo:
       required:
       - code
@@ -891,116 +980,27 @@ components:
         description: Validation failed for field '$.fieldName'
         details: The request contains an unrecognized property. Only documented fields are allowed.
         timestamp: '2024-01-15T10:30:00.000Z'
-    AttachmentDocument:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - string
-          - 'null'
-          description: Attachment type code when applicable; otherwise null.
-        documentType:
-          type:
-          - string
-          - 'null'
-          description: Document type label or code.
-        fileName:
-          type:
-          - string
-          - 'null'
-          description: Original file name as uploaded.
-        formType:
-          type:
-          - string
-          - 'null'
-          description: Form type code when applicable; otherwise null.
-        uploadDate:
-          type:
-          - string
-          - 'null'
-          description: Upload timestamp as returned by the attachment service.
-        documentId:
-          type:
-          - string
-          - 'null'
-          description: Electronic document service (EDS) identifier for the uploaded file.
-        documentSize:
-          type:
-          - integer
-          - 'null'
-          description: Size of the uploaded file in bytes.
-          format: int64
-      additionalProperties: false
-      example:
-        documentType: ESIGNATURE
-        fileName: NAICBuyerGuideFixedDeferredAnnuitiesMTNM.pdf
-        uploadDate: 04/06/2026 11:22:05 PM
-        documentId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-        documentSize: 9000000
-        attachmentType: null
-        formType: null
-    IngestAttachmentDocumentRequest:
+    ErrorResponse:
       required:
-      - action
-      - documentId
-      - sourceSystem
+      - errors
       - transactionId
       type: object
       properties:
         transactionId:
           minLength: 1
-          pattern: ^[1-9][0-9]*$
           type: string
-          description: Unique identifier for the Order Entry transaction (positive integer encoded as a string).
-        documentId:
-          minLength: 1
-          type: string
-          description: Electronic document service (EDS) identifier for the uploaded or deleted file.
-        sourceSystem:
-          minLength: 1
-          enum:
-          - AnnuityNet
-          - LifeSpeed
-          type: string
-          description: Originating source system identifier (for example, AnnuityNet or LifeSpeed).
-        action:
-          minLength: 1
-          enum:
-          - added
-          - deleted
-          type: string
-          description: 'Document lifecycle action. Allowed values: added, deleted.'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
       additionalProperties: false
       example:
-        transactionId: '123456'
-        documentId: 6a3c4358bd44a9000c8d140e
-        sourceSystem: AnnuityNet
-        action: added
-    AdditionalDocumentType:
-      type: object
-      properties:
-        attachmentType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of attachment type codes
-        documentType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of document type codes
-        formType:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: List of form type codes
-      additionalProperties: false
+        transactionId: '12345'
+        errors:
+        - code: UNAUTHORIZED
+          description: Unauthorized access
+          details: The request requires authentication
+          timestamp: '2025-01-16T13:21:19.4355657Z'
   securitySchemes:
     openIdConnect:
       type: openIdConnect

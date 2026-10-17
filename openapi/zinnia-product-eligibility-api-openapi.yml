@@ -138,20 +138,6 @@ paths:
                 timestamp: '2025-10-06T14:35:07.364Z'
 components:
   schemas:
-    EligibleTransactionsResponse:
-      type: object
-      properties:
-        cusip:
-          type: string
-          example: '123456789'
-        productCode:
-          type: string
-          example: ADDAARP
-        eligibleTransactionTypes:
-          type: array
-          description: List of eligible transaction types
-          items:
-            $ref: '#/components/schemas/EligibleTransactionType'
     EligibleTransactionType:
       type: object
       properties:
@@ -171,6 +157,20 @@ components:
         message:
           type: string
           example: 'Invalid or missing request field: correlationId'
+    EligibleTransactionsResponse:
+      type: object
+      properties:
+        cusip:
+          type: string
+          example: '123456789'
+        productCode:
+          type: string
+          example: ADDAARP
+        eligibleTransactionTypes:
+          type: array
+          description: List of eligible transaction types
+          items:
+            $ref: '#/components/schemas/EligibleTransactionType'
   securitySchemes:
     Auth0:
       type: openIdConnect

@@ -158,6 +158,89 @@ paths:
       - Illustration Engine
 components:
   schemas:
+    Arrangements:
+      title: Arrangements
+      description: An unkeyed collection of arrangement objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Arrangement'
+    Schedule:
+      title: Schedule
+      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
+      type: object
+      properties:
+        frequency:
+          description: Indicates the interval between values for each entry. Any entry other than Annual results in multiple activities within a year.
+          type: string
+          enum:
+          - ANNUAL
+          - SEMI_ANNUAL
+          - QUARTERLY
+          - MONTHLY
+          - BIWEEKLY
+          - WEEKLY
+          - DAILY
+        basis:
+          description: Specifies how to interpret the from and through properties for each entry.
+          type: string
+          enum:
+          - AGE
+          - DURATION
+        sequence:
+          description: Collection of entries describing the changes in value over time
+          type: array
+          items:
+            $ref: '#/components/schemas/Scheduled-Entry'
+          minItems: 1
+      required:
+      - sequence
+    Multiple-Basic-Collections:
+      title: Multiple-Basic-Collections
+      type: array
+      items:
+        $ref: '#/components/schemas/Basic-Collection'
+    Message:
+      title: Message
+      description: A structured signal
+      type: object
+      properties:
+        code:
+          type: integer
+        severity:
+          type: string
+          enum:
+          - INFO
+          - WARNING
+          - ERROR
+        text:
+          type: string
+        returnTo:
+          type: string
+      required:
+      - code
+      - text
+    Variable-Value:
+      title: Variable Value
+      description: the value of a variable, may be constant or time-dependent
+      oneOf:
+      - type: string
+      - $ref: '#/components/schemas/Schedule'
+    Scenario-Results:
+      title: Scenario-Results
+      description: A grouping of uniquely identifiable results, typically produced under a common set of assumptions
+      type: object
+      properties:
+        ^[a-z][a-zA-Z0-9]+:
+          $ref: '#/components/schemas/Result'
+    Arrangement-Type:
+      title: Arrangement Type
+      description: Enumeration of allowable arrangement types
+      type: string
+      enum:
+      - LOAN
+      - WITHDRAWAL
+      - PAYMENT
+      - CONVERSION_ACTIVATION
     Features:
       title: Features
       description: Well-known geatures associated with a policy
@@ -176,24 +259,45 @@ components:
       - lapseAssessment
       - lapseProtection
       - reinstatement
-    Account-Value:
-      title: Account-Value
-      description: A description of the monetary value of an investment contract
+    Coverage-Collection:
+      title: Coverage-Collection (v3)
+      description: A collection of benefits
+      type: array
+      items:
+        $ref: '#/components/schemas/Coverage'
+    Result:
+      title: Result
+      description: The output from a cmputation, which may vary with time
+      type: array
+      items:
+        type: string
+    Basic-Collection:
+      title: Basic Collection
+      description: A simple object that only contains a collection of unique attributes and no further structure.
       type: object
       properties:
         attributes:
           $ref: '#/components/schemas/Attribute-Collection'
-        policyMetrics:
-          $ref: '#/components/schemas/Basic-Collection'
-        loan:
-          $ref: '#/components/schemas/Basic-Collection'
-        withdrawal:
-          $ref: '#/components/schemas/Basic-Collection'
       required:
       - attributes
-      - policyMetrics
-      - loan
-      - withdrawal
+    Active-Segment:
+      title: Active-Segment
+      type: object
+      description: A segment of a source of money that has some form of financial activity
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        financialActivity:
+          $ref: '#/components/schemas/Financial-Activity'
+      required:
+      - attributes
+    Parties:
+      title: Parties
+      description: An unkeyed collection of unique Party objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Party'
+      uniqueItems: true
     Arrangement:
       title: Arrangement
       description: Describes an arbitrary agreement
@@ -221,54 +325,14 @@ components:
           $ref: '#/components/schemas/Multiple-Basic-Collections'
         taxWithholdings:
           $ref: '#/components/schemas/Multiple-Basic-Collections'
-    Message:
-      title: Message
-      description: A structured signal
-      type: object
-      properties:
-        code:
-          type: integer
-        severity:
-          type: string
-          enum:
-          - INFO
-          - WARNING
-          - ERROR
-        text:
-          type: string
-        returnTo:
-          type: string
-      required:
-      - code
-      - text
-    Multiple-Scenario-Results:
-      title: Multiple-Scenario-Results
-      description: A grouping of uniquely identifiable scenarios containing their results
-      type: object
-      properties: {}
-      additionalProperties:
-        $ref: '#/components/schemas/Scenario-Results'
-    Coverage:
-      title: Coverage (v3)
-      description: A benefit conferred to a group of one or more participants
+    Financial-Activity:
+      title: Financial Activity
       type: object
       properties:
         attributes:
           $ref: '#/components/schemas/Attribute-Collection'
-        participants:
-          $ref: '#/components/schemas/Participant-Collection'
-        fees:
-          $ref: '#/components/schemas/Multiple-Basic-Collections'
       required:
       - attributes
-      - participants
-      - fees
-    Coverage-Collection:
-      title: Coverage-Collection (v3)
-      description: A collection of benefits
-      type: array
-      items:
-        $ref: '#/components/schemas/Coverage'
     Scheduled-Entry:
       title: Scheduled Entry
       description: Represents a limited time period for which a value is constant.
@@ -288,28 +352,25 @@ components:
       - from
       - through
       - value
-    Arrangement-Source:
-      title: Arrangement-Source
+    Fund:
+      title: Fund
+      description: A source of money
       type: object
-      description: A source of funding for an arrangement
       properties:
         attributes:
           $ref: '#/components/schemas/Attribute-Collection'
         segments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Active-Segment'
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
       required:
       - attributes
       - segments
-    Financial-Activity:
-      title: Financial Activity
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-      required:
-      - attributes
+    Participant-Collection:
+      title: Participant-Collection
+      description: An unkeyed collection of unique participant objects
+      type: array
+      items:
+        $ref: '#/components/schemas/Participant'
+      uniqueItems: true
     Policy-State:
       title: Policy State
       description: Represents the state of a policy at an instant in time. Describes the payload Zahara transmits when requesting calculations for a single transaction.
@@ -354,151 +415,36 @@ components:
       - matchSegment
       - loanSegments
       - arrangements
-    Fund:
-      title: Fund
-      description: A source of money
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        segments:
-          $ref: '#/components/schemas/Multiple-Basic-Collections'
-      required:
-      - attributes
-      - segments
     Output-Format:
       description: identifier for an output format
       type: string
       enum:
       - RAW_ILLUSTRATION_VALUES
       - FORMATTED_ILLUSTRATION_PDF
-    Arrangement-Type:
-      title: Arrangement Type
-      description: Enumeration of allowable arrangement types
-      type: string
-      enum:
-      - LOAN
-      - WITHDRAWAL
-      - PAYMENT
-      - CONVERSION_ACTIVATION
-    Schedule:
-      title: Schedule
-      description: Represents a value that changes with time. The value is assumed to change annually and be tied to a duration unless otherwise specified via the Frequency and Basis properties
-      type: object
-      properties:
-        frequency:
-          description: Indicates the interval between values for each entry. Any entry other than Annual results in multiple activities within a year.
-          type: string
-          enum:
-          - ANNUAL
-          - SEMI_ANNUAL
-          - QUARTERLY
-          - MONTHLY
-          - BIWEEKLY
-          - WEEKLY
-          - DAILY
-        basis:
-          description: Specifies how to interpret the from and through properties for each entry.
-          type: string
-          enum:
-          - AGE
-          - DURATION
-        sequence:
-          description: Collection of entries describing the changes in value over time
-          type: array
-          items:
-            $ref: '#/components/schemas/Scheduled-Entry'
-          minItems: 1
-      required:
-      - sequence
     Fund-Collection:
       title: Fund-Collection
       description: An unkeyed collection of funds
       type: array
       items:
         $ref: '#/components/schemas/Fund'
-    Active-Segment:
-      title: Active-Segment
-      type: object
-      description: A segment of a source of money that has some form of financial activity
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-        financialActivity:
-          $ref: '#/components/schemas/Financial-Activity'
-      required:
-      - attributes
-    Output-Status:
-      type: object
-      properties:
-        format:
-          $ref: '#/components/schemas/Output-Format'
-        status:
-          type: string
-          enum:
-          - PENDING
-          - COMPLETE
-          - ERROR
-    Participant:
-      title: Participant (v3)
-      description: An entity with a stake in a policy
+    Account-Value:
+      title: Account-Value
+      description: A description of the monetary value of an investment contract
       type: object
       properties:
         attributes:
           $ref: '#/components/schemas/Attribute-Collection'
-        flatExtra:
-          $ref: '#/components/schemas/Multiple-Basic-Collections'
+        policyMetrics:
+          $ref: '#/components/schemas/Basic-Collection'
+        loan:
+          $ref: '#/components/schemas/Basic-Collection'
+        withdrawal:
+          $ref: '#/components/schemas/Basic-Collection'
       required:
       - attributes
-      - flatExtra
-    Basic-Collection:
-      title: Basic Collection
-      description: A simple object that only contains a collection of unique attributes and no further structure.
-      type: object
-      properties:
-        attributes:
-          $ref: '#/components/schemas/Attribute-Collection'
-      required:
-      - attributes
-    Participant-Collection:
-      title: Participant-Collection
-      description: An unkeyed collection of unique participant objects
-      type: array
-      items:
-        $ref: '#/components/schemas/Participant'
-      uniqueItems: true
-    Parties:
-      title: Parties
-      description: An unkeyed collection of unique Party objects
-      type: array
-      items:
-        $ref: '#/components/schemas/Party'
-      uniqueItems: true
-    Attribute-Collection:
-      title: Attribute Collection
-      description: A collection of uniquely named variables, must be camel-cased.
-      type: object
-      properties:
-        ^[a-z][a-zA-Z0-9]+:
-          $ref: '#/components/schemas/Variable-Value'
-    Variable-Value:
-      title: Variable Value
-      description: the value of a variable, may be constant or time-dependent
-      oneOf:
-      - type: string
-      - $ref: '#/components/schemas/Schedule'
-    Arrangements:
-      title: Arrangements
-      description: An unkeyed collection of arrangement objects
-      type: array
-      items:
-        $ref: '#/components/schemas/Arrangement'
-    Result:
-      title: Result
-      description: The output from a cmputation, which may vary with time
-      type: array
-      items:
-        type: string
+      - policyMetrics
+      - loan
+      - withdrawal
     Party:
       title: Party
       description: A unique entity
@@ -517,18 +463,60 @@ components:
       - person
       - organization
       - trust
-    Multiple-Basic-Collections:
-      title: Multiple-Basic-Collections
-      type: array
-      items:
-        $ref: '#/components/schemas/Basic-Collection'
-    Scenario-Results:
-      title: Scenario-Results
-      description: A grouping of uniquely identifiable results, typically produced under a common set of assumptions
+    Arrangement-Source:
+      title: Arrangement-Source
+      type: object
+      description: A source of funding for an arrangement
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Active-Segment'
+      required:
+      - attributes
+      - segments
+    Multiple-Scenario-Results:
+      title: Multiple-Scenario-Results
+      description: A grouping of uniquely identifiable scenarios containing their results
+      type: object
+      properties: {}
+      additionalProperties:
+        $ref: '#/components/schemas/Scenario-Results'
+    Coverage:
+      title: Coverage (v3)
+      description: A benefit conferred to a group of one or more participants
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        participants:
+          $ref: '#/components/schemas/Participant-Collection'
+        fees:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+      required:
+      - attributes
+      - participants
+      - fees
+    Output-Status:
+      type: object
+      properties:
+        format:
+          $ref: '#/components/schemas/Output-Format'
+        status:
+          type: string
+          enum:
+          - PENDING
+          - COMPLETE
+          - ERROR
+    Attribute-Collection:
+      title: Attribute Collection
+      description: A collection of uniquely named variables, must be camel-cased.
       type: object
       properties:
         ^[a-z][a-zA-Z0-9]+:
-          $ref: '#/components/schemas/Result'
+          $ref: '#/components/schemas/Variable-Value'
     Calculation-Illustration:
       title: Core Calculation - Single Illustration
       description: Describes the payload required for calculation of a single transaction
@@ -582,6 +570,18 @@ components:
       required:
       - calculationType
       - illustrationType
+    Participant:
+      title: Participant (v3)
+      description: An entity with a stake in a policy
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/Attribute-Collection'
+        flatExtra:
+          $ref: '#/components/schemas/Multiple-Basic-Collections'
+      required:
+      - attributes
+      - flatExtra
   securitySchemes:
     Auth0:
       type: openIdConnect

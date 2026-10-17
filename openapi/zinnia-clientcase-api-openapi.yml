@@ -423,6 +423,29 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    UnderwritingClass:
+      enum:
+      - ULTRANONTOBACCO
+      - ELITENONTOBACCO
+      - PREFERREDNONTOBACCO
+      - STANDARDNONTOBACCO
+      - STANDARDTOBACCO
+      - STANDARDAGGREGATE
+      - SUBSTANDARDNONTOBACCO
+      - SUBSTANDARDTOBACCO
+      - STANDARDPLUSNONTOBACCO
+      - PREFERREDTOBACCO
+      - STANDARDCONVERSIONNONTOBACCO
+      - STANDARDCONVERSIONTOBACCO
+      - STANDARDPLUSBLEND
+      - STANDARDPLUSTOBACCO
+      - STANDARDBLEND
+      - SUBSTANDARDBLEND
+      - PREFERREDSELECTNONTOBACCO
+      - PREFERREDSELECTBLEND
+      - PREFERREDSELECTTOBACCO
+      - PREFERREDBLEND
+      type: string
     InsuredDetailsCreationInputDto:
       required:
       - dateOfBirth
@@ -489,105 +512,85 @@ components:
           - string
           - 'null'
       additionalProperties: false
-    InsuredDetailsUpdateInputDto:
-      type: object
-      properties:
-        firstName:
-          type:
-          - string
-          - 'null'
-        lastName:
-          type:
-          - string
-          - 'null'
-        sexAtBirth:
-          $ref: '#/components/schemas/SexAtBirth'
-        dateOfBirth:
-          type:
-          - string
-          - 'null'
-          format: date-time
-        nicotineUser:
-          type:
-          - boolean
-          - 'null'
-        state:
-          type:
-          - string
-          - 'null'
-        illustrateAtOlderAge:
-          type:
-          - boolean
-          - 'null'
-        issueAge:
-          type:
-          - integer
-          - 'null'
-          format: int32
-        riskClass:
-          $ref: '#/components/schemas/UnderwritingClass'
-      additionalProperties: false
-    IllustrationStatus:
+    ProductType:
       enum:
-      - SUBMITTED
-      - ARCHIVED
-      - EXPIRED
-      - ACTIVE
-      - SELECTED
+      - TERM
+      - UNIVERSAL_LIFE
+      - INDEX_UNIVERSAL_LIFE
       type: string
-    Illustration:
+    ClientCaseCreationInputDto:
+      required:
+      - agencyId
+      - agentDetails
+      - insuredDetails
+      - title
       type: object
       properties:
-        id:
+        agencyId:
+          minLength: 1
           type: string
-          format: uuid
-        productType:
-          $ref: '#/components/schemas/ProductType'
-        productId:
+        agencyCarrierCode:
           type:
           - string
           - 'null'
-        carrierCode:
-          type:
-          - string
-          - 'null'
-        status:
-          $ref: '#/components/schemas/IllustrationStatus'
+          readOnly: true
         title:
-          type:
-          - string
-          - 'null'
-        inputs:
-          type:
-          - string
-          - 'null'
-        dateAdded:
+          minLength: 1
           type: string
-          format: date-time
+        caseManagementCaseId:
+          type:
+          - string
+          - 'null'
+        eAppId:
+          type:
+          - string
+          - 'null'
+        planCode:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        allowAgentEdit:
+          type: boolean
+        agentDetails:
+          $ref: '#/components/schemas/AgentDetailsCreationInputDto'
+        insuredDetails:
+          $ref: '#/components/schemas/InsuredDetailsCreationInputDto'
+        transactionType:
+          $ref: '#/components/schemas/TransactionType'
+        isMec:
+          type: boolean
+        originalFaceAmount:
+          type:
+          - number
+          - 'null'
+          format: double
+        creatorName:
+          type:
+          - string
+          - 'null'
       additionalProperties: false
-    AgentDetailsUpdateInputDto:
+    ClientCaseSummaryDtoResultsPage:
       type: object
       properties:
-        sellingCode:
+        count:
+          type: integer
+          format: int64
+        next:
           type:
           - string
           - 'null'
-        npn:
+        previous:
           type:
           - string
           - 'null'
-        email:
+        results:
           type:
-          - string
+          - array
           - 'null'
-        firstName:
-          type:
-          - string
-          - 'null'
-        lastName:
-          type:
-          - string
-          - 'null'
+          items:
+            $ref: '#/components/schemas/ClientCaseSummaryDto'
       additionalProperties: false
     ClientCaseUpdateInputDto:
       type: object
@@ -617,45 +620,6 @@ components:
           $ref: '#/components/schemas/AgentDetailsUpdateInputDto'
         insuredDetails:
           $ref: '#/components/schemas/InsuredDetailsUpdateInputDto'
-      additionalProperties: false
-    TransactionType:
-      enum:
-      - REPLACEMENT
-      - NONREPLACEMENT
-      - CONVERSION
-      type: string
-    ClientCaseSortField:
-      enum:
-      - Title
-      - AgentFirstName
-      - AgentLastName
-      - InsuredFirstName
-      - InsuredLastName
-      - LastModified
-      type: string
-    AgentDetails:
-      type: object
-      properties:
-        sellingCode:
-          type:
-          - string
-          - 'null'
-        npn:
-          type:
-          - string
-          - 'null'
-        email:
-          type:
-          - string
-          - 'null'
-        firstName:
-          type:
-          - string
-          - 'null'
-        lastName:
-          type:
-          - string
-          - 'null'
       additionalProperties: false
     ClientCaseDto:
       type: object
@@ -734,34 +698,6 @@ components:
           - string
           - 'null'
       additionalProperties: false
-    UnderwritingClass:
-      enum:
-      - ULTRANONTOBACCO
-      - ELITENONTOBACCO
-      - PREFERREDNONTOBACCO
-      - STANDARDNONTOBACCO
-      - STANDARDTOBACCO
-      - STANDARDAGGREGATE
-      - SUBSTANDARDNONTOBACCO
-      - SUBSTANDARDTOBACCO
-      - STANDARDPLUSNONTOBACCO
-      - PREFERREDTOBACCO
-      - STANDARDCONVERSIONNONTOBACCO
-      - STANDARDCONVERSIONTOBACCO
-      - STANDARDPLUSBLEND
-      - STANDARDPLUSTOBACCO
-      - STANDARDBLEND
-      - SUBSTANDARDBLEND
-      - PREFERREDSELECTNONTOBACCO
-      - PREFERREDSELECTBLEND
-      - PREFERREDSELECTTOBACCO
-      - PREFERREDBLEND
-      type: string
-    SexAtBirth:
-      enum:
-      - MALE
-      - FEMALE
-      type: string
     AgentDetailsCreationInputDto:
       required:
       - sellingCode
@@ -787,101 +723,26 @@ components:
           - string
           - 'null'
       additionalProperties: false
-    ProductType:
-      enum:
-      - TERM
-      - UNIVERSAL_LIFE
-      - INDEX_UNIVERSAL_LIFE
-      type: string
-    InsuredDetailsDto:
+    AgentDetailsUpdateInputDto:
       type: object
       properties:
+        sellingCode:
+          type:
+          - string
+          - 'null'
+        npn:
+          type:
+          - string
+          - 'null'
+        email:
+          type:
+          - string
+          - 'null'
         firstName:
           type:
           - string
           - 'null'
         lastName:
-          type:
-          - string
-          - 'null'
-        sexAtBirth:
-          $ref: '#/components/schemas/SexAtBirth'
-        dateOfBirth:
-          type: string
-          format: date-time
-        nicotineUser:
-          type: boolean
-        state:
-          type:
-          - string
-          - 'null'
-        illustrateAtOlderAge:
-          type:
-          - boolean
-          - 'null'
-        issueAge:
-          type:
-          - integer
-          - 'null'
-          format: int32
-        underwritingClass:
-          $ref: '#/components/schemas/UnderwritingClass'
-        underwritingClassCode:
-          type:
-          - integer
-          - 'null'
-          format: int32
-          readOnly: true
-      additionalProperties: false
-    ClientCaseCreationInputDto:
-      required:
-      - agencyId
-      - agentDetails
-      - insuredDetails
-      - title
-      type: object
-      properties:
-        agencyId:
-          minLength: 1
-          type: string
-        agencyCarrierCode:
-          type:
-          - string
-          - 'null'
-          readOnly: true
-        title:
-          minLength: 1
-          type: string
-        caseManagementCaseId:
-          type:
-          - string
-          - 'null'
-        eAppId:
-          type:
-          - string
-          - 'null'
-        planCode:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        allowAgentEdit:
-          type: boolean
-        agentDetails:
-          $ref: '#/components/schemas/AgentDetailsCreationInputDto'
-        insuredDetails:
-          $ref: '#/components/schemas/InsuredDetailsCreationInputDto'
-        transactionType:
-          $ref: '#/components/schemas/TransactionType'
-        isMec:
-          type: boolean
-        originalFaceAmount:
-          type:
-          - number
-          - 'null'
-          format: double
-        creatorName:
           type:
           - string
           - 'null'
@@ -943,31 +804,170 @@ components:
           - string
           - 'null'
       additionalProperties: false
-    ClientCaseSummaryDtoResultsPage:
+    ClientCaseSortField:
+      enum:
+      - Title
+      - AgentFirstName
+      - AgentLastName
+      - InsuredFirstName
+      - InsuredLastName
+      - LastModified
+      type: string
+    InsuredDetailsDto:
       type: object
       properties:
-        count:
-          type: integer
-          format: int64
-        next:
+        firstName:
           type:
           - string
           - 'null'
-        previous:
+        lastName:
           type:
           - string
           - 'null'
-        results:
+        sexAtBirth:
+          $ref: '#/components/schemas/SexAtBirth'
+        dateOfBirth:
+          type: string
+          format: date-time
+        nicotineUser:
+          type: boolean
+        state:
           type:
-          - array
+          - string
           - 'null'
-          items:
-            $ref: '#/components/schemas/ClientCaseSummaryDto'
+        illustrateAtOlderAge:
+          type:
+          - boolean
+          - 'null'
+        issueAge:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        underwritingClass:
+          $ref: '#/components/schemas/UnderwritingClass'
+        underwritingClassCode:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          readOnly: true
       additionalProperties: false
     SortDirection:
       enum:
       - Ascending
       - Descending
+      type: string
+    SexAtBirth:
+      enum:
+      - MALE
+      - FEMALE
+      type: string
+    Illustration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        productType:
+          $ref: '#/components/schemas/ProductType'
+        productId:
+          type:
+          - string
+          - 'null'
+        carrierCode:
+          type:
+          - string
+          - 'null'
+        status:
+          $ref: '#/components/schemas/IllustrationStatus'
+        title:
+          type:
+          - string
+          - 'null'
+        inputs:
+          type:
+          - string
+          - 'null'
+        dateAdded:
+          type: string
+          format: date-time
+      additionalProperties: false
+    IllustrationStatus:
+      enum:
+      - SUBMITTED
+      - ARCHIVED
+      - EXPIRED
+      - ACTIVE
+      - SELECTED
+      type: string
+    AgentDetails:
+      type: object
+      properties:
+        sellingCode:
+          type:
+          - string
+          - 'null'
+        npn:
+          type:
+          - string
+          - 'null'
+        email:
+          type:
+          - string
+          - 'null'
+        firstName:
+          type:
+          - string
+          - 'null'
+        lastName:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    InsuredDetailsUpdateInputDto:
+      type: object
+      properties:
+        firstName:
+          type:
+          - string
+          - 'null'
+        lastName:
+          type:
+          - string
+          - 'null'
+        sexAtBirth:
+          $ref: '#/components/schemas/SexAtBirth'
+        dateOfBirth:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        nicotineUser:
+          type:
+          - boolean
+          - 'null'
+        state:
+          type:
+          - string
+          - 'null'
+        illustrateAtOlderAge:
+          type:
+          - boolean
+          - 'null'
+        issueAge:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        riskClass:
+          $ref: '#/components/schemas/UnderwritingClass'
+      additionalProperties: false
+    TransactionType:
+      enum:
+      - REPLACEMENT
+      - NONREPLACEMENT
+      - CONVERSION
       type: string
   securitySchemes:
     Auth0:
